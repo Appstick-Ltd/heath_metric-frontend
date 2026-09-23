@@ -17,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta name="referrer" content="no-referrer" />
         {/* Prevent flash of wrong theme: must run synchronously before any paint */}
         <script
           dangerouslySetInnerHTML={{

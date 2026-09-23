@@ -204,6 +204,21 @@ export class DataService {
     return (data || []) as Profile[];
   }
 
+  public static async getCurrentProfile(): Promise<Profile | null> {
+    const supabase = this.getClient();
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error || !data) {
+      return null;
+    }
+    return data as Profile;
+  }
+
   public static async getProfileDetails(userId: string): Promise<{
     profile: Profile | undefined;
     familyMembers: FamilyMember[];

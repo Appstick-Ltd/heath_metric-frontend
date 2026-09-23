@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { DataService } from "@/lib/data-service";
 import { Profile, FamilyMember, BloodSugarRecord, BloodPressureRecord, WeightRecord, Subscription } from "@/types/database";
-import { formatDate } from "@/lib/utils";
+import { formatDate, getAvatarUrl } from "@/lib/utils";
 
 function UserAvatar({
   name,
@@ -56,7 +56,8 @@ function UserAvatar({
     .join("")
     .toUpperCase() || "U";
 
-  const hasValidPhoto = Boolean(photoUrl && photoUrl.trim().length > 0 && !imgError);
+  const avatarSrc = getAvatarUrl(photoUrl);
+  const hasValidPhoto = Boolean(avatarSrc && avatarSrc.length > 0 && !imgError);
 
   if (hasValidPhoto) {
     return (
@@ -64,8 +65,10 @@ function UserAvatar({
         className={`relative ${sizeClasses} rounded-full p-[2px] bg-gradient-to-tr from-teal-500 to-sky-500 shadow-sm shrink-0 ${className}`}
       >
         <img
-          src={photoUrl!.trim()}
+          src={avatarSrc}
           alt={name || "User"}
+          referrerPolicy="no-referrer"
+          crossOrigin="anonymous"
           className="h-full w-full rounded-full object-cover bg-white dark:bg-slate-800"
           onError={() => setImgError(true)}
         />

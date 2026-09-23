@@ -4,7 +4,8 @@ import * as React from "react";
 import { Bell, Search, Database, CheckCircle2, X, AlertTriangle, Info, RefreshCw } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { DataService } from "@/lib/data-service";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, getAvatarUrl } from "@/lib/utils";
+import { Profile } from "@/types/database";
 
 type Notification = {
   id: string;
@@ -17,11 +18,22 @@ type Notification = {
 };
 
 export function Header() {
+  const [profile, setProfile] = React.useState<Profile | null>(null);
+  const [imgError, setImgError] = React.useState(false);
   const [notificationsOpen, setNotificationsOpen] = React.useState(false);
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const [notifLoading, setNotifLoading] = React.useState(false);
   const [readIds, setReadIds] = React.useState<Set<string>>(new Set());
   const panelRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    DataService.getCurrentProfile().then((p) => {
+      if (p) {
+        setProfile(p);
+        setImgError(false);
+      }
+    });
+  }, []);
 
   const unreadCount = notifications.filter((n) => !readIds.has(n.id)).length;
 
@@ -210,6 +222,40 @@ export function Header() {
         <div className="hidden sm:flex items-center gap-1.5 pl-2 border-l border-slate-200 dark:border-slate-800 text-xs font-medium text-emerald-600 dark:text-emerald-400">
           <CheckCircle2 className="h-4 w-4" />
           <span>Healthy</span>
+        </div>
+
+        {/* User Profile Avatar with Luxury Gradient Ring */}
+        <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200 dark:border-slate-800">
+          {(() => {
+            const avatarSrc = getAvatarUrl(profile?.photo_url || profile?.avatar_url);
+            if (avatarSrc && !imgError) {
+              return (
+                <div className="relative h-9 w-9 rounded-full p-[2px] bg-gradient-to-tr from-teal-500 to-sky-500 shadow-sm shrink-0">
+                  <img
+                    src={avatarSrc}
+                    alt={profile?.name || "User"}
+                    referrerPolicy="no-referrer"
+                    crossOrigin="anonymous"
+                    onError={() => setImgError(true)}
+                    className="h-full w-full rounded-full object-cover bg-white dark:bg-slate-800"
+                  />
+                </div>
+              );
+            }
+            return (
+              <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-emerald-100 to-teal-100 dark:from-emerald-950/70 dark:to-teal-950/70 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-xs shrink-0 border border-emerald-500/20">
+                {profile?.name ? profile.name.slice(0, 2).toUpperCase() : "MK"}
+              </div>
+            );
+          })()}
+          <div className="hidden xl:block text-left">
+            <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-tight truncate max-w-[130px]">
+              {profile?.name || "MD Mahfujul Karim"}
+            </p>
+            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+              Administrator
+            </p>
+          </div>
         </div>
       </div>
     </header>

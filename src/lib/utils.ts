@@ -42,3 +42,24 @@ export function formatDateTime(dateString: string | null | undefined): string {
     return dateString;
   }
 }
+
+/**
+ * Returns a safe URL for user avatars. If the URL points to Google's CDN or an external
+ * provider that blocks localhost/domain referrers with HTTP 429/403, it routes through
+ * our internal `/api/avatar?url=...` proxy.
+ */
+export function getAvatarUrl(url?: string | null): string {
+  if (!url || typeof url !== 'string' || !url.trim()) return '';
+  const clean = url.trim();
+  if (clean.startsWith('/') || clean.startsWith('data:')) return clean;
+
+  if (
+    clean.includes('googleusercontent.com') ||
+    clean.includes('google.com') ||
+    clean.includes('ggpht.com')
+  ) {
+    return `/api/avatar?url=${encodeURIComponent(clean)}`;
+  }
+  return clean;
+}
+
