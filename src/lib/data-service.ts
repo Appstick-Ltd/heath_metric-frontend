@@ -594,4 +594,164 @@ export class DataService {
       return true;
     }
   }
+
+  // ==========================================
+  // 10. DELETE USER & ALL RELATED DATA
+  // ==========================================
+  public static async deleteUserAllData(userId: string): Promise<{ success: boolean; error?: string }> {
+    const supabase = this.getClient();
+
+    // Delete all related data in dependency order (child tables first)
+    const tablesToClean: string[] = [
+      'blood_sugar_records',
+      'blood_pressure_records',
+      'weight_records',
+      'symptom_records',
+      'meal_logs',
+      'medicine_reminders',
+      'family_members',
+      'referrals',
+      'subscriptions',
+    ];
+
+    for (const table of tablesToClean) {
+      try {
+        await supabase.from(table as any).delete().eq('user_id', userId);
+      } catch {
+        // Non-critical: table may not exist yet, continue
+      }
+    }
+
+    // Finally delete the profile row itself
+    const { error } = await supabase.from('profiles').delete().eq('id', userId);
+
+    if (error) {
+      return { success: false, error: error.message };
+    }
+
+    // Log admin action
+    await this.logAdminAction(
+      'Dr. Shahriar',
+      'Super Admin',
+      `Hard-deleted all data for user ${userId}`,
+      userId,
+      'critical'
+    );
+
+    return { success: true };
+  }
+
+  // ==========================================
+  // 11. REAL-TIME NOTIFICATIONS FROM DB
+  // ==========================================
+  public static async getRecentNotifications(): Promise<Array<{
+    id: string;
+    type: 'critical_vital' | 'new_user' | 'subscription' | 'referral';
+    title: string;
+    description: string;
+    timestamp: string;
+    severity: 'critical' | 'warning' | 'info';
+    read: boolean;
+  }>> {
+    const supabase = this.getClient();
+    const notifications: Array<{
+      id: string;
+      type: 'critical_vital' | 'new_user' | 'subscription' | 'referral';
+      title: string;
+      description: string;
+      timestamp: string;
+      severity: 'critical' | 'warning' | 'info';
+      read: boolean;
+    }> = [];
+
+    try {
+      const [sugarRes, bpRes, profileRes, subRes] = await Promise.all([
+        supabase
+          .from('blood_sugar_records')
+          .select('id, user_id, value, reading_type, timestamp')
+          .or('value.gte.200,value.lt.70')
+          .order('timestamp', { ascending: false })
+          .limit(5),
+        supabase
+          .from('blood_pressure_records')
+          .select('id, user_id, systolic, diastolic, timestamp')
+          .gte('systolic', 140)
+          .order('timestamp', { ascending: false })
+          .limit(5),
+        supabase
+          .from('profiles')
+          .select('id, name, created_at')
+          .order('created_at', { ascending: false })
+          .limit(3),
+        supabase
+          .from('subscriptions')
+          .select('id, user_id, plan_type, status, created_at')
+          .neq('plan_type', 'free')
+          .order('created_at', { ascending: false })
+          .limit(3),
+      ]);
+
+      // Critical sugar readings
+      (sugarRes.data || []).forEach((s) => {
+        const isLow = Number(s.value) < 70;
+        notifications.push({
+          id: `sugar-${s.id}`,
+          type: 'critical_vital',
+          title: isLow ? `⚠️ Low Glucose: ${s.value} mg/dL` : `🚨 High Glucose: ${s.value} mg/dL`,
+          description: `User ${s.user_id?.slice(0, 8)}... — ${s.reading_type} reading`,
+          timestamp: s.timestamp,
+          severity: 'critical',
+          read: false,
+        });
+      });
+
+      // Hypertension spikes
+      (bpRes.data || []).forEach((bp) => {
+        notifications.push({
+          id: `bp-${bp.id}`,
+          type: 'critical_vital',
+          title: `🩺 Hypertension: ${bp.systolic}/${bp.diastolic} mmHg`,
+          description: `User ${bp.user_id?.slice(0, 8)}... exceeded safe threshold`,
+          timestamp: bp.timestamp,
+          severity: 'warning',
+          read: false,
+        });
+      });
+
+      // New user signups
+      (profileRes.data || []).forEach((p) => {
+        notifications.push({
+          id: `user-${p.id}`,
+          type: 'new_user',
+          title: `👤 New User: ${p.name || 'Unnamed Patient'}`,
+          description: 'Registered and profile created in database',
+          timestamp: p.created_at,
+          severity: 'info',
+          read: false,
+        });
+      });
+
+      // New pro subscriptions
+      (subRes.data || []).forEach((s) => {
+        notifications.push({
+          id: `sub-${s.id}`,
+          type: 'subscription',
+          title: `💳 New ${s.plan_type?.toUpperCase()} Subscription`,
+          description: `Status: ${s.status} — Revenue event logged`,
+          timestamp: s.created_at,
+          severity: 'info',
+          read: false,
+        });
+      });
+
+    } catch {
+      // Silently return empty if DB unreachable
+    }
+
+    // Sort by most recent
+    return notifications.sort(
+      (a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime()
+    );
+  }
 }
+

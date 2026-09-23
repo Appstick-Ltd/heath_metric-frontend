@@ -12,6 +12,9 @@ import {
   Users,
   Inbox,
   RefreshCw,
+  Trash2,
+  AlertTriangle,
+  CheckCircle2,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,6 +40,13 @@ export default function UsersPage() {
   } | null>(null);
   const [isDetailOpen, setIsDetailOpen] = React.useState(false);
   const [isUpgradeOpen, setIsUpgradeOpen] = React.useState(false);
+
+  // Delete state
+  const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
+  const [deleteUser, setDeleteUser] = React.useState<Profile | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = React.useState("");
+  const [isDeleting, setIsDeleting] = React.useState(false);
+  const [deleteResult, setDeleteResult] = React.useState<{ success: boolean; message: string } | null>(null);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -64,6 +74,45 @@ export default function UsersPage() {
   const openUpgradeModal = (user: Profile) => {
     setSelectedUser(user);
     setIsUpgradeOpen(true);
+  };
+
+  const openDeleteModal = (user: Profile) => {
+    setDeleteUser(user);
+    setDeleteConfirmText("");
+    setDeleteResult(null);
+    setIsDeleteOpen(true);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!deleteUser) return;
+    const expectedText = deleteUser.name || deleteUser.id;
+    if (deleteConfirmText.trim() !== expectedText) {
+      setDeleteResult({ success: false, message: `Please type exactly: "${expectedText}"` });
+      return;
+    }
+
+    setIsDeleting(true);
+    setDeleteResult(null);
+
+    try {
+      const result = await DataService.deleteUserAllData(deleteUser.id);
+      if (result.success) {
+        setDeleteResult({ success: true, message: "User and all related data deleted successfully." });
+        // Remove from local state immediately
+        setUsers((prev) => prev.filter((u) => u.id !== deleteUser.id));
+        setTimeout(() => {
+          setIsDeleteOpen(false);
+          setDeleteUser(null);
+          setDeleteResult(null);
+        }, 2000);
+      } else {
+        setDeleteResult({ success: false, message: result.error || "Failed to delete user. Check RLS policies." });
+      }
+    } catch (e: any) {
+      setDeleteResult({ success: false, message: e?.message || "Unexpected error occurred." });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const filteredUsers = users.filter((u) => {
@@ -259,6 +308,15 @@ export default function UsersPage() {
                           >
                             <CreditCard className="h-3.5 w-3.5 text-emerald-600" />
                           </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => openDeleteModal(user)}
+                            title="Delete User & All Data"
+                            className="text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -364,6 +422,50 @@ export default function UsersPage() {
                 </div>
               )}
             </div>
+
+            {/* BP Records */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Activity className="h-4 w-4 text-sky-500" />
+                <h4 className="font-semibold text-slate-900 dark:text-slate-100">
+                  Recent Blood Pressure Readings
+                </h4>
+              </div>
+              {userDetails.bpRecords.length === 0 ? (
+                <p className="text-slate-400 italic">No BP records in database yet.</p>
+              ) : (
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+                  {userDetails.bpRecords.map((bp) => (
+                    <div key={bp.id} className="p-2.5 flex items-center justify-between">
+                      <div>
+                        <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                          {bp.systolic}/{bp.diastolic} mmHg
+                        </span>
+                        {bp.pulse && (
+                          <span className="ml-2 text-slate-400">Pulse: {bp.pulse} bpm</span>
+                        )}
+                      </div>
+                      <span className="text-[11px] text-slate-400">{formatDate(bp.timestamp)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Subscription Info */}
+            {userDetails.subscription && (
+              <div className="p-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/20 flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-emerald-800 dark:text-emerald-300">
+                    Active Subscription
+                  </p>
+                  <p className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-0.5">
+                    {userDetails.subscription.plan_type?.toUpperCase()} — {userDetails.subscription.status}
+                  </p>
+                </div>
+                <Badge variant="success">{userDetails.subscription.price_paid || "Paid"}</Badge>
+              </div>
+            )}
           </div>
         </Modal>
       )}
@@ -408,6 +510,118 @@ export default function UsersPage() {
                   <span className="text-xs text-emerald-600 font-semibold">Assign &rarr;</span>
                 </button>
               ))}
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* ===== DELETE USER CONFIRMATION MODAL ===== */}
+      {deleteUser && (
+        <Modal
+          isOpen={isDeleteOpen}
+          onClose={() => {
+            if (!isDeleting) {
+              setIsDeleteOpen(false);
+              setDeleteUser(null);
+              setDeleteResult(null);
+            }
+          }}
+          title="Permanently Delete User"
+          description={`This will irreversibly remove ${deleteUser.name || "this user"} and ALL their data from Supabase.`}
+          maxWidth="md"
+        >
+          <div className="space-y-4 text-xs">
+            {/* Warning Box */}
+            <div className="flex items-start gap-3 p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800">
+              <AlertTriangle className="h-5 w-5 text-rose-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-rose-800 dark:text-rose-300 text-sm">Destructive Action — Cannot Be Undone</p>
+                <p className="text-rose-700 dark:text-rose-400 mt-1 leading-relaxed">
+                  The following data will be permanently erased from all Supabase tables:
+                </p>
+                <ul className="mt-2 space-y-0.5 text-rose-600 dark:text-rose-400 list-disc list-inside">
+                  <li>Profile, family members, subscriptions</li>
+                  <li>All blood sugar, blood pressure, weight records</li>
+                  <li>Meal logs, medicine reminders, symptom records</li>
+                  <li>Referral history</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* User Info */}
+            <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center font-bold text-sm shrink-0">
+                {(deleteUser.name || "U").slice(0, 2).toUpperCase()}
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900 dark:text-slate-100">{deleteUser.name || "Unnamed User"}</p>
+                <p className="text-[11px] text-slate-400 font-mono mt-0.5">{deleteUser.id}</p>
+              </div>
+            </div>
+
+            {/* Confirmation Input */}
+            <div className="space-y-1.5">
+              <label className="font-semibold text-slate-700 dark:text-slate-300">
+                Type <span className="text-rose-600 font-mono">{deleteUser.name || deleteUser.id}</span> to confirm:
+              </label>
+              <Input
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder={deleteUser.name || deleteUser.id}
+                className="border-rose-200 dark:border-rose-800 focus:ring-rose-500"
+                disabled={isDeleting}
+              />
+            </div>
+
+            {/* Result Feedback */}
+            {deleteResult && (
+              <div className={`flex items-start gap-2 p-3 rounded-xl border text-xs ${
+                deleteResult.success
+                  ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800"
+                  : "bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800"
+              }`}>
+                {deleteResult.success
+                  ? <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                  : <AlertTriangle className="h-4 w-4 text-rose-600 shrink-0" />
+                }
+                <p className={deleteResult.success ? "text-emerald-800 dark:text-emerald-300" : "text-rose-700 dark:text-rose-400"}>
+                  {deleteResult.message}
+                </p>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-2 pt-1">
+              <button
+                onClick={() => {
+                  if (!isDeleting) {
+                    setIsDeleteOpen(false);
+                    setDeleteUser(null);
+                    setDeleteResult(null);
+                  }
+                }}
+                disabled={isDeleting}
+                className="flex-1 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteUser}
+                disabled={isDeleting || deleteConfirmText.trim() !== (deleteUser.name || deleteUser.id)}
+                className="flex-1 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:bg-rose-300 dark:disabled:bg-rose-900 text-white font-semibold transition-colors flex items-center justify-center gap-2"
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="h-3.5 w-3.5 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Delete Permanently
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </Modal>

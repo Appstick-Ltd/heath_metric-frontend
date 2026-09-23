@@ -4,7 +4,6 @@ import * as React from "react";
 import {
   HeartPulse,
   Activity,
-  FileSpreadsheet,
   RefreshCw,
   Inbox,
 } from "lucide-react";
@@ -17,13 +16,39 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
+  TooltipProps,
 } from "recharts";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DataService } from "@/lib/data-service";
 import { VitalDistributionData } from "@/types/dashboard";
+import { useIsDark } from "@/lib/use-theme";
+
+function makeChartTooltip(isDark: boolean) {
+  // eslint-disable-next-line react/display-name
+  return function ChartTooltip(props: any) {
+    const { active, payload, label } = props;
+    if (!active || !payload || !payload.length) return null;
+    return (
+      <div className={`rounded-xl border px-3 py-2.5 text-xs shadow-xl ${isDark ? "bg-slate-900 border-slate-700 text-slate-100" : "bg-white border-slate-200 text-slate-800"}`}>
+        <p className="font-semibold mb-1 text-slate-400 text-[10px] truncate max-w-[180px]">{label}</p>
+        {payload.map((p: any, i: number) => (
+          <div key={i} className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: p.payload?.color || p.color }} />
+            <span className="font-bold">{p.value} records</span>
+            <span className={isDark ? "text-slate-400" : "text-slate-500"}>({p.payload?.percentage}%)</span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+}
 
 export default function HealthAnalyticsPage() {
+  const isDark = useIsDark();
+  const axisColor = isDark ? "#64748b" : "#94a3b8";
+  const gridColor = isDark ? "rgba(100,116,139,0.12)" : "rgba(148,163,184,0.18)";
+
   const [sugarData, setSugarData] = React.useState<VitalDistributionData[]>([]);
   const [bpData, setBpData] = React.useState<VitalDistributionData[]>([]);
   const [symptoms, setSymptoms] = React.useState<Array<{ region: string; count: number; avgVas: number }>>([]);
@@ -99,18 +124,10 @@ export default function HealthAnalyticsPage() {
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={sugarData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148, 163, 184, 0.15)" />
-                      <XAxis dataKey="category" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
-                      <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "rgba(15, 23, 42, 0.9)",
-                          borderColor: "rgba(51, 65, 85, 0.5)",
-                          borderRadius: "0.75rem",
-                          color: "#f8fafc",
-                          fontSize: "12px",
-                        }}
-                      />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
+                      <XAxis dataKey="category" stroke={axisColor} fontSize={10} tickLine={false} axisLine={false} tick={{ fill: axisColor }} />
+                      <YAxis stroke={axisColor} fontSize={11} tickLine={false} axisLine={false} tick={{ fill: axisColor }} />
+                      <Tooltip content={makeChartTooltip(isDark) as any} cursor={{ fill: isDark ? "rgba(100,116,139,0.08)" : "rgba(148,163,184,0.08)" }} />
                       <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                         {sugarData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
@@ -163,18 +180,10 @@ export default function HealthAnalyticsPage() {
                 <div className="h-64 w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={bpData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148, 163, 184, 0.15)" />
-                      <XAxis dataKey="category" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} />
-                      <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "rgba(15, 23, 42, 0.9)",
-                          borderColor: "rgba(51, 65, 85, 0.5)",
-                          borderRadius: "0.75rem",
-                          color: "#f8fafc",
-                          fontSize: "12px",
-                        }}
-                      />
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
+                      <XAxis dataKey="category" stroke={axisColor} fontSize={10} tickLine={false} axisLine={false} tick={{ fill: axisColor }} />
+                      <YAxis stroke={axisColor} fontSize={11} tickLine={false} axisLine={false} tick={{ fill: axisColor }} />
+                      <Tooltip content={makeChartTooltip(isDark) as any} cursor={{ fill: isDark ? "rgba(100,116,139,0.08)" : "rgba(148,163,184,0.08)" }} />
                       <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                         {bpData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
