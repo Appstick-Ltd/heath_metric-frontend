@@ -9,6 +9,8 @@ export interface Profile {
   conditions: string[];
   goals: string[];
   dietary_preference?: string | null;
+  photo_url?: string | null;
+  avatar_url?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -23,6 +25,7 @@ export interface FamilyMember {
   gender: string;
   blood_group: string;
   avatar_color_index: number;
+  photo_url?: string | null;
   conditions: string[];
   allergies: string[];
   emergency_phone?: string | null;

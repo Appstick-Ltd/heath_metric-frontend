@@ -25,6 +25,63 @@ import { DataService } from "@/lib/data-service";
 import { Profile, FamilyMember, BloodSugarRecord, BloodPressureRecord, WeightRecord, Subscription } from "@/types/database";
 import { formatDate } from "@/lib/utils";
 
+function UserAvatar({
+  name,
+  photoUrl,
+  size = "md",
+  className = "",
+}: {
+  name?: string;
+  photoUrl?: string | null;
+  size?: "sm" | "md" | "lg";
+  className?: string;
+}) {
+  const [imgError, setImgError] = React.useState(false);
+
+  React.useEffect(() => {
+    setImgError(false);
+  }, [photoUrl]);
+
+  const sizeClasses = {
+    sm: "h-8 w-8 text-[11px]",
+    md: "h-10 w-10 text-xs",
+    lg: "h-16 w-16 text-lg",
+  }[size];
+
+  const initials = (name || "U")
+    .trim()
+    .split(/\s+/)
+    .map((w) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "U";
+
+  const hasValidPhoto = Boolean(photoUrl && photoUrl.trim().length > 0 && !imgError);
+
+  if (hasValidPhoto) {
+    return (
+      <div
+        className={`relative ${sizeClasses} rounded-full p-[2px] bg-gradient-to-tr from-teal-500 to-sky-500 shadow-sm shrink-0 ${className}`}
+      >
+        <img
+          src={photoUrl!.trim()}
+          alt={name || "User"}
+          className="h-full w-full rounded-full object-cover bg-white dark:bg-slate-800"
+          onError={() => setImgError(true)}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`${sizeClasses} rounded-full bg-gradient-to-tr from-emerald-100 to-teal-100 dark:from-emerald-950/70 dark:to-teal-950/70 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold shrink-0 border border-emerald-500/20 shadow-xs ${className}`}
+    >
+      {initials}
+    </div>
+  );
+}
+
 export default function UsersPage() {
   const [users, setUsers] = React.useState<Profile[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -233,9 +290,11 @@ export default function UsersPage() {
                     >
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">
-                            {(user.name || "U").slice(0, 2).toUpperCase()}
-                          </div>
+                          <UserAvatar
+                            name={user.name}
+                            photoUrl={user.photo_url || user.avatar_url}
+                            size="md"
+                          />
                           <div>
                             <p className="font-semibold text-slate-900 dark:text-slate-100">
                               {user.name || "Unnamed User"}
@@ -338,6 +397,29 @@ export default function UsersPage() {
           maxWidth="2xl"
         >
           <div className="space-y-6 text-xs">
+            {/* Patient Identity & Avatar Banner */}
+            <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-teal-500/10 via-sky-500/5 to-transparent border border-teal-500/20">
+              <UserAvatar
+                name={selectedUser.name}
+                photoUrl={selectedUser.photo_url || selectedUser.avatar_url}
+                size="lg"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 truncate">
+                    {selectedUser.name || "Unnamed User"}
+                  </h3>
+                  <Badge variant="success">Active Patient</Badge>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">
+                  ID: {selectedUser.id}
+                </p>
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
+                  {selectedUser.gender || "N/A"}, {selectedUser.age || 0} yrs • Blood Group <strong className="text-slate-900 dark:text-white">{selectedUser.blood_group || "N/A"}</strong>
+                </p>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
               <div>
                 <span className="text-slate-400">Blood Group</span>
@@ -381,13 +463,20 @@ export default function UsersPage() {
                 <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
                   {userDetails.familyMembers.map((fam) => (
                     <div key={fam.id} className="p-3 flex items-center justify-between">
-                      <div>
-                        <p className="font-semibold text-slate-900 dark:text-slate-100">
-                          {fam.name} ({fam.relationship})
-                        </p>
-                        <p className="text-[11px] text-slate-400">
-                          {fam.gender}, {fam.age} yrs • Blood Group {fam.blood_group}
-                        </p>
+                      <div className="flex items-center gap-3">
+                        <UserAvatar
+                          name={fam.name}
+                          photoUrl={fam.photo_url}
+                          size="sm"
+                        />
+                        <div>
+                          <p className="font-semibold text-slate-900 dark:text-slate-100">
+                            {fam.name} ({fam.relationship})
+                          </p>
+                          <p className="text-[11px] text-slate-400">
+                            {fam.gender}, {fam.age} yrs • Blood Group {fam.blood_group}
+                          </p>
+                        </div>
                       </div>
                       <Badge variant="outline">{fam.relationship}</Badge>
                     </div>

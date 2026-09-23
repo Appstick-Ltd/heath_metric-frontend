@@ -125,6 +125,10 @@ ON CONFLICT (key) DO NOTHING;
 -- In production, the admin dashboard needs to read profiles, subscriptions, referrals, and vitals to display graphs and directory tables.
 -- Run these policies so dashboard queries succeed:
 
+-- Ensure photo_url columns exist on profiles and family_members
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS photo_url TEXT;
+ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS photo_url TEXT;
+
 DO $$ 
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow read access for admin dashboard on profiles') THEN
