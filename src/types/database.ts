@@ -36,6 +36,16 @@ export interface FamilyMember {
   created_at?: string;
 }
 
+export interface FamilyInvitation {
+  id: string;
+  inviter_id: string;
+  invitee_email: string;
+  role: string;
+  status: 'pending' | 'accepted' | 'declined' | 'revoked' | 'expired';
+  created_at: string;
+  expires_at: string;
+}
+
 export interface BloodSugarRecord {
   id: string;
   user_id: string;

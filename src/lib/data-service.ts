@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/client';
 import {
   Profile,
   FamilyMember,
+  FamilyInvitation,
   BloodSugarRecord,
   BloodPressureRecord,
   WeightRecord,
@@ -225,6 +226,7 @@ export class DataService {
   public static async getProfileDetails(userId: string): Promise<{
     profile: Profile | undefined;
     familyMembers: FamilyMember[];
+    familyInvitations: FamilyInvitation[];
     sugarRecords: BloodSugarRecord[];
     bpRecords: BloodPressureRecord[];
     weightRecords: WeightRecord[];
@@ -235,6 +237,7 @@ export class DataService {
     const [
       profileRes,
       familyRes,
+      invitationRes,
       sugarRes,
       bpRes,
       weightRes,
@@ -242,6 +245,7 @@ export class DataService {
     ] = await Promise.all([
       supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
       supabase.from('family_members').select('*').eq('user_id', userId),
+      supabase.from('family_invitations').select('id, inviter_id, invitee_email, role, status, created_at, expires_at').eq('inviter_id', userId).order('created_at', { ascending: false }),
       supabase.from('blood_sugar_records').select('*').eq('user_id', userId).order('timestamp', { ascending: false }).limit(10),
       supabase.from('blood_pressure_records').select('*').eq('user_id', userId).order('timestamp', { ascending: false }).limit(10),
       supabase.from('weight_records').select('*').eq('user_id', userId).order('timestamp', { ascending: false }).limit(10),
@@ -251,6 +255,7 @@ export class DataService {
     return {
       profile: (profileRes.data as Profile) || undefined,
       familyMembers: (familyRes.data as FamilyMember[]) || [],
+      familyInvitations: (invitationRes.data as FamilyInvitation[]) || [],
       sugarRecords: (sugarRes.data as BloodSugarRecord[]) || [],
       bpRecords: (bpRes.data as BloodPressureRecord[]) || [],
       weightRecords: (weightRes.data as WeightRecord[]) || [],

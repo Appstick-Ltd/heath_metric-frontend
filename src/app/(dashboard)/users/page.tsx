@@ -23,7 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { DataService } from "@/lib/data-service";
-import { Profile, FamilyMember, BloodSugarRecord, BloodPressureRecord, WeightRecord, Subscription } from "@/types/database";
+import { Profile, FamilyMember, FamilyInvitation, BloodSugarRecord, BloodPressureRecord, WeightRecord, Subscription } from "@/types/database";
 import { formatDate, formatDateTime, formatTimeAgo, getAvatarUrl } from "@/lib/utils";
 
 function UserAvatar({
@@ -94,6 +94,7 @@ export default function UsersPage() {
   const [selectedUser, setSelectedUser] = React.useState<Profile | null>(null);
   const [userDetails, setUserDetails] = React.useState<{
     familyMembers: FamilyMember[];
+    familyInvitations: FamilyInvitation[];
     sugarRecords: BloodSugarRecord[];
     bpRecords: BloodPressureRecord[];
     weightRecords: WeightRecord[];
@@ -503,9 +504,44 @@ export default function UsersPage() {
                           <p className="text-[11px] text-slate-400">
                             {fam.gender}, {fam.age} yrs • Blood Group {fam.blood_group}
                           </p>
+                          <p className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-0.5">
+                            Access: <span className="font-semibold">{fam.role || "Managed Dependent"}</span>
+                          </p>
                         </div>
                       </div>
-                      <Badge variant="outline">{fam.relationship}</Badge>
+                      <div className="flex flex-col items-end gap-1">
+                        <Badge variant="outline">{fam.relationship}</Badge>
+                        <Badge variant={fam.is_primary ? "info" : "outline"}>
+                          {fam.is_primary ? "Primary account" : fam.role || "Managed Dependent"}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Sugar Records */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Inbox className="h-4 w-4 text-sky-500" />
+                <h4 className="font-semibold text-slate-900 dark:text-slate-100">
+                  Email Invitations ({userDetails.familyInvitations.length})
+                </h4>
+              </div>
+              {userDetails.familyInvitations.length === 0 ? (
+                <p className="text-slate-400 italic">No email invitations sent from this account.</p>
+              ) : (
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+                  {userDetails.familyInvitations.map((invite) => (
+                    <div key={invite.id} className="p-3 flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">{invite.invitee_email}</p>
+                        <p className="text-[11px] text-slate-400">Account Manager access • Sent {formatDate(invite.created_at)}</p>
+                      </div>
+                      <Badge variant={invite.status === "accepted" ? "success" : invite.status === "pending" ? "warning" : "outline"}>
+                        {invite.status}
+                      </Badge>
                     </div>
                   ))}
                 </div>
