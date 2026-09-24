@@ -7,8 +7,6 @@ import {
   WeightRecord,
   Subscription,
   Referral,
-  CMSFoodItem,
-  MasterMedicinePreset,
   AuditLog
 } from '@/types/database';
 import {
@@ -18,9 +16,6 @@ import {
   ActivityEvent,
   VitalDistributionData
 } from '@/types/dashboard';
-
-import initialFoods from '@/data/cms_foods.json';
-import initialMedicines from '@/data/master_medicines.json';
 
 export class DataService {
   private static getClient() {
@@ -103,12 +98,20 @@ export class DataService {
         (p) => new Date(p.created_at || now) <= d
       ).length;
 
-      const vitalsUpToDate = sugarRecords.length + bpRecords.length;
+      const vitalsUpToDate = [
+        ...sugarRecords.filter((s) => new Date(s.timestamp) <= d),
+        ...bpRecords.filter((b) => new Date(b.timestamp) <= d),
+      ].length;
+
+      const activeUsersCount = profiles.filter((p) => {
+        const profileDate = new Date(p.created_at || now);
+        return profileDate <= d;
+      }).length;
 
       userGrowth.push({
         date: label,
         totalUsers: countUpToDate,
-        activeUsers: Math.round(countUpToDate * 0.6),
+        activeUsers: activeUsersCount,
         vitalsLogged: vitalsUpToDate,
       });
     }
@@ -323,124 +326,6 @@ export class DataService {
     return !error;
   }
 
-  // ==========================================
-  // 5. CMS FOODS (CAN I EAT? KNOWLEDGEBASE)
-  // ==========================================
-  public static async getCMSFoods(): Promise<CMSFoodItem[]> {
-    const supabase = this.getClient();
-    try {
-      const { data, error } = await supabase
-        .from('cms_foods')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (!error && data && data.length > 0) {
-        return data as CMSFoodItem[];
-      }
-    } catch {
-      // Graceful fallback to persistent catalog if table not created in Supabase yet
-    }
-
-    // Read from persistent official catalog
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('nutrihealth_cms_foods');
-      if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch {}
-      }
-    }
-    return initialFoods as CMSFoodItem[];
-  }
-
-  public static async addCMSFood(food: Omit<CMSFoodItem, 'id' | 'created_at'>): Promise<CMSFoodItem | null> {
-    const supabase = this.getClient();
-    const newId = `food-${Date.now()}`;
-    const newRecord: CMSFoodItem = {
-      ...food,
-      id: newId,
-    };
-
-    try {
-      const { data, error } = await supabase
-        .from('cms_foods')
-        .insert(newRecord)
-        .select()
-        .single();
-
-      if (!error && data) {
-        return data as CMSFoodItem;
-      }
-    } catch {
-      // Fallback if table not created yet in Supabase
-    }
-
-    // Persist locally so user sees their added food immediately
-    if (typeof window !== 'undefined') {
-      const existing = await this.getCMSFoods();
-      const updated = [newRecord, ...existing];
-      localStorage.setItem('nutrihealth_cms_foods', JSON.stringify(updated));
-    }
-    return newRecord;
-  }
-
-  // ==========================================
-  // 6. MASTER MEDICINE PRESETS
-  // ==========================================
-  public static async getMedicines(): Promise<MasterMedicinePreset[]> {
-    const supabase = this.getClient();
-    try {
-      const { data, error } = await supabase
-        .from('master_medicines')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (!error && data && data.length > 0) {
-        return data as MasterMedicinePreset[];
-      }
-    } catch {}
-
-    // Read from persistent official medicine catalog
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('nutrihealth_master_meds');
-      if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch {}
-      }
-    }
-    return initialMedicines as MasterMedicinePreset[];
-  }
-
-  public static async addMedicinePreset(
-    preset: Omit<MasterMedicinePreset, 'id' | 'created_at'>
-  ): Promise<MasterMedicinePreset | null> {
-    const supabase = this.getClient();
-    const newId = `med-${Date.now()}`;
-    const newRecord: MasterMedicinePreset = {
-      ...preset,
-      id: newId,
-    };
-
-    try {
-      const { data, error } = await supabase
-        .from('master_medicines')
-        .insert(newRecord)
-        .select()
-        .single();
-
-      if (!error && data) {
-        return data as MasterMedicinePreset;
-      }
-    } catch {}
-
-    if (typeof window !== 'undefined') {
-      const existing = await this.getMedicines();
-      const updated = [newRecord, ...existing];
-      localStorage.setItem('nutrihealth_master_meds', JSON.stringify(updated));
-    }
-    return newRecord;
-  }
 
   // ==========================================
   // 7. POPULATION HEALTH VITALS & SYMPTOMS
@@ -622,8 +507,8 @@ export class DataService {
       'blood_pressure_records',
       'weight_records',
       'symptom_records',
-      'meal_logs',
-      'medicine_reminders',
+      'meals',
+      'medicines',
       'family_members',
       'referrals',
       'subscriptions',

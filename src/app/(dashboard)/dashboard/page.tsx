@@ -8,7 +8,6 @@ import {
   DollarSign,
   Activity,
   Gift,
-  PlusCircle,
   FileDown,
   Sparkles,
   Database,
@@ -110,16 +109,16 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link href="/cms-foods">
+          <Link href="/users">
             <Button size="sm">
-              <PlusCircle className="h-4 w-4 mr-1.5" />
-              Add Food Item
+              <Users className="h-4 w-4 mr-1.5" />
+              Patient Directory
             </Button>
           </Link>
-          <Link href="/medicines">
+          <Link href="/health-analytics">
             <Button variant="outline" size="sm">
-              <PlusCircle className="h-4 w-4 mr-1.5" />
-              Add Medicine
+              <Activity className="h-4 w-4 mr-1.5" />
+              Health Analytics
             </Button>
           </Link>
         </div>

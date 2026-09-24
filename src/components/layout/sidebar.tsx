@@ -8,11 +8,7 @@ import {
   Users,
   CreditCard,
   Gift,
-  Salad,
-  Pill,
   Activity,
-  ShieldCheck,
-  Settings,
   HeartPulse,
   LogOut,
 } from "lucide-react";
@@ -22,14 +18,10 @@ import { Profile } from "@/types/database";
 
 const NAV_ITEMS = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { name: "User Directory", href: "/users", icon: Users, badge: "1.4k" },
+  { name: "User Directory", href: "/users", icon: Users },
+  { name: "Health Analytics", href: "/health-analytics", icon: Activity },
   { name: "Subscriptions", href: "/subscriptions", icon: CreditCard },
   { name: "Referral Program", href: "/referrals", icon: Gift },
-  { name: "Food & Nutrition CMS", href: "/cms-foods", icon: Salad },
-  { name: "Medicine Presets", href: "/medicines", icon: Pill },
-  { name: "Health Analytics", href: "/health-analytics", icon: Activity },
-  { name: "Team & Security", href: "/team", icon: ShieldCheck },
-  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 export function Sidebar() {
@@ -97,11 +89,6 @@ export function Sidebar() {
                 />
                 <span>{item.name}</span>
               </div>
-              {item.badge && (
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                  {item.badge}
-                </span>
-              )}
             </Link>
           );
         })}
