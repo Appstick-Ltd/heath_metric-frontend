@@ -11,6 +11,8 @@ export interface Profile {
   dietary_preference?: string | null;
   photo_url?: string | null;
   avatar_url?: string | null;
+  last_login_at?: string | null;
+  last_active_at?: string | null;
   created_at?: string;
   updated_at?: string;
 }

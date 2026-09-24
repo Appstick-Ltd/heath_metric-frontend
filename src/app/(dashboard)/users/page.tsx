@@ -15,6 +15,7 @@ import {
   Trash2,
   AlertTriangle,
   CheckCircle2,
+  Clock,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { DataService } from "@/lib/data-service";
 import { Profile, FamilyMember, BloodSugarRecord, BloodPressureRecord, WeightRecord, Subscription } from "@/types/database";
-import { formatDate, getAvatarUrl } from "@/lib/utils";
+import { formatDate, formatDateTime, formatTimeAgo, getAvatarUrl } from "@/lib/utils";
 
 function UserAvatar({
   name,
@@ -275,6 +276,7 @@ export default function UsersPage() {
                   <th className="py-3.5 px-4">Body Metrics</th>
                   <th className="py-3.5 px-4">Conditions</th>
                   <th className="py-3.5 px-4">Diet Preference</th>
+                  <th className="py-3.5 px-4">Status & Last Login</th>
                   <th className="py-3.5 px-4">Member Since</th>
                   <th className="py-3.5 px-4 text-right">Actions</th>
                 </tr>
@@ -347,6 +349,24 @@ export default function UsersPage() {
                         </span>
                       </td>
 
+                      <td className="py-3.5 px-4">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="font-semibold text-emerald-700 dark:text-emerald-400 text-[11px]">
+                              Active
+                            </span>
+                          </div>
+                          <span
+                            className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 cursor-help"
+                            title={user.last_login_at || user.last_active_at || user.updated_at ? `Last active: ${formatDateTime(user.last_login_at || user.last_active_at || user.updated_at)}` : "No login record yet"}
+                          >
+                            <Clock className="h-3 w-3 text-slate-400 shrink-0" />
+                            {formatTimeAgo(user.last_login_at || user.last_active_at || user.updated_at || user.created_at)}
+                          </span>
+                        </div>
+                      </td>
+
                       <td className="py-3.5 px-4 text-slate-400">
                         {formatDate(user.created_at)}
                       </td>
@@ -408,11 +428,15 @@ export default function UsersPage() {
                 size="lg"
               />
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 truncate">
                     {selectedUser.name || "Unnamed User"}
                   </h3>
                   <Badge variant="success">Active Patient</Badge>
+                  <span className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 ml-auto bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                    <Clock className="h-3 w-3 text-slate-400" />
+                    Last Login: <strong className="text-slate-700 dark:text-slate-300 font-medium">{formatDateTime(selectedUser.last_login_at || selectedUser.last_active_at || selectedUser.updated_at || selectedUser.created_at)}</strong>
+                  </span>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">
                   ID: {selectedUser.id}

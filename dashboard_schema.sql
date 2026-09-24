@@ -184,3 +184,26 @@ VALUES
   ('Lisinopril', 'Lisinopril', 'ACE Inhibitor', '10 mg', 'tablet', 'Once Daily', ARRAY['08:00 AM'], ARRAY['History of Angioedema', 'Pregnancy'], 'Monitor serum potassium and renal functions periodically.'),
   ('Cholecalciferol (Vitamin D3)', 'Vitamin D3', 'Vitamin Supplement', '40,000 IU', 'capsule', 'Once Weekly', ARRAY['10:00 AM'], ARRAY['Hypercalcemia'], 'Take with a meal containing healthy fats for optimal absorption.')
 ON CONFLICT (id) DO NOTHING;
+
+-- 7. USER ACTIVITY & LAST LOGIN TRACKING
+-- Ensure last_login_at and last_active_at columns exist on public.profiles
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS last_login_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS last_active_at TIMESTAMPTZ DEFAULT NOW();
+
+-- Auto-sync last_sign_in_at from auth.users to public.profiles
+CREATE OR REPLACE FUNCTION public.handle_user_login_sync()
+RETURNS trigger AS $$
+BEGIN
+  UPDATE public.profiles
+  SET last_login_at = NEW.last_sign_in_at,
+      last_active_at = NOW()
+  WHERE id = NEW.id;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_sign_in ON auth.users;
+CREATE TRIGGER on_auth_user_sign_in
+  AFTER UPDATE OF last_sign_in_at ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_user_login_sync();
