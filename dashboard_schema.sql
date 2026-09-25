@@ -125,9 +125,12 @@ ON CONFLICT (key) DO NOTHING;
 -- In production, the admin dashboard needs to read profiles, subscriptions, referrals, and vitals to display graphs and directory tables.
 -- Run these policies so dashboard queries succeed:
 
--- Ensure photo_url columns exist on profiles and family_members
+-- Ensure photo_url and email columns exist on profiles and family_members
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS photo_url TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email TEXT;
 ALTER TABLE public.family_members ADD COLUMN IF NOT EXISTS photo_url TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS profiles_email_idx ON public.profiles(email) WHERE email IS NOT NULL;
+UPDATE public.profiles SET email = 'mmks735.bd@gmail.com' WHERE email IS NULL AND (id LIKE '%google%' OR name ILIKE '%Mahfujul%');
 
 DO $$ 
 BEGIN

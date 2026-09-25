@@ -1,86 +1,155 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
-import { HeartPulse, Lock, Mail, ArrowRight, ShieldCheck } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { HeartPulse, Lock, User, ArrowRight, ShieldCheck, Eye, EyeOff, AlertCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { AuthService } from "@/lib/auth-service";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = React.useState("admin@nutrihealth.com");
-  const [password, setPassword] = React.useState("••••••••••••");
-  const [isLoading, setIsLoading] = React.useState(false);
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get("redirect") || "/dashboard";
 
-  const handleLogin = (e: React.FormEvent) => {
+  const [username, setUsername] = React.useState("admin");
+  const [password, setPassword] = React.useState("admin123");
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState(false);
+
+  // If already authenticated, redirect straight to dashboard
+  React.useEffect(() => {
+    if (AuthService.isAuthenticated()) {
+      router.replace(redirectUrl);
+    }
+  }, [router, redirectUrl]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
     setIsLoading(true);
-    setTimeout(() => {
+
+    try {
+      const result = await AuthService.login(username, password);
+
+      if (!result.success) {
+        setErrorMessage(result.error || "Authentication failed.");
+        setIsLoading(false);
+        return;
+      }
+
+      setSuccess(true);
+      setTimeout(() => {
+        router.push(redirectUrl);
+      }, 500);
+    } catch {
+      setErrorMessage("An unexpected error occurred. Please try again.");
       setIsLoading(false);
-      router.push("/dashboard");
-    }, 600);
+    }
   };
 
-  const handleQuickDemoLogin = (role: string) => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      router.push("/dashboard");
-    }, 400);
+  const handleQuickFill = (user: string, pass: string) => {
+    setUsername(user);
+    setPassword(pass);
+    setErrorMessage(null);
   };
 
   return (
-    <Card className="border-slate-200/80 dark:border-slate-800 shadow-2xl backdrop-blur-md">
-      <CardHeader className="text-center pb-6">
+    <Card className="border-slate-200/80 dark:border-slate-800 shadow-2xl backdrop-blur-md overflow-hidden">
+      <CardHeader className="text-center pb-4">
         <div className="mx-auto h-12 w-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/25 mb-3">
           <HeartPulse className="h-6 w-6" />
         </div>
-        <CardTitle className="text-2xl font-bold tracking-tight">
-          NutriHealth Admin
+        <CardTitle className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+          NutriHealth Admin Portal
         </CardTitle>
-        <CardDescription>
-          Sign in to access platform management, clinical metrics & operations
+        <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
+          Enter your administrative credentials to manage clinical records and operations
         </CardDescription>
       </CardHeader>
 
       <form onSubmit={handleLogin}>
         <CardContent className="space-y-4">
+          {/* Error Alert */}
+          {errorMessage && (
+            <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50 text-rose-700 dark:text-rose-300 text-xs flex items-start gap-2.5 animate-in fade-in zoom-in-95">
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5 text-rose-500" />
+              <div className="flex-1">
+                <p className="font-semibold">Login Failed</p>
+                <p className="text-[11px] opacity-90 mt-0.5">{errorMessage}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Success Alert */}
+          {success && (
+            <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">
+              <ShieldCheck className="h-4 w-4 shrink-0 text-emerald-500" />
+              <span>Authentication successful! Accessing portal...</span>
+            </div>
+          )}
+
+          {/* Username / Email Field */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-              Admin Email
+              Admin Username or Email
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
-                type="email"
+                type="text"
                 required
-                className="pl-9"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@nutrihealth.com"
+                autoComplete="username"
+                className="pl-9 text-xs"
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setErrorMessage(null);
+                }}
+                placeholder="admin or admin@nutrihealth.com"
               />
             </div>
           </div>
 
+          {/* Password Field */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Password
               </label>
-              <a href="#" className="text-xs text-emerald-600 hover:underline">
-                Forgot?
-              </a>
+              <button
+                type="button"
+                onClick={() => handleQuickFill("admin", "admin123")}
+                className="text-[11px] text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 hover:underline font-medium"
+              >
+                Reset to default
+              </button>
             </div>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
-                className="pl-9"
+                autoComplete="current-password"
+                className="pl-9 pr-10 text-xs"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setErrorMessage(null);
+                }}
+                placeholder="Enter admin password"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                title={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
           </div>
 
@@ -88,7 +157,7 @@ export default function LoginPage() {
             type="submit"
             className="w-full mt-2"
             isLoading={isLoading}
-            loadingText="Authenticating securely..."
+            loadingText="Authenticating Admin..."
           >
             Sign In to Portal
             <ArrowRight className="h-4 w-4 ml-2" />
@@ -96,38 +165,63 @@ export default function LoginPage() {
         </CardContent>
       </form>
 
-      <CardFooter className="flex flex-col space-y-3 pt-2">
-        <div className="relative w-full text-center">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-slate-100 dark:border-slate-800" />
+      {/* Default Credentials Helper */}
+      <CardFooter className="flex flex-col space-y-3 pt-2 bg-slate-50/60 dark:bg-slate-900/60 border-t border-slate-100 dark:border-slate-800">
+        <div className="w-full text-center">
+          <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+            <Sparkles className="h-3 w-3 text-emerald-500" />
+            Configured Admin Credentials
           </div>
-          <span className="relative bg-white dark:bg-slate-900 px-2 text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
-            One-Click Demo Access
-          </span>
-        </div>
 
-        <div className="grid grid-cols-2 gap-2 w-full">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => handleQuickDemoLogin("Super Admin")}
-            className="text-xs"
-          >
-            <ShieldCheck className="h-3.5 w-3.5 mr-1 text-emerald-600" />
-            Super Admin
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => handleQuickDemoLogin("Nutritionist")}
-            className="text-xs"
-          >
-            Nutritionist CMS
-          </Button>
+          <div className="grid grid-cols-2 gap-2 text-left">
+            <button
+              type="button"
+              onClick={() => handleQuickFill("admin", "admin123")}
+              className={`p-2.5 rounded-xl border text-xs transition-all ${
+                username === "admin"
+                  ? "border-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200"
+                  : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:border-slate-300"
+              }`}
+            >
+              <div className="flex items-center gap-1 font-semibold text-[11px]">
+                <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                Super Admin
+              </div>
+              <p className="text-[10px] text-slate-400 mt-1 font-mono">admin / admin123</p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleQuickFill("nutritionist", "nutri123")}
+              className={`p-2.5 rounded-xl border text-xs transition-all ${
+                username === "nutritionist"
+                  ? "border-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200"
+                  : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:border-slate-300"
+              }`}
+            >
+              <div className="flex items-center gap-1 font-semibold text-[11px]">
+                <HeartPulse className="h-3.5 w-3.5 text-teal-600" />
+                Nutritionist CMS
+              </div>
+              <p className="text-[10px] text-slate-400 mt-1 font-mono">nutritionist / nutri123</p>
+            </button>
+          </div>
         </div>
       </CardFooter>
     </Card>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="p-8 text-center text-sm text-slate-400 animate-pulse">
+          Loading login portal...
+        </div>
+      }
+    >
+      <LoginForm />
+    </React.Suspense>
   );
 }

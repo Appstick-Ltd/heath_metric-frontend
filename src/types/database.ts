@@ -8,6 +8,7 @@ export interface Profile {
   blood_group: string;
   conditions: string[];
   goals: string[];
+  email?: string | null;
   dietary_preference?: string | null;
   photo_url?: string | null;
   avatar_url?: string | null;

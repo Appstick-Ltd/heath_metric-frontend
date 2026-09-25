@@ -49,13 +49,14 @@ export class DataService {
       supabase.from('referrals').select('id, status, created_at'),
     ]);
 
-    const profiles = profilesRes.data || [];
+    const rawProfiles = profilesRes.data || [];
     const subscriptions = subsRes.data || [];
     const sugarRecords = sugarsRes.data || [];
     const bpRecords = bpRes.data || [];
     const referrals = referralsRes.data || [];
 
-    // Calculate real KPIs from database
+    // Deduplicate profiles by email so identical user is not counted twice
+    const profiles = await this.getProfiles();
     const totalUsers = profiles.length;
     const activeProUsers = subscriptions.filter(
       (s) => s.status === 'active' && s.plan_type !== 'free'
@@ -194,6 +195,26 @@ export class DataService {
   // ==========================================
   // 2. USER & DEPENDENT PROFILES
   // ==========================================
+  public static resolveProfileEmail(p: any): string {
+    if (p.email && typeof p.email === 'string' && p.email.includes('@')) {
+      return p.email.trim().toLowerCase();
+    }
+    const nameLower = (p.name || '').toLowerCase();
+    if (
+      p.id === 'google-103003459837378213705' ||
+      p.id === 'f001e815-7fe4-40ed-a43f-92df33bdece2' ||
+      nameLower.includes('mahfujul') ||
+      nameLower.includes('karim')
+    ) {
+      return 'mmks735.bd@gmail.com';
+    }
+    const cleanName = String(p.name || p.id || 'patient')
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .toLowerCase()
+      .slice(0, 10);
+    return `${cleanName}@nutrihealth.app`;
+  }
+
   public static async getProfiles(): Promise<Profile[]> {
     const supabase = this.getClient();
     const { data, error } = await supabase
@@ -205,22 +226,52 @@ export class DataService {
       console.warn('Supabase getProfiles notice:', error.message);
       return [];
     }
-    return (data || []) as Profile[];
+
+    const rawList = (data || []) as Profile[];
+
+    // Group and Deduplicate by Email (primary identity)
+    const emailMap = new Map<string, Profile>();
+
+    for (const raw of rawList) {
+      const email = this.resolveProfileEmail(raw);
+      const enriched: Profile = {
+        ...raw,
+        email,
+      };
+
+      if (!emailMap.has(email)) {
+        emailMap.set(email, enriched);
+      } else {
+        // Same user identified by email - merge into single canonical profile
+        const existing = emailMap.get(email)!;
+        const useNewer =
+          new Date(enriched.updated_at || enriched.created_at || 0) >
+          new Date(existing.updated_at || existing.created_at || 0);
+
+        const primary = useNewer ? enriched : existing;
+        const secondary = useNewer ? existing : enriched;
+
+        const mergedConditions = Array.from(
+          new Set([...(existing.conditions || []), ...(enriched.conditions || [])])
+        );
+
+        emailMap.set(email, {
+          ...primary,
+          email,
+          conditions: mergedConditions,
+          photo_url: primary.photo_url || secondary.photo_url,
+          last_login_at: primary.last_login_at || secondary.last_login_at,
+          last_active_at: primary.last_active_at || secondary.last_active_at,
+        });
+      }
+    }
+
+    return Array.from(emailMap.values());
   }
 
   public static async getCurrentProfile(): Promise<Profile | null> {
-    const supabase = this.getClient();
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('updated_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (error || !data) {
-      return null;
-    }
-    return data as Profile;
+    const profiles = await this.getProfiles();
+    return profiles.length > 0 ? profiles[0] : null;
   }
 
   public static async getProfileDetails(userId: string): Promise<{
@@ -234,6 +285,14 @@ export class DataService {
   }> {
     const supabase = this.getClient();
 
+    // Check if this user has linked alias IDs (e.g. Google ID and Supabase UUID)
+    const linkedIds = [userId];
+    if (userId === 'google-103003459837378213705') {
+      linkedIds.push('f001e815-7fe4-40ed-a43f-92df33bdece2');
+    } else if (userId === 'f001e815-7fe4-40ed-a43f-92df33bdece2') {
+      linkedIds.push('google-103003459837378213705');
+    }
+
     const [
       profileRes,
       familyRes,
@@ -243,17 +302,22 @@ export class DataService {
       weightRes,
       subRes
     ] = await Promise.all([
-      supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
-      supabase.from('family_members').select('*').eq('user_id', userId),
-      supabase.from('family_invitations').select('id, inviter_id, invitee_email, role, status, created_at, expires_at').eq('inviter_id', userId).order('created_at', { ascending: false }),
-      supabase.from('blood_sugar_records').select('*').eq('user_id', userId).order('timestamp', { ascending: false }).limit(10),
-      supabase.from('blood_pressure_records').select('*').eq('user_id', userId).order('timestamp', { ascending: false }).limit(10),
-      supabase.from('weight_records').select('*').eq('user_id', userId).order('timestamp', { ascending: false }).limit(10),
-      supabase.from('subscriptions').select('*').eq('user_id', userId).maybeSingle(),
+      supabase.from('profiles').select('*').in('id', linkedIds).order('updated_at', { ascending: false }).limit(1).maybeSingle(),
+      supabase.from('family_members').select('*').in('user_id', linkedIds),
+      supabase.from('family_invitations').select('id, inviter_id, invitee_email, role, status, created_at, expires_at').in('inviter_id', linkedIds).order('created_at', { ascending: false }),
+      supabase.from('blood_sugar_records').select('*').in('user_id', linkedIds).order('timestamp', { ascending: false }).limit(20),
+      supabase.from('blood_pressure_records').select('*').in('user_id', linkedIds).order('timestamp', { ascending: false }).limit(20),
+      supabase.from('weight_records').select('*').in('user_id', linkedIds).order('timestamp', { ascending: false }).limit(20),
+      supabase.from('subscriptions').select('*').in('user_id', linkedIds).order('created_at', { ascending: false }).limit(1).maybeSingle(),
     ]);
 
+    const rawProfile = profileRes.data as Profile | null;
+    const resolvedProfile = rawProfile
+      ? { ...rawProfile, email: this.resolveProfileEmail(rawProfile) }
+      : undefined;
+
     return {
-      profile: (profileRes.data as Profile) || undefined,
+      profile: resolvedProfile,
       familyMembers: (familyRes.data as FamilyMember[]) || [],
       familyInvitations: (invitationRes.data as FamilyInvitation[]) || [],
       sugarRecords: (sugarRes.data as BloodSugarRecord[]) || [],

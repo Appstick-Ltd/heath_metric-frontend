@@ -8,35 +8,32 @@ import {
   DollarSign,
   Activity,
   Gift,
-  FileDown,
-  Sparkles,
   Database,
   Inbox,
+  ShieldCheck,
 } from "lucide-react";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { UserGrowthChart } from "@/components/dashboard/user-growth-chart";
 import { RevenueChart } from "@/components/dashboard/revenue-chart";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   MetricCardSkeleton,
   ChartSkeleton,
   ActivityFeedSkeleton,
 } from "@/components/ui/skeleton";
 import { DataService } from "@/lib/data-service";
-import { getAvatarUrl } from "@/lib/utils";
+import { useAdminAuth } from "@/lib/auth-context";
 import {
   KPISummary,
   UserGrowthDataPoint,
   RevenueDataPoint,
   ActivityEvent,
 } from "@/types/dashboard";
-import { Profile } from "@/types/database";
 
 export default function DashboardPage() {
-  const [profile, setProfile] = React.useState<Profile | null>(null);
-  const [imgError, setImgError] = React.useState(false);
+  const { user } = useAdminAuth();
   const [kpi, setKpi] = React.useState<KPISummary | null>(null);
   const [userGrowth, setUserGrowth] = React.useState<UserGrowthDataPoint[]>([]);
   const [revenue, setRevenue] = React.useState<RevenueDataPoint[]>([]);
@@ -46,15 +43,11 @@ export default function DashboardPage() {
   React.useEffect(() => {
     async function loadData() {
       try {
-        const [data, prof] = await Promise.all([
-          DataService.getDashboardData(),
-          DataService.getCurrentProfile(),
-        ]);
+        const data = await DataService.getDashboardData();
         setKpi(data.kpi);
         setUserGrowth(data.userGrowth);
         setRevenue(data.revenue);
         setActivities(data.recentActivities);
-        if (prof) setProfile(prof);
       } catch (err) {
         console.warn("Failed to load dashboard data from Supabase:", err);
       } finally {
@@ -63,6 +56,9 @@ export default function DashboardPage() {
     }
     loadData();
   }, []);
+
+  const adminFirstName = user?.name ? user.name.split(" ")[0] : "Admin";
+  const adminRole = user?.role || "Super Admin";
 
   if (loading || !kpi) {
     return (
@@ -120,35 +116,23 @@ export default function DashboardPage() {
       {/* Top Welcome & Actions Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          {(() => {
-            const avatarSrc = getAvatarUrl(profile?.photo_url || profile?.avatar_url);
-            if (avatarSrc && !imgError) {
-              return (
-                <div className="relative h-12 w-12 rounded-full p-[2.5px] bg-gradient-to-tr from-teal-500 to-sky-500 shadow-md shrink-0">
-                  <img
-                    src={avatarSrc}
-                    alt={profile?.name || "User"}
-                    referrerPolicy="no-referrer"
-                    crossOrigin="anonymous"
-                    onError={() => setImgError(true)}
-                    className="h-full w-full rounded-full object-cover bg-white dark:bg-slate-800"
-                  />
-                </div>
-              );
-            }
-            return null;
-          })()}
+          <div className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 shrink-0">
+            <ShieldCheck className="h-6 w-6" />
+          </div>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                {profile?.name ? `Welcome back, ${profile.name.split(' ')[0]}` : "Operations & Clinical Dashboard"}
+                Welcome back, {adminFirstName}
               </h1>
-              <span className="flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
-                <Database className="h-3 w-3" /> Supabase Live
+              <span className="text-[11px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
+                {adminRole}
+              </span>
+              <span className="hidden sm:flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                <Database className="h-3 w-3 text-emerald-500" /> Supabase Live
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Real-time population health metrics and subscriptions directly from database
+              Real-time patient population health metrics, subscriptions & activity from database
             </p>
           </div>
         </div>

@@ -11,10 +11,10 @@ import {
   Activity,
   HeartPulse,
   LogOut,
+  ShieldCheck,
 } from "lucide-react";
-import { cn, getAvatarUrl } from "@/lib/utils";
-import { DataService } from "@/lib/data-service";
-import { Profile } from "@/types/database";
+import { cn } from "@/lib/utils";
+import { useAdminAuth } from "@/lib/auth-context";
 
 const NAV_ITEMS = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -26,17 +26,10 @@ const NAV_ITEMS = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const [profile, setProfile] = React.useState<Profile | null>(null);
-  const [imgError, setImgError] = React.useState(false);
+  const { user, logout } = useAdminAuth();
 
-  React.useEffect(() => {
-    DataService.getCurrentProfile().then((p) => {
-      if (p) {
-        setProfile(p);
-        setImgError(false);
-      }
-    });
-  }, []);
+  const adminName = user?.name || "System Administrator";
+  const adminRole = user?.role || "Super Admin";
 
   return (
     <aside className="w-64 border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md flex flex-col h-screen sticky top-0 shrink-0 z-30 select-none">
@@ -94,46 +87,33 @@ export function Sidebar() {
         })}
       </div>
 
-      {/* Current Admin Card & Logout */}
+      {/* Authenticated Admin Account Card & Sign Out */}
       <div className="p-3 border-t border-slate-100 dark:border-slate-800">
         <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            {(() => {
-              const avatarSrc = getAvatarUrl(profile?.photo_url || profile?.avatar_url);
-              if (avatarSrc && !imgError) {
-                return (
-                  <div className="relative h-9 w-9 rounded-full p-[2px] bg-gradient-to-tr from-teal-500 to-sky-500 shadow-sm shrink-0">
-                    <img
-                      src={avatarSrc}
-                      alt={profile?.name || "User"}
-                      referrerPolicy="no-referrer"
-                      crossOrigin="anonymous"
-                      onError={() => setImgError(true)}
-                      className="h-full w-full rounded-full object-cover bg-white dark:bg-slate-800"
-                    />
-                  </div>
-                );
-              }
-              return (
-                <div className="h-9 w-9 rounded-full bg-emerald-600/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs border border-emerald-500/20 shrink-0">
-                  {profile?.name ? profile.name.slice(0, 2).toUpperCase() : "MK"}
-                </div>
-              );
-            })()}
-            <div className="overflow-hidden">
-              <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[110px]" title={profile?.name || "MD Mahfujul Karim"}>
-                {profile?.name || "MD Mahfujul Karim"}
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 text-white flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
+              <ShieldCheck className="h-5 w-5 text-white" />
+            </div>
+            <div className="overflow-hidden min-w-0">
+              <p
+                className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[110px]"
+                title={adminName}
+              >
+                {adminName}
               </p>
-              <p className="text-[10px] text-slate-400 truncate">Super Admin</p>
+              <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium truncate">
+                {adminRole}
+              </p>
             </div>
           </div>
-          <Link
-            href="/login"
-            title="Sign out"
-            className="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition-colors"
+          <button
+            onClick={logout}
+            type="button"
+            title="Sign out of Admin Portal"
+            className="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 p-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-700 transition-colors shrink-0"
           >
             <LogOut className="h-4 w-4" />
-          </Link>
+          </button>
         </div>
       </div>
     </aside>

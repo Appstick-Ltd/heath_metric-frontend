@@ -1,11 +1,23 @@
 "use client";
 
 import * as React from "react";
-import { Bell, Search, Database, CheckCircle2, X, AlertTriangle, Info, RefreshCw } from "lucide-react";
+import {
+  Bell,
+  Search,
+  Database,
+  CheckCircle2,
+  X,
+  AlertTriangle,
+  Info,
+  RefreshCw,
+  ShieldCheck,
+  LogOut,
+  ChevronDown,
+} from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { DataService } from "@/lib/data-service";
-import { formatDateTime, getAvatarUrl } from "@/lib/utils";
-import { Profile } from "@/types/database";
+import { formatDateTime } from "@/lib/utils";
+import { useAdminAuth } from "@/lib/auth-context";
 
 type Notification = {
   id: string;
@@ -18,22 +30,24 @@ type Notification = {
 };
 
 export function Header() {
-  const [profile, setProfile] = React.useState<Profile | null>(null);
-  const [imgError, setImgError] = React.useState(false);
+  const { user, logout } = useAdminAuth();
   const [notificationsOpen, setNotificationsOpen] = React.useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = React.useState(false);
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const [notifLoading, setNotifLoading] = React.useState(false);
   const [readIds, setReadIds] = React.useState<Set<string>>(new Set());
   const panelRef = React.useRef<HTMLDivElement>(null);
+  const profileRef = React.useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
-    DataService.getCurrentProfile().then((p) => {
-      if (p) {
-        setProfile(p);
-        setImgError(false);
-      }
-    });
-  }, []);
+  const adminName = user?.name || "System Administrator";
+  const adminRole = user?.role || "Administrator";
+  const adminEmail = user?.email || "admin@nutrihealth.com";
+  const initials = adminName
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "SA";
 
   const unreadCount = notifications.filter((n) => !readIds.has(n.id)).length;
 
@@ -64,18 +78,19 @@ export function Header() {
     }
   }, [notificationsOpen, notifications]);
 
-  // Click outside to close
+  // Click outside to close panels
   React.useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
         setNotificationsOpen(false);
       }
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileDropdownOpen(false);
+      }
     }
-    if (notificationsOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
+    document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [notificationsOpen]);
+  }, []);
 
   const severityIcon = (sev: Notification["severity"]) => {
     if (sev === "critical") return <AlertTriangle className="h-3.5 w-3.5 text-rose-500 shrink-0" />;
@@ -224,38 +239,51 @@ export function Header() {
           <span>Healthy</span>
         </div>
 
-        {/* User Profile Avatar with Luxury Gradient Ring */}
-        <div className="flex items-center gap-2.5 pl-2 border-l border-slate-200 dark:border-slate-800">
-          {(() => {
-            const avatarSrc = getAvatarUrl(profile?.photo_url || profile?.avatar_url);
-            if (avatarSrc && !imgError) {
-              return (
-                <div className="relative h-9 w-9 rounded-full p-[2px] bg-gradient-to-tr from-teal-500 to-sky-500 shadow-sm shrink-0">
-                  <img
-                    src={avatarSrc}
-                    alt={profile?.name || "User"}
-                    referrerPolicy="no-referrer"
-                    crossOrigin="anonymous"
-                    onError={() => setImgError(true)}
-                    className="h-full w-full rounded-full object-cover bg-white dark:bg-slate-800"
-                  />
-                </div>
-              );
-            }
-            return (
-              <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-emerald-100 to-teal-100 dark:from-emerald-950/70 dark:to-teal-950/70 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-xs shrink-0 border border-emerald-500/20">
-                {profile?.name ? profile.name.slice(0, 2).toUpperCase() : "MK"}
+        {/* Admin User Profile & Dropdown */}
+        <div className="relative pl-2 border-l border-slate-200 dark:border-slate-800" ref={profileRef}>
+          <button
+            type="button"
+            onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+            className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors text-left"
+          >
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-bold text-xs shadow-sm shrink-0 border border-emerald-500/20">
+              <ShieldCheck className="h-5 w-5" />
+            </div>
+            <div className="hidden xl:block text-left">
+              <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-tight truncate max-w-[130px]">
+                {adminName}
+              </p>
+              <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                {adminRole}
+              </p>
+            </div>
+            <ChevronDown className="h-3.5 w-3.5 text-slate-400 hidden xl:block" />
+          </button>
+
+          {profileDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden p-2 space-y-1">
+              <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
+                <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
+                  {adminName}
+                </p>
+                <p className="text-[11px] text-slate-400 truncate">{adminEmail}</p>
+                <span className="inline-block mt-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
+                  {adminRole}
+                </span>
               </div>
-            );
-          })()}
-          <div className="hidden xl:block text-left">
-            <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-tight truncate max-w-[130px]">
-              {profile?.name || "MD Mahfujul Karim"}
-            </p>
-            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
-              Administrator
-            </p>
-          </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setProfileDropdownOpen(false);
+                  logout();
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl transition-colors font-medium"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

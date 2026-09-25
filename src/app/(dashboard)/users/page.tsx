@@ -16,6 +16,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   Clock,
+  Mail,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -182,6 +183,7 @@ export default function UsersPage() {
   const filteredUsers = users.filter((u) => {
     const matchesSearch =
       u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (u.email && u.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
       u.id?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (u.blood_group && u.blood_group.toLowerCase().includes(searchQuery.toLowerCase()));
 
@@ -277,7 +279,7 @@ export default function UsersPage() {
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50/75 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">
                 <tr>
-                  <th className="py-3.5 px-4">Patient Profile</th>
+                  <th className="py-3.5 px-4">Patient Profile & Email</th>
                   <th className="py-3.5 px-4">Demographics</th>
                   <th className="py-3.5 px-4">Body Metrics</th>
                   <th className="py-3.5 px-4">Conditions</th>
@@ -306,12 +308,18 @@ export default function UsersPage() {
                             photoUrl={user.photo_url || user.avatar_url}
                             size="md"
                           />
-                          <div>
-                            <p className="font-semibold text-slate-900 dark:text-slate-100">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-slate-900 dark:text-slate-100 text-sm truncate">
                               {user.name || "Unnamed User"}
                             </p>
-                            <p className="text-[11px] text-slate-400 font-mono">
-                              {user.id}
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <Mail className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                              <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 truncate">
+                                {user.email || "No email"}
+                              </span>
+                            </div>
+                            <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                              ID: {user.id}
                             </p>
                           </div>
                         </div>
@@ -422,7 +430,7 @@ export default function UsersPage() {
           isOpen={isDetailOpen}
           onClose={() => setIsDetailOpen(false)}
           title={`Patient Record: ${selectedUser.name || "User"}`}
-          description={`Registered ID: ${selectedUser.id} • ${selectedUser.gender || "N/A"}, ${selectedUser.age || 0} yrs`}
+          description={`Primary Email: ${selectedUser.email || "N/A"} • ID: ${selectedUser.id} • ${selectedUser.gender || "N/A"}, ${selectedUser.age || 0} yrs`}
           maxWidth="2xl"
         >
           <div className="space-y-6 text-xs">
@@ -444,9 +452,15 @@ export default function UsersPage() {
                     Last Login: <strong className="text-slate-700 dark:text-slate-300 font-medium">{formatDateTime(selectedUser.last_login_at || selectedUser.last_active_at || selectedUser.updated_at || selectedUser.created_at)}</strong>
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">
-                  ID: {selectedUser.id}
-                </p>
+                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                    <Mail className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <span>{selectedUser.email || "No email"}</span>
+                  </div>
+                  <span className="text-[11px] text-slate-400 font-mono">
+                    ID: {selectedUser.id}
+                  </span>
+                </div>
                 <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
                   {selectedUser.gender || "N/A"}, {selectedUser.age || 0} yrs • Blood Group <strong className="text-slate-900 dark:text-white">{selectedUser.blood_group || "N/A"}</strong>
                 </p>
