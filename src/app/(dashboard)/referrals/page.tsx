@@ -10,6 +10,8 @@ import {
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { TableSkeleton } from "@/components/ui/skeleton";
+import { LoadingSpinner } from "@/components/ui/loader";
 import { DataService } from "@/lib/data-service";
 import { Referral } from "@/types/database";
 import { formatDate } from "@/lib/utils";
@@ -102,9 +104,12 @@ export default function ReferralsPage() {
           </CardDescription>
         </CardHeader>
         {loading ? (
-          <div className="p-12 text-center text-xs text-slate-400 flex flex-col items-center justify-center gap-2">
-            <div className="h-7 w-7 rounded-full border-2 border-emerald-600 border-t-transparent animate-spin" />
-            <span>Loading referral records...</span>
+          <div>
+            <div className="flex items-center gap-2 px-4 py-3 bg-emerald-50/70 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 text-xs font-medium border-b border-emerald-100 dark:border-emerald-900/30">
+              <LoadingSpinner size="xs" variant="primary" />
+              <span>Fetching referral codes and conversion metrics from database...</span>
+            </div>
+            <TableSkeleton rows={4} columns={5} />
           </div>
         ) : referrals.length === 0 ? (
           <div className="p-12 text-center flex flex-col items-center justify-center gap-2">

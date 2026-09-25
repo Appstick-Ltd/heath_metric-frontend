@@ -20,6 +20,8 @@ import {
 } from "recharts";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { LoadingSpinner } from "@/components/ui/loader";
 import { DataService } from "@/lib/data-service";
 import { VitalDistributionData } from "@/types/dashboard";
 import { useIsDark } from "@/lib/use-theme";
@@ -110,9 +112,9 @@ export default function HealthAnalyticsPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="h-64 flex items-center justify-center text-xs text-slate-400">
-                <div className="h-6 w-6 rounded-full border-2 border-emerald-600 border-t-transparent animate-spin mr-2" />
-                Querying glucose records...
+              <div className="h-64 flex flex-col items-center justify-center text-xs text-slate-400 gap-3">
+                <LoadingSpinner size="md" variant="primary" />
+                <span className="font-medium text-slate-600 dark:text-slate-300">Calculating glycemic distribution from Supabase...</span>
               </div>
             ) : totalSugarLogged === 0 ? (
               <div className="h-64 flex flex-col items-center justify-center text-center p-4">
@@ -166,9 +168,9 @@ export default function HealthAnalyticsPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="h-64 flex items-center justify-center text-xs text-slate-400">
-                <div className="h-6 w-6 rounded-full border-2 border-emerald-600 border-t-transparent animate-spin mr-2" />
-                Querying BP records...
+              <div className="h-64 flex flex-col items-center justify-center text-xs text-slate-400 gap-3">
+                <LoadingSpinner size="md" variant="secondary" />
+                <span className="font-medium text-slate-600 dark:text-slate-300">Calculating blood pressure records & staging...</span>
               </div>
             ) : totalBpLogged === 0 ? (
               <div className="h-64 flex flex-col items-center justify-center text-center p-4">
@@ -218,7 +220,10 @@ export default function HealthAnalyticsPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="p-8 text-center text-xs text-slate-400">Loading symptoms...</div>
+            <div className="p-8 flex items-center justify-center gap-2 text-xs text-slate-500">
+              <LoadingSpinner size="sm" variant="primary" />
+              <span>Analyzing anatomical pain & symptom logs from database...</span>
+            </div>
           ) : symptoms.length === 0 ? (
             <div className="p-8 text-center text-xs text-slate-500">
               No symptom or pain records logged in database yet.

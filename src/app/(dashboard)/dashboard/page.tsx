@@ -19,6 +19,11 @@ import { RevenueChart } from "@/components/dashboard/revenue-chart";
 import { ActivityFeed } from "@/components/dashboard/activity-feed";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  MetricCardSkeleton,
+  ChartSkeleton,
+  ActivityFeedSkeleton,
+} from "@/components/ui/skeleton";
 import { DataService } from "@/lib/data-service";
 import { getAvatarUrl } from "@/lib/utils";
 import {
@@ -61,10 +66,50 @@ export default function DashboardPage() {
 
   if (loading || !kpi) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="flex flex-col items-center gap-2">
-          <div className="h-8 w-8 rounded-full border-2 border-emerald-600 border-t-transparent animate-spin" />
-          <p className="text-xs text-slate-400 font-medium">Connecting to Supabase PostgreSQL database...</p>
+      <div className="space-y-6 animate-pulse">
+        {/* Top Header Loading Banner */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-100 dark:border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="h-11 w-11 rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+              <Activity className="h-5 w-5 animate-pulse" />
+            </div>
+            <div>
+              <div className="h-6 w-52 bg-slate-200 dark:bg-slate-800 rounded-md" />
+              <div className="h-3 w-72 bg-slate-100 dark:bg-slate-800/60 rounded-md mt-1.5" />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-9 w-28 bg-slate-200 dark:bg-slate-800 rounded-xl" />
+            <div className="h-9 w-28 bg-slate-100 dark:bg-slate-800 rounded-xl" />
+          </div>
+        </div>
+
+        {/* 5 KPI Metric Skeletons */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <MetricCardSkeleton key={i} />
+          ))}
+        </div>
+
+        {/* Analytics Charts Skeletons */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ChartSkeleton height="h-72" />
+          <ChartSkeleton height="h-72" />
+        </div>
+
+        {/* Bottom Activity Skeletons */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <ActivityFeedSkeleton count={5} />
+          </div>
+          <Card className="p-6 space-y-4">
+            <div className="h-5 w-32 bg-slate-200 dark:bg-slate-800 rounded-md" />
+            <div className="h-3 w-48 bg-slate-100 dark:bg-slate-800/60 rounded-md" />
+            <div className="space-y-2 pt-2">
+              <div className="h-10 w-full bg-slate-100 dark:bg-slate-800/80 rounded-xl" />
+              <div className="h-10 w-full bg-slate-100 dark:bg-slate-800/80 rounded-xl" />
+            </div>
+          </Card>
         </div>
       </div>
     );

@@ -87,9 +87,10 @@ export default function LoginPage() {
           <Button
             type="submit"
             className="w-full mt-2"
-            disabled={isLoading}
+            isLoading={isLoading}
+            loadingText="Authenticating securely..."
           >
-            {isLoading ? "Authenticating..." : "Sign In to Portal"}
+            Sign In to Portal
             <ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </CardContent>
