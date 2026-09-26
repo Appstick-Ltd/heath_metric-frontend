@@ -18,11 +18,12 @@ export interface AuthSession {
 export const VALID_ADMIN_ACCOUNTS = [
   {
     username: "admin",
-    aliases: ["admin@nutrihealth.com", "administrator"],
+    aliases: ["admin@nutrihealth.com", "administrator", "mmks735.bd@gmail.com"],
     password: "admin123",
-    name: "System Administrator",
-    email: "admin@nutrihealth.com",
+    name: "MD MAHFUJUL KARIM SHEIKH",
+    email: "mmks735.bd@gmail.com",
     role: "Super Admin",
+    avatar: "https://lh3.googleusercontent.com/a/ACg8ocLVl9c12A1i2AAHJyynksjltX3kFx4S5OciFyzHL-ADvb1XPsI=s96-c",
   },
   {
     username: "nutritionist",
@@ -31,6 +32,7 @@ export const VALID_ADMIN_ACCOUNTS = [
     name: "Dr. Sarah Chen",
     email: "clinical@nutrihealth.com",
     role: "Clinical Specialist",
+    avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&auto=format&fit=crop&q=80",
   }
 ];
 
@@ -74,6 +76,7 @@ export class AuthService {
         name: matchedAccount.name,
         email: matchedAccount.email,
         role: matchedAccount.role,
+        avatar: matchedAccount.avatar || "https://lh3.googleusercontent.com/a/ACg8ocLVl9c12A1i2AAHJyynksjltX3kFx4S5OciFyzHL-ADvb1XPsI=s96-c",
         lastLogin: new Date().toISOString(),
       },
       token: `admin-token-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
@@ -126,6 +129,21 @@ export class AuthService {
         // Expired
         this.logout();
         return null;
+      }
+
+      // Auto-enrich existing session with avatar and updated account details if missing
+      const matched = VALID_ADMIN_ACCOUNTS.find(
+        (acc) => acc.username === session.user?.username || acc.email === session.user?.email
+      ) || VALID_ADMIN_ACCOUNTS[0];
+
+      if (matched && (!session.user.avatar || session.user.name === "System Administrator")) {
+        session.user.avatar = matched.avatar;
+        session.user.name = matched.name;
+        session.user.email = matched.email;
+        session.user.role = matched.role;
+        try {
+          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+        } catch (_) {}
       }
 
       return session;

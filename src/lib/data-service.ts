@@ -65,8 +65,12 @@ export class DataService {
     let mrr = 0;
     subscriptions.forEach((s) => {
       if (s.status === 'active') {
-        if (s.plan_type === 'monthly') mrr += 5.99;
-        else if (s.plan_type === 'annual') mrr += 49.99 / 12;
+        const parsedPrice = s.price_paid ? parseFloat(s.price_paid.replace(/[^0-9.]/g, '')) : 0;
+        if (s.plan_type === 'monthly') {
+          mrr += parsedPrice > 0 ? parsedPrice : 4.99;
+        } else if (s.plan_type === 'annual') {
+          mrr += (parsedPrice > 0 ? parsedPrice : 39.99) / 12;
+        }
       }
     });
 
@@ -119,15 +123,22 @@ export class DataService {
     }
 
     // Revenue breakdown from live subscriptions
-    const monthlyRevenue = subscriptions
-      .filter((s) => s.plan_type === 'monthly' && s.status === 'active')
-      .length * 5.99;
-    const annualRevenue = subscriptions
-      .filter((s) => s.plan_type === 'annual' && s.status === 'active')
-      .length * 49.99;
-    const lifetimeRevenue = subscriptions
-      .filter((s) => s.plan_type === 'lifetime')
-      .length * 149.00;
+    let monthlyRevenue = 0;
+    let annualRevenue = 0;
+    let lifetimeRevenue = 0;
+
+    subscriptions.forEach((s) => {
+      if (s.status === 'active') {
+        const parsedPrice = s.price_paid ? parseFloat(s.price_paid.replace(/[^0-9.]/g, '')) : 0;
+        if (s.plan_type === 'monthly') {
+          monthlyRevenue += parsedPrice > 0 ? parsedPrice : 4.99;
+        } else if (s.plan_type === 'annual') {
+          annualRevenue += parsedPrice > 0 ? parsedPrice : 39.99;
+        } else if (s.plan_type === 'lifetime') {
+          lifetimeRevenue += parsedPrice > 0 ? parsedPrice : 149.00;
+        }
+      }
+    });
 
     const revenue: RevenueDataPoint[] = [
       {
@@ -177,7 +188,7 @@ export class DataService {
       recentActivities.push({
         id: `sub-${i}`,
         type: 'subscription_new',
-        title: `Subscription: ${sub.plan_type.toUpperCase()} (${sub.price_paid || '$5.99'})`,
+        title: `Subscription: ${sub.plan_type.toUpperCase()} (${sub.price_paid || (sub.plan_type === 'annual' ? '$39.99' : '$4.99')})`,
         description: `Status: ${sub.status}. Recorded in database.`,
         timestamp: 'Live DB',
         severity: 'normal',
@@ -350,7 +361,7 @@ export class DataService {
   ): Promise<boolean> {
     const supabase = this.getClient();
     const pricePaid =
-      planType === 'monthly' ? '$5.99' : planType === 'annual' ? '$49.99' : planType === 'lifetime' ? '$149.00' : '$0.00';
+      planType === 'monthly' ? '$4.99' : planType === 'annual' ? '$39.99' : planType === 'lifetime' ? '$149.00' : '$0.00';
 
     const { error } = await supabase
       .from('subscriptions')

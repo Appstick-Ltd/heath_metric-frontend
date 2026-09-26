@@ -52,11 +52,12 @@ export default function SubscriptionsPage() {
   let activePaidCount = 0;
   subs.forEach((s) => {
     if (s.status === "active") {
+      const parsedPrice = s.price_paid ? parseFloat(s.price_paid.replace(/[^0-9.]/g, "")) : 0;
       if (s.plan_type === "monthly") {
-        calculatedMrr += 5.99;
+        calculatedMrr += parsedPrice > 0 ? parsedPrice : 4.99;
         activePaidCount++;
       } else if (s.plan_type === "annual") {
-        calculatedMrr += 49.99 / 12;
+        calculatedMrr += (parsedPrice > 0 ? parsedPrice : 39.99) / 12;
         activePaidCount++;
       } else if (s.plan_type === "lifetime") {
         activePaidCount++;
@@ -125,29 +126,45 @@ export default function SubscriptionsPage() {
               name: "Free Tier",
               price: "$0.00",
               period: "Forever",
-              features: ["Single User Profile", "7-Day Vitals History", "Basic Food Search"],
+              features: [
+                "1 Family Member Profile",
+                "Standard Vitals Logging",
+                "Basic Food Search & Meals",
+              ],
               badge: "Default",
             },
             {
               name: "Pro Monthly",
-              price: "$5.99",
+              price: "$4.99",
               period: "/ month",
-              features: ["Up to 3 Family Dependents", "Unlimited Vitals & Trends", "Can I Eat? Advice"],
+              features: [
+                "Up to 5 Family Profiles",
+                "Unlimited Health Analytics",
+                "Smart Reminders & Alerts",
+              ],
               badge: "Active",
             },
             {
               name: "Pro Annual",
-              price: "$49.99",
-              period: "/ year",
-              features: ["Up to 8 Family Dependents", "PDF Clinical Reports", "Priority Support"],
+              price: "$39.99",
+              period: "/ year ($3.33/mo)",
+              features: [
+                "Up to 5 Family Profiles",
+                "Unlimited PDF & CSV Reports",
+                "Priority Cloud Sync & 24/7 Support",
+              ],
               badge: "Best Value",
               highlight: true,
             },
             {
               name: "Lifetime Pass",
               price: "$149.00",
-              period: "One-time purchase",
-              features: ["All Pro Features Forever", "Unlimited Dependents", "Early Feature Access"],
+              period: "Admin / VIP Grant",
+              features: [
+                "All Pro Features Forever",
+                "Up to 5 Family Profiles",
+                "Permanent Cloud Sync & Early Access",
+              ],
               badge: "VIP",
             },
           ].map((plan, i) => (

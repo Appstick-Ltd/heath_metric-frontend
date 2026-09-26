@@ -27,67 +27,8 @@ import { TableSkeleton } from "@/components/ui/skeleton";
 import { LoadingSpinner } from "@/components/ui/loader";
 import { DataService } from "@/lib/data-service";
 import { Profile, FamilyMember, FamilyInvitation, BloodSugarRecord, BloodPressureRecord, WeightRecord, Subscription } from "@/types/database";
-import { formatDate, formatDateTime, formatTimeAgo, getAvatarUrl } from "@/lib/utils";
-
-function UserAvatar({
-  name,
-  photoUrl,
-  size = "md",
-  className = "",
-}: {
-  name?: string;
-  photoUrl?: string | null;
-  size?: "sm" | "md" | "lg";
-  className?: string;
-}) {
-  const [imgError, setImgError] = React.useState(false);
-
-  React.useEffect(() => {
-    setImgError(false);
-  }, [photoUrl]);
-
-  const sizeClasses = {
-    sm: "h-8 w-8 text-[11px]",
-    md: "h-10 w-10 text-xs",
-    lg: "h-16 w-16 text-lg",
-  }[size];
-
-  const initials = (name || "U")
-    .trim()
-    .split(/\s+/)
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase() || "U";
-
-  const avatarSrc = getAvatarUrl(photoUrl);
-  const hasValidPhoto = Boolean(avatarSrc && avatarSrc.length > 0 && !imgError);
-
-  if (hasValidPhoto) {
-    return (
-      <div
-        className={`relative ${sizeClasses} rounded-full p-[2px] bg-gradient-to-tr from-teal-500 to-sky-500 shadow-sm shrink-0 ${className}`}
-      >
-        <img
-          src={avatarSrc}
-          alt={name || "User"}
-          referrerPolicy="no-referrer"
-          crossOrigin="anonymous"
-          className="h-full w-full rounded-full object-cover bg-white dark:bg-slate-800"
-          onError={() => setImgError(true)}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className={`${sizeClasses} rounded-full bg-gradient-to-tr from-emerald-100 to-teal-100 dark:from-emerald-950/70 dark:to-teal-950/70 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold shrink-0 border border-emerald-500/20 shadow-xs ${className}`}
-    >
-      {initials}
-    </div>
-  );
-}
+import { formatDate, formatDateTime, formatTimeAgo } from "@/lib/utils";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 export default function UsersPage() {
   const [users, setUsers] = React.useState<Profile[]>([]);
@@ -657,8 +598,8 @@ export default function UsersPage() {
             <div className="space-y-2">
               {[
                 { name: "Free Tier", price: "$0.00 / month", id: "free" },
-                { name: "Pro Monthly", price: "$5.99 / month", id: "monthly" },
-                { name: "Pro Annual", price: "$49.99 / year", id: "annual" },
+                { name: "Pro Monthly", price: "$4.99 / month", id: "monthly" },
+                { name: "Pro Annual", price: "$39.99 / year ($3.33/mo)", id: "annual" },
                 { name: "Lifetime Health Pass", price: "$149.00 once", id: "lifetime" },
               ].map((tier) => (
                 <button

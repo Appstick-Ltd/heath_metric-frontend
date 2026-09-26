@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAdminAuth } from "@/lib/auth-context";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 const NAV_ITEMS = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -91,9 +92,12 @@ export function Sidebar() {
       <div className="p-3 border-t border-slate-100 dark:border-slate-800">
         <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 text-white flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
-              <ShieldCheck className="h-5 w-5 text-white" />
-            </div>
+            <UserAvatar
+              photoUrl={user?.avatar}
+              name={adminName}
+              size="sm"
+              shape="rounded"
+            />
             <div className="overflow-hidden min-w-0">
               <p
                 className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate max-w-[110px]"

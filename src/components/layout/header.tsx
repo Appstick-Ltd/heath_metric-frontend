@@ -18,6 +18,7 @@ import { ThemeToggle } from "./theme-toggle";
 import { DataService } from "@/lib/data-service";
 import { formatDateTime } from "@/lib/utils";
 import { useAdminAuth } from "@/lib/auth-context";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 type Notification = {
   id: string;
@@ -246,9 +247,12 @@ export function Header() {
             onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
             className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors text-left"
           >
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-bold text-xs shadow-sm shrink-0 border border-emerald-500/20">
-              <ShieldCheck className="h-5 w-5" />
-            </div>
+            <UserAvatar
+              photoUrl={user?.avatar}
+              name={adminName}
+              size="sm"
+              shape="rounded"
+            />
             <div className="hidden xl:block text-left">
               <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-tight truncate max-w-[130px]">
                 {adminName}
@@ -261,15 +265,23 @@ export function Header() {
           </button>
 
           {profileDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden p-2 space-y-1">
-              <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800">
-                <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
-                  {adminName}
-                </p>
-                <p className="text-[11px] text-slate-400 truncate">{adminEmail}</p>
-                <span className="inline-block mt-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
-                  {adminRole}
-                </span>
+            <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 overflow-hidden p-2 space-y-1">
+              <div className="px-3 py-2.5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
+                <UserAvatar
+                  photoUrl={user?.avatar}
+                  name={adminName}
+                  size="md"
+                  shape="rounded"
+                />
+                <div className="overflow-hidden min-w-0">
+                  <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">
+                    {adminName}
+                  </p>
+                  <p className="text-[11px] text-slate-400 truncate">{adminEmail}</p>
+                  <span className="inline-block mt-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
+                    {adminRole}
+                  </span>
+                </div>
               </div>
               <button
                 type="button"

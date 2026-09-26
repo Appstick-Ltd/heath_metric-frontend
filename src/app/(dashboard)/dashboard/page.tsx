@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/skeleton";
 import { DataService } from "@/lib/data-service";
 import { useAdminAuth } from "@/lib/auth-context";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import {
   KPISummary,
   UserGrowthDataPoint,
@@ -116,9 +117,12 @@ export default function DashboardPage() {
       {/* Top Welcome & Actions Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="h-12 w-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 shrink-0">
-            <ShieldCheck className="h-6 w-6" />
-          </div>
+          <UserAvatar
+            photoUrl={user?.avatar}
+            name={user?.name || "Admin"}
+            size="lg"
+            shape="rounded"
+          />
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
