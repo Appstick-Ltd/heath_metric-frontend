@@ -64,9 +64,16 @@ export function Header() {
     }
   };
 
-  // Load notifications when panel opens
+  // Load notifications on mount and periodically
   React.useEffect(() => {
-    if (notificationsOpen && notifications.length === 0) {
+    loadNotifications();
+    const interval = setInterval(loadNotifications, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Refresh notifications when panel opens
+  React.useEffect(() => {
+    if (notificationsOpen) {
       loadNotifications();
     }
   }, [notificationsOpen]);

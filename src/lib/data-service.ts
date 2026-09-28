@@ -655,7 +655,7 @@ export class DataService {
         supabase
           .from('blood_pressure_records')
           .select('id, user_id, systolic, diastolic, timestamp')
-          .gte('systolic', 140)
+          .or('systolic.gte.140,diastolic.gte.90')
           .order('timestamp', { ascending: false })
           .limit(5),
         supabase
