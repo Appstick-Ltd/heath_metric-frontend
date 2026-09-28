@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { useAdminAuth } from "@/lib/auth-context";
+import { AuthService } from "@/lib/auth-service";
 import { HeartPulse } from "lucide-react";
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
@@ -13,9 +14,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.replace("/login");
+      AuthService.logout();
     }
-  }, [isLoading, isAuthenticated, router]);
+  }, [isLoading, isAuthenticated]);
 
   if (isLoading) {
     return (

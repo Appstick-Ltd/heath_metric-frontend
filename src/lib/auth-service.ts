@@ -151,7 +151,11 @@ export class AuthService {
 
     try {
       const raw = localStorage.getItem(SESSION_STORAGE_KEY);
-      if (!raw) return null;
+      if (!raw) {
+        // Clear lingering cookie to prevent middleware redirect loops
+        document.cookie = `${COOKIE_NAME}=; path=/; max-age=0; SameSite=Lax`;
+        return null;
+      }
 
       const session: AuthSession = JSON.parse(raw);
       if (!session || !session.expiresAt || Date.now() > session.expiresAt) {
@@ -177,6 +181,7 @@ export class AuthService {
 
       return session;
     } catch {
+      document.cookie = `${COOKIE_NAME}=; path=/; max-age=0; SameSite=Lax`;
       return null;
     }
   }
