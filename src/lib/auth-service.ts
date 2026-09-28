@@ -14,16 +14,16 @@ export interface AuthSession {
   expiresAt: number;
 }
 
-// Built-in predefined Admin Accounts
+// Built-in predefined Admin & User Accounts
 export const VALID_ADMIN_ACCOUNTS = [
   {
     username: "admin",
-    aliases: ["admin@nutrihealth.com", "administrator", "mmks735.bd@gmail.com"],
+    aliases: ["admin@nutrihealth.com", "administrator", "superadmin"],
     password: "admin123",
-    name: "MD MAHFUJUL KARIM SHEIKH",
-    email: "mmks735.bd@gmail.com",
+    name: "Super Admin",
+    email: "admin@nutrihealth.com",
     role: "Super Admin",
-    avatar: "https://lh3.googleusercontent.com/a/ACg8ocLVl9c12A1i2AAHJyynksjltX3kFx4S5OciFyzHL-ADvb1XPsI=s96-c",
+    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
   },
   {
     username: "nutritionist",
@@ -33,6 +33,15 @@ export const VALID_ADMIN_ACCOUNTS = [
     email: "clinical@nutrihealth.com",
     role: "Clinical Specialist",
     avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&auto=format&fit=crop&q=80",
+  },
+  {
+    username: "user",
+    aliases: ["user@nutrihealth.com", "patient@nutrihealth.com", "patient"],
+    password: "user123",
+    name: "General App User",
+    email: "user@nutrihealth.com",
+    role: "Patient User",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
   }
 ];
 
@@ -54,7 +63,7 @@ export class AuthService {
       return { success: false, error: "Please enter both username and password." };
     }
 
-    // Find matching admin account
+    // Find matching admin or predefined account
     const matchedAccount = VALID_ADMIN_ACCOUNTS.find((acc) => {
       const isIdMatch =
         acc.username.toLowerCase() === cleanId ||
@@ -62,24 +71,44 @@ export class AuthService {
       return isIdMatch && acc.password === cleanPass;
     });
 
-    if (!matchedAccount) {
-      return {
-        success: false,
-        error: "Invalid username or password. (Default: username: admin / password: admin123)",
-      };
-    }
+    let targetUser: AdminUser;
 
-    const session: AuthSession = {
-      user: {
-        id: `admin-${matchedAccount.username}`,
+    if (matchedAccount) {
+      targetUser = {
+        id: `user-${matchedAccount.username}`,
         username: matchedAccount.username,
         name: matchedAccount.name,
         email: matchedAccount.email,
         role: matchedAccount.role,
-        avatar: matchedAccount.avatar || "https://lh3.googleusercontent.com/a/ACg8ocLVl9c12A1i2AAHJyynksjltX3kFx4S5OciFyzHL-ADvb1XPsI=s96-c",
+        avatar: matchedAccount.avatar,
         lastLogin: new Date().toISOString(),
-      },
-      token: `admin-token-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+      };
+    } else if (cleanPass.length >= 4) {
+      // Allow dynamic regular user login
+      const formattedName = cleanId.includes("@")
+        ? cleanId.split("@")[0].replace(/[._]/g, " ")
+        : cleanId;
+      const capitalizedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1);
+      
+      targetUser = {
+        id: `user-gen-${Date.now()}`,
+        username: cleanId,
+        name: capitalizedName,
+        email: cleanId.includes("@") ? cleanId : `${cleanId}@nutrihealth.app`,
+        role: "Patient User",
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanId}`,
+        lastLogin: new Date().toISOString(),
+      };
+    } else {
+      return {
+        success: false,
+        error: "Invalid username or password. (Use 'admin'/'admin123' for Admin or 'user'/'user123' for General User)",
+      };
+    }
+
+    const session: AuthSession = {
+      user: targetUser,
+      token: `auth-token-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
     };
 
@@ -131,15 +160,15 @@ export class AuthService {
         return null;
       }
 
-      // Auto-enrich existing session with avatar and updated account details if missing
+      // Auto-enrich existing session with avatar and updated account details if a matching account exists
       const matched = VALID_ADMIN_ACCOUNTS.find(
         (acc) => acc.username === session.user?.username || acc.email === session.user?.email
-      ) || VALID_ADMIN_ACCOUNTS[0];
+      );
 
-      if (matched && (!session.user.avatar || session.user.name === "System Administrator")) {
-        session.user.avatar = matched.avatar;
-        session.user.name = matched.name;
-        session.user.email = matched.email;
+      if (matched) {
+        session.user.avatar = matched.avatar || session.user.avatar;
+        session.user.name = matched.name || session.user.name;
+        session.user.email = matched.email || session.user.email;
         session.user.role = matched.role;
         try {
           localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));

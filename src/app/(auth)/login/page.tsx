@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { HeartPulse, Lock, User, ArrowRight, ShieldCheck, Eye, EyeOff, AlertCircle, Sparkles } from "lucide-react";
+import { HeartPulse, Lock, User, Users, ArrowRight, ShieldCheck, Eye, EyeOff, AlertCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -170,14 +170,14 @@ function LoginForm() {
         <div className="w-full text-center">
           <div className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
             <Sparkles className="h-3 w-3 text-emerald-500" />
-            Configured Admin Credentials
+            Quick Demo Accounts & Roles
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-left">
+          <div className="grid grid-cols-3 gap-2 text-left">
             <button
               type="button"
               onClick={() => handleQuickFill("admin", "admin123")}
-              className={`p-2.5 rounded-xl border text-xs transition-all ${
+              className={`p-2 rounded-xl border text-xs transition-all ${
                 username === "admin"
                   ? "border-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200"
                   : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:border-slate-300"
@@ -187,13 +187,13 @@ function LoginForm() {
                 <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
                 Super Admin
               </div>
-              <p className="text-[10px] text-slate-400 mt-1 font-mono">admin / admin123</p>
+              <p className="text-[10px] text-slate-400 mt-0.5 font-mono">admin / admin123</p>
             </button>
 
             <button
               type="button"
               onClick={() => handleQuickFill("nutritionist", "nutri123")}
-              className={`p-2.5 rounded-xl border text-xs transition-all ${
+              className={`p-2 rounded-xl border text-xs transition-all ${
                 username === "nutritionist"
                   ? "border-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200"
                   : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:border-slate-300"
@@ -201,9 +201,25 @@ function LoginForm() {
             >
               <div className="flex items-center gap-1 font-semibold text-[11px]">
                 <HeartPulse className="h-3.5 w-3.5 text-teal-600" />
-                Nutritionist CMS
+                Clinical Doc
               </div>
-              <p className="text-[10px] text-slate-400 mt-1 font-mono">nutritionist / nutri123</p>
+              <p className="text-[10px] text-slate-400 mt-0.5 font-mono">nutritionist / nutri123</p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleQuickFill("user", "user123")}
+              className={`p-2 rounded-xl border text-xs transition-all ${
+                username === "user"
+                  ? "border-emerald-500 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200"
+                  : "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 hover:border-slate-300"
+              }`}
+            >
+              <div className="flex items-center gap-1 font-semibold text-[11px]">
+                <Users className="h-3.5 w-3.5 text-sky-600" />
+                Patient User
+              </div>
+              <p className="text-[10px] text-slate-400 mt-0.5 font-mono">user / user123</p>
             </button>
           </div>
         </div>

@@ -58,7 +58,7 @@ export default function DashboardPage() {
     loadData();
   }, []);
 
-  const adminFirstName = user?.name ? user.name.split(" ")[0] : "Admin";
+  const adminDisplayName = user?.name || "Super Admin";
   const adminRole = user?.role || "Super Admin";
 
   if (loading || !kpi) {
@@ -126,7 +126,7 @@ export default function DashboardPage() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Welcome back, {adminFirstName}
+                Welcome back, {adminDisplayName}
               </h1>
               <span className="text-[11px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
                 {adminRole}

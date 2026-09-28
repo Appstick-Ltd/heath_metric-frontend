@@ -40,8 +40,8 @@ export function Header() {
   const panelRef = React.useRef<HTMLDivElement>(null);
   const profileRef = React.useRef<HTMLDivElement>(null);
 
-  const adminName = user?.name || "System Administrator";
-  const adminRole = user?.role || "Administrator";
+  const adminName = user?.name || "Super Admin";
+  const adminRole = user?.role || "Super Admin";
   const adminEmail = user?.email || "admin@nutrihealth.com";
   const initials = adminName
     .split(" ")

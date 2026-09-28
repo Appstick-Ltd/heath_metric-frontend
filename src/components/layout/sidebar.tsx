@@ -29,7 +29,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAdminAuth();
 
-  const adminName = user?.name || "System Administrator";
+  const adminName = user?.name || "Super Admin";
   const adminRole = user?.role || "Super Admin";
 
   return (

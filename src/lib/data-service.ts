@@ -505,8 +505,8 @@ export class DataService {
     return [
       {
         id: 'log-1',
-        admin_name: 'Dr. Shahriar (Admin)',
-        admin_role: 'Super Admin',
+        admin_name: 'System Admin',
+        admin_role: 'Administrator',
         action: 'Connected Supabase PostgreSQL Cloud',
         target: 'ejzyqswhgbknunqmvofq.supabase.co',
         ip_address: 'System',
@@ -611,8 +611,8 @@ export class DataService {
 
     // Log admin action
     await this.logAdminAction(
-      'Dr. Shahriar',
-      'Super Admin',
+      'System Admin',
+      'Administrator',
       `Hard-deleted all data for user ${userId}`,
       userId,
       'critical'
