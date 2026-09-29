@@ -579,26 +579,49 @@ export class DataService {
   // 10. DELETE USER & ALL RELATED DATA
   // ==========================================
   public static async deleteUserAllData(userId: string): Promise<{ success: boolean; error?: string }> {
+    // 1. Attempt server-side deletion endpoint first (elevated privileges + auth purge)
+    try {
+      const response = await fetch('/api/users/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          return { success: true };
+        }
+      }
+    } catch {
+      // If server API route is unavailable, continue with direct Supabase client cleanup
+    }
+
+    // 2. Direct client-side cleanup fallback across all child tables
     const supabase = this.getClient();
 
-    // Delete all related data in dependency order (child tables first)
-    const tablesToClean: string[] = [
-      'blood_sugar_records',
-      'blood_pressure_records',
-      'weight_records',
-      'symptom_records',
-      'meals',
-      'medicines',
-      'family_members',
-      'referrals',
-      'subscriptions',
+    const tableCleanups: Array<{ table: string; column: string }> = [
+      { table: 'blood_sugar_records', column: 'user_id' },
+      { table: 'blood_pressure_records', column: 'user_id' },
+      { table: 'weight_records', column: 'user_id' },
+      { table: 'symptom_records', column: 'user_id' },
+      { table: 'meals', column: 'user_id' },
+      { table: 'medicines', column: 'user_id' },
+      { table: 'family_members', column: 'user_id' },
+      { table: 'family_invitations', column: 'inviter_id' },
+      { table: 'family_access_grants', column: 'owner_id' },
+      { table: 'family_access_grants', column: 'grantee_id' },
+      { table: 'referrals', column: 'user_id' },
+      { table: 'referrals', column: 'referrer_id' },
+      { table: 'referrals', column: 'referee_id' },
+      { table: 'subscriptions', column: 'user_id' },
     ];
 
-    for (const table of tablesToClean) {
+    for (const { table, column } of tableCleanups) {
       try {
-        await supabase.from(table as any).delete().eq('user_id', userId);
+        await supabase.from(table as any).delete().eq(column, userId);
       } catch {
-        // Non-critical: table may not exist yet, continue
+        // Table or column might not exist or empty
       }
     }
 
