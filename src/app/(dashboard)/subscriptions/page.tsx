@@ -59,8 +59,6 @@ export default function SubscriptionsPage() {
       } else if (s.plan_type === "annual") {
         calculatedMrr += (parsedPrice > 0 ? parsedPrice : 39.99) / 12;
         activePaidCount++;
-      } else if (s.plan_type === "lifetime") {
-        activePaidCount++;
       }
     }
   });
@@ -104,7 +102,7 @@ export default function SubscriptionsPage() {
           <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
             {activePaidCount}
           </p>
-          <span className="text-xs text-slate-400 mt-1 inline-block">Pro / Lifetime accounts</span>
+          <span className="text-xs text-slate-400 mt-1 inline-block">Pro (Monthly & Annual)</span>
         </Card>
         <Card className="p-4">
           <span className="text-xs font-semibold text-slate-400 uppercase">Total Subscriptions</span>
@@ -120,7 +118,7 @@ export default function SubscriptionsPage() {
         <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3">
           Configured Subscription Tiers
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {[
             {
               name: "Free Tier",
@@ -155,17 +153,6 @@ export default function SubscriptionsPage() {
               ],
               badge: "Best Value",
               highlight: true,
-            },
-            {
-              name: "Lifetime Pass",
-              price: "$149.00",
-              period: "Admin / VIP Grant",
-              features: [
-                "All Pro Features Forever",
-                "Up to 5 Family Profiles",
-                "Permanent Cloud Sync & Early Access",
-              ],
-              badge: "VIP",
             },
           ].map((plan, i) => (
             <Card
@@ -211,7 +198,7 @@ export default function SubscriptionsPage() {
             </CardDescription>
           </div>
           <div className="flex items-center gap-1.5 text-xs">
-            {["ALL", "free", "monthly", "annual", "lifetime"].map((t) => (
+            {["ALL", "free", "monthly", "annual"].map((t) => (
               <button
                 key={t}
                 onClick={() => setFilterPlan(t)}
@@ -280,7 +267,7 @@ export default function SubscriptionsPage() {
                       {formatDate(sub.start_date)}
                     </td>
                     <td className="py-3 px-4 text-slate-400">
-                      {sub.expiry_date ? formatDate(sub.expiry_date) : "Lifetime"}
+                      {sub.expiry_date ? formatDate(sub.expiry_date) : "Auto-renews"}
                     </td>
                   </tr>
                 ))}

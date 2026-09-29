@@ -357,11 +357,11 @@ export class DataService {
 
   public static async updateSubscriptionPlan(
     userId: string,
-    planType: 'free' | 'monthly' | 'annual' | 'lifetime'
+    planType: 'free' | 'monthly' | 'annual'
   ): Promise<boolean> {
     const supabase = this.getClient();
     const pricePaid =
-      planType === 'monthly' ? '$4.99' : planType === 'annual' ? '$39.99' : planType === 'lifetime' ? '$149.00' : '$0.00';
+      planType === 'monthly' ? '$4.99' : planType === 'annual' ? '$39.99' : '$0.00';
 
     const { error } = await supabase
       .from('subscriptions')

@@ -600,7 +600,6 @@ export default function UsersPage() {
                 { name: "Free Tier", price: "$0.00 / month", id: "free" },
                 { name: "Pro Monthly", price: "$4.99 / month", id: "monthly" },
                 { name: "Pro Annual", price: "$39.99 / year ($3.33/mo)", id: "annual" },
-                { name: "Lifetime Health Pass", price: "$149.00 once", id: "lifetime" },
               ].map((tier) => (
                 <button
                   key={tier.id}

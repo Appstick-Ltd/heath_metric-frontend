@@ -56,7 +56,6 @@ export function RevenueChart({ data }: RevenueChartProps) {
           {[
             { label: "Monthly", color: "#10b981" },
             { label: "Annual", color: "#0ea5e9" },
-            { label: "Lifetime", color: "#8b5cf6" },
           ].map((l) => (
             <div key={l.label} className="flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-sm shrink-0" style={{ backgroundColor: l.color }} />
@@ -90,8 +89,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
                 cursor={{ fill: isDark ? "rgba(100,116,139,0.08)" : "rgba(148,163,184,0.08)" }}
               />
               <Bar dataKey="monthlyRevenue" fill="#10b981" radius={[4, 4, 0, 0]} name="Monthly Plan" stackId="a" />
-              <Bar dataKey="annualRevenue" fill="#0ea5e9" radius={[0, 0, 0, 0]} name="Annual Plan" stackId="a" />
-              <Bar dataKey="lifetimeRevenue" fill="#8b5cf6" radius={[4, 4, 0, 0]} name="Lifetime Pass" stackId="a" />
+              <Bar dataKey="annualRevenue" fill="#0ea5e9" radius={[4, 4, 0, 0]} name="Annual Plan" stackId="a" />
             </BarChart>
           </ResponsiveContainer>
         </div>
