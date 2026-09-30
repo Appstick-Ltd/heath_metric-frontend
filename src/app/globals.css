@@ -112,3 +112,12 @@ html.dark body {
 .animate-bounce-slow {
   animation: bounceSlow 3.5s ease-in-out infinite;
 }
+
+/* Hide scrollbar utility for clean mobile horizontal swipe */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

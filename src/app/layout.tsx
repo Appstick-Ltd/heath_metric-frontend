@@ -1,9 +1,15 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export const metadata: Metadata = {
-  title: "NutriHealth Admin & Operations Portal",
-  description: "Operations, User Directory, Health Analytics, and Content Management for NutriHealth Platform",
+  title: "NutriHealth | Smart Glucose, Blood Pressure & Food Nutrition Tracker",
+  description: "The complete personal health companion for diabetes, hypertension, vitals tracking, and clinical food guidance.",
   icons: {
     icon: "/favicon.ico",
   },

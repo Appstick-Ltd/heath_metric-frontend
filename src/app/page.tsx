@@ -288,23 +288,23 @@ export default function LandingPage() {
       {/* ========================================================================= */}
       {/* 1. FIXED NAVBAR */}
       {/* ========================================================================= */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#07090e]/85 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/[0.08] transition-colors duration-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 sm:h-20 flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/85 dark:bg-[#07090e]/85 backdrop-blur-xl border-b border-slate-200/80 dark:border-white/[0.08] transition-colors duration-200">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 p-0.5 shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform duration-200 flex items-center justify-center text-white">
-              <HeartPulse className="h-6 w-6" />
+          <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
+            <div className="h-9 w-9 sm:h-11 sm:w-11 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 p-0.5 shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform duration-200 flex items-center justify-center text-white shrink-0">
+              <HeartPulse className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-lg sm:text-xl tracking-tight text-slate-950 dark:text-white uppercase">
+                <span className="font-extrabold text-base sm:text-xl tracking-tight text-slate-950 dark:text-white uppercase">
                   NUTRI<span className="text-emerald-600 dark:text-emerald-400">HEALTH</span>
                 </span>
-                <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 dark:border-emerald-500/30">
+                <span className="hidden xs:inline-block text-[10px] uppercase font-bold px-1.5 py-0.5 rounded-md bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 dark:border-emerald-500/30">
                   App
                 </span>
               </div>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium tracking-tight -mt-0.5">
+              <p className="hidden xs:block text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-medium tracking-tight -mt-0.5">
                 Smart Care • Clinical Precision
               </p>
             </div>
@@ -333,7 +333,7 @@ export default function LandingPage() {
           </nav>
 
           {/* Right Header Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {/* Theme Toggle (Light / Dark / System) */}
             <div className="flex items-center justify-center border border-slate-200 dark:border-white/10 rounded-xl bg-slate-100/80 dark:bg-white/[0.05]">
               <ThemeToggle />
@@ -349,17 +349,20 @@ export default function LandingPage() {
 
             <a
               href="#download"
-              className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-500 dark:to-teal-600 hover:from-emerald-700 hover:to-teal-700 dark:hover:from-emerald-600 dark:hover:to-teal-700 shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-150 cursor-pointer"
+              className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 dark:from-emerald-500 dark:to-teal-600 hover:from-emerald-700 hover:to-teal-700 dark:hover:from-emerald-600 dark:hover:to-teal-700 shadow-md shadow-emerald-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-150 cursor-pointer"
             >
-              <span>Download App</span>
-              <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-                <Download className="w-3 h-3 text-white" />
+              <span className="hidden xs:inline">Download</span>
+              <span className="xs:hidden">Get</span>
+              <span>App</span>
+              <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/20 flex items-center justify-center">
+                <Download className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-white" />
               </div>
             </a>
 
             {/* Mobile Drawer Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle Navigation Menu"
               className="md:hidden p-2 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300"
             >
               <ChevronDown className={`h-5 w-5 transition-transform ${mobileMenuOpen ? "rotate-180" : ""}`} />
@@ -369,7 +372,7 @@ export default function LandingPage() {
 
         {/* Mobile Dropdown Nav */}
         {mobileMenuOpen && (
-          <div className="md:hidden px-4 py-4 bg-white dark:bg-[#0a0d17] border-b border-slate-200 dark:border-white/10 space-y-2 text-sm">
+          <div className="md:hidden px-4 py-4 bg-white/95 dark:bg-[#0a0d17]/95 backdrop-blur-2xl border-b border-slate-200 dark:border-white/10 space-y-2 text-sm shadow-2xl">
             <a
               href="#home"
               onClick={() => setMobileMenuOpen(false)}
@@ -415,9 +418,9 @@ export default function LandingPage() {
             <Link
               href="/login"
               onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 rounded-lg text-emerald-600 dark:text-emerald-400 font-semibold"
+              className="block px-3 py-2 rounded-lg text-emerald-600 dark:text-emerald-400 font-semibold border-t border-slate-100 dark:border-white/5 pt-3"
             >
-              Admin Sign In &rarr;
+              Admin Portal Sign In &rarr;
             </Link>
           </div>
         )}
@@ -426,19 +429,19 @@ export default function LandingPage() {
       {/* ========================================================================= */}
       {/* 2. HERO SECTION */}
       {/* ========================================================================= */}
-      <section id="home" className="relative pt-28 sm:pt-36 pb-16 sm:pb-24 px-4 sm:px-6 lg:px-8 z-10">
+      <section id="home" className="relative pt-24 sm:pt-36 pb-14 sm:pb-24 px-4 sm:px-6 lg:px-8 z-10 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          <div className="grid lg:grid-cols-12 gap-10 lg:gap-8 items-center">
             {/* Left Content */}
-            <div className="lg:col-span-6 space-y-6 text-left">
+            <div className="lg:col-span-6 space-y-5 sm:space-y-6 text-left">
               {/* Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 dark:border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/10 shadow-sm backdrop-blur-md">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 dark:border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-500/10 shadow-sm backdrop-blur-md">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>PERSONAL HEALTH & NUTRITION ASSISTANT</span>
               </div>
 
               {/* Main Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-[52px] font-black tracking-tight leading-[1.12] text-slate-950 dark:text-white">
+              <h1 className="text-3xl xs:text-4xl sm:text-5xl lg:text-[52px] font-black tracking-tight leading-[1.14] text-slate-950 dark:text-white">
                 Track Glucose, Blood Pressure & Food with{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 dark:from-emerald-400 dark:via-teal-300 dark:to-white">
                   Clinical Precision.
@@ -446,15 +449,15 @@ export default function LandingPage() {
               </h1>
 
               {/* Subtext */}
-              <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
+              <p className="text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
                 The smart daily health companion designed for diabetes, hypertension, and family wellness. Log vital readings, inspect food glycemic safety with <em>&quot;Can I Eat?&quot;</em>, schedule medication alarms, and keep family members protected.
               </p>
 
               {/* App Store / Google Play Badges */}
-              <div className="flex flex-wrap items-center gap-3.5 pt-2">
+              <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-3 pt-2">
                 <a
                   href="#download"
-                  className="inline-flex items-center gap-3.5 px-5 py-2.5 sm:py-3 rounded-2xl bg-slate-950 hover:bg-slate-900 text-white border border-slate-800 shadow-xl hover:shadow-emerald-500/20 active:scale-[0.98] transition-all duration-150 group cursor-pointer"
+                  className="inline-flex items-center justify-center gap-3.5 px-5 py-2.5 sm:py-3 rounded-2xl bg-slate-950 hover:bg-slate-900 text-white border border-slate-800 shadow-xl hover:shadow-emerald-500/20 active:scale-[0.98] transition-all duration-150 group cursor-pointer"
                 >
                   <svg className="w-7 h-7 sm:w-8 sm:h-8 shrink-0 group-hover:scale-105 transition-transform duration-150" viewBox="0 0 512 512">
                     <path fill="#4285F4" d="M48.7 18.5c-4.8 5.2-7.7 13-7.7 23v429c0 10 2.9 17.8 7.7 23l2.4 2.4L275 272v-5.8L51.1 16.1l-2.4 2.4z" />
@@ -470,7 +473,7 @@ export default function LandingPage() {
 
                 <a
                   href="#download"
-                  className="inline-flex items-center gap-3.5 px-5 py-2.5 sm:py-3 rounded-2xl bg-slate-950 hover:bg-slate-900 text-white border border-slate-800 shadow-xl hover:shadow-emerald-500/20 active:scale-[0.98] transition-all duration-150 group cursor-pointer"
+                  className="inline-flex items-center justify-center gap-3.5 px-5 py-2.5 sm:py-3 rounded-2xl bg-slate-950 hover:bg-slate-900 text-white border border-slate-800 shadow-xl hover:shadow-emerald-500/20 active:scale-[0.98] transition-all duration-150 group cursor-pointer"
                 >
                   <svg className="w-7 h-7 sm:w-8 sm:h-8 fill-white shrink-0 group-hover:scale-105 transition-transform duration-150" viewBox="0 0 384 512">
                     <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
@@ -483,30 +486,30 @@ export default function LandingPage() {
               </div>
 
               {/* Trust Badges Chips */}
-              <div className="pt-2 flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-600 dark:text-slate-400">
+              <div className="pt-2 grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-4 text-xs font-semibold text-slate-600 dark:text-slate-400">
                 <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> Auto mmol/L & mg/dL
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" /> Auto mmol/L & mg/dL
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> Instant Vital Alerts
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" /> Instant Vital Alerts
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> Multi-Family Profiles
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" /> Multi-Family Profiles
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> Cloud Sync & Backup
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" /> Cloud Sync & Backup
                 </span>
               </div>
             </div>
 
             {/* Right Mobile Phone Device Mockup with Real App Screenshot (Framed Professionally & Dynamically Interactive) */}
             <div 
-              className="lg:col-span-6 relative flex flex-col items-center justify-center py-6"
+              className="lg:col-span-6 relative flex flex-col items-center justify-center py-4 sm:py-6"
               onMouseEnter={() => setIsAutoPlaying(false)}
               onMouseLeave={() => setIsAutoPlaying(true)}
             >
-              {/* Interactive Tab Switcher Pill Bar */}
-              <div className="flex items-center gap-1 sm:gap-1.5 p-1.5 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/10 shadow-xl backdrop-blur-xl mb-3 z-30 transition-all">
+              {/* Interactive Tab Switcher Pill Bar (Responsive with horizontal touch swipe) */}
+              <div className="w-full max-w-[280px] xs:max-w-[340px] sm:max-w-none flex items-center justify-start sm:justify-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-2xl bg-white/90 dark:bg-slate-900/90 border border-slate-200/90 dark:border-white/10 shadow-xl backdrop-blur-xl mb-3 z-30 transition-all overflow-x-auto no-scrollbar scroll-smooth">
                 {APP_SCREENS.map((screen, idx) => {
                   const Icon = screen.icon;
                   const isActive = activeScreenIndex === idx;
@@ -518,13 +521,13 @@ export default function LandingPage() {
                         setActiveScreenIndex(idx);
                         setIsAutoPlaying(false);
                       }}
-                      className={`flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      className={`shrink-0 flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all cursor-pointer ${
                         isActive
-                          ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/30 scale-[1.03]"
+                          ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/30 scale-[1.02]"
                           : "text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
                       }`}
                     >
-                      <Icon className="h-3.5 w-3.5" />
+                      <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                       <span>{screen.label}</span>
                     </button>
                   );
@@ -532,15 +535,15 @@ export default function LandingPage() {
               </div>
 
               {/* Tagline for active screen */}
-              <div className="mb-4 text-center h-5">
-                <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 tracking-wide transition-all">
+              <div className="mb-3 sm:mb-4 text-center h-5">
+                <span className="text-[11px] sm:text-xs font-semibold text-emerald-700 dark:text-emerald-400 tracking-wide transition-all">
                   {APP_SCREENS[activeScreenIndex].tagline}
                 </span>
               </div>
 
               {/* Phone Frame Container with Floating Chips */}
               <div className="relative flex items-center justify-center w-full">
-                {/* Floating Chip 1: Dynamic Top-Left */}
+                {/* Floating Chip 1: Dynamic Top-Left (Desktop/Tablet) */}
                 <div className="hidden sm:flex absolute top-10 -left-4 lg:-left-12 z-30 items-center gap-3 p-3.5 rounded-2xl bg-white/95 dark:bg-[#0f1422]/95 border border-slate-200/90 dark:border-white/10 shadow-2xl backdrop-blur-xl transition-all duration-300">
                   <div className={`h-10 w-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center ${APP_SCREENS[activeScreenIndex].badgeTop.color} shrink-0`}>
                     {React.createElement(APP_SCREENS[activeScreenIndex].badgeTop.icon, { className: "h-5 w-5" })}
@@ -555,7 +558,7 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Floating Chip 2: Dynamic Bottom-Right */}
+                {/* Floating Chip 2: Dynamic Bottom-Right (Desktop/Tablet) */}
                 <div className="hidden sm:flex absolute bottom-12 -right-4 lg:-right-12 z-30 items-center gap-3 p-3.5 rounded-2xl bg-white/95 dark:bg-[#0f1422]/95 border border-slate-200/90 dark:border-white/10 shadow-2xl backdrop-blur-xl transition-all duration-300">
                   <div className="h-10 w-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 shrink-0">
                     {React.createElement(APP_SCREENS[activeScreenIndex].badgeBottom.icon, {
@@ -574,16 +577,16 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                {/* Realistic Premium Smartphone Mockup Frame */}
-                <div className="relative z-10 w-full max-w-[305px] sm:max-w-[335px] rounded-[52px] p-2.5 sm:p-3 bg-gradient-to-b from-slate-800 via-slate-950 to-slate-900 border-[6px] border-slate-700/80 shadow-[0_30px_90px_-15px_rgba(16,185,129,0.35)] ring-1 ring-white/15 shrink-0 flex flex-col group transition-transform duration-300 hover:scale-[1.01]">
+                {/* Realistic Premium Smartphone Mockup Frame (Optimized width for all devices) */}
+                <div className="relative z-10 w-full max-w-[270px] xs:max-w-[305px] sm:max-w-[335px] rounded-[48px] xs:rounded-[52px] p-2.5 sm:p-3 bg-gradient-to-b from-slate-800 via-slate-950 to-slate-900 border-[5px] sm:border-[6px] border-slate-700/80 shadow-[0_25px_80px_-15px_rgba(16,185,129,0.35)] ring-1 ring-white/15 shrink-0 flex flex-col group transition-transform duration-300 hover:scale-[1.01]">
                   {/* Dynamic Island / Speaker Notch */}
-                  <div className="absolute top-4 left-1/2 -translate-x-1/2 w-26 h-4.5 bg-black rounded-full z-30 flex items-center justify-center pointer-events-none shadow-md">
-                    <div className="w-2.5 h-2.5 rounded-full bg-neutral-900 border border-neutral-700 mr-2" />
-                    <div className="w-8 h-1 bg-neutral-800 rounded-full" />
+                  <div className="absolute top-4 left-1/2 -translate-x-1/2 w-22 sm:w-26 h-4 sm:h-4.5 bg-black rounded-full z-30 flex items-center justify-center pointer-events-none shadow-md">
+                    <div className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-neutral-900 border border-neutral-700 mr-2" />
+                    <div className="w-7 sm:w-8 h-1 bg-neutral-800 rounded-full" />
                   </div>
 
                   {/* Inner Screen Display with Active Screen Screenshot */}
-                  <div className="rounded-[40px] overflow-hidden w-full aspect-[720/1565] bg-[#F8FAFC] relative shadow-inner">
+                  <div className="rounded-[38px] xs:rounded-[40px] overflow-hidden w-full aspect-[720/1565] bg-[#F8FAFC] relative shadow-inner">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       key={APP_SCREENS[activeScreenIndex].id}
@@ -598,8 +601,41 @@ export default function LandingPage() {
                 </div>
               </div>
 
+              {/* Mobile Screen Insight Badges (Visible on small screens < 640px) */}
+              <div className="sm:hidden grid grid-cols-2 gap-2 w-full max-w-[290px] mt-4 z-20">
+                <div className="p-2.5 rounded-xl bg-white/95 dark:bg-[#0f1422]/95 border border-slate-200/90 dark:border-white/10 shadow-md text-left">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <div className={`p-1 rounded-md bg-emerald-500/10 ${APP_SCREENS[activeScreenIndex].badgeTop.color} shrink-0`}>
+                      {React.createElement(APP_SCREENS[activeScreenIndex].badgeTop.icon, { className: "h-3.5 w-3.5" })}
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-900 dark:text-white leading-tight line-clamp-1">
+                      {APP_SCREENS[activeScreenIndex].badgeTop.title}
+                    </p>
+                  </div>
+                  <p className="text-[9px] text-slate-500 dark:text-slate-400 leading-tight line-clamp-1">
+                    {APP_SCREENS[activeScreenIndex].badgeTop.subtitle}
+                  </p>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-white/95 dark:bg-[#0f1422]/95 border border-slate-200/90 dark:border-white/10 shadow-md text-left">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <div className="p-1 rounded-md bg-amber-500/10 text-amber-500 shrink-0">
+                      {React.createElement(APP_SCREENS[activeScreenIndex].badgeBottom.icon, {
+                        className: `h-3.5 w-3.5 ${APP_SCREENS[activeScreenIndex].badgeBottom.fill ? "fill-amber-500" : ""}`,
+                      })}
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-900 dark:text-white leading-tight line-clamp-1">
+                      {APP_SCREENS[activeScreenIndex].badgeBottom.title}
+                    </p>
+                  </div>
+                  <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-semibold leading-tight line-clamp-1">
+                    {APP_SCREENS[activeScreenIndex].badgeBottom.subtitle}
+                  </p>
+                </div>
+              </div>
+
               {/* Slider Bottom Controls (Dots + Prev/Next + AutoPlay Indicator) */}
-              <div className="flex items-center justify-center gap-3 mt-5 z-20">
+              <div className="flex items-center justify-center gap-2.5 sm:gap-3 mt-4 sm:mt-5 z-20">
                 <button
                   type="button"
                   aria-label="Previous screen"
@@ -854,12 +890,12 @@ export default function LandingPage() {
               />
             </div>
 
-            <div className="flex items-center justify-center gap-2 flex-wrap text-xs">
+            <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto no-scrollbar py-1 px-1 text-xs">
               {["ALL", "Grains", "Fish & Protein", "Vegetables", "Fruits", "Nuts & Seeds"].map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setSelectedFoodCategory(cat)}
-                  className={`px-3.5 py-1.5 rounded-xl font-medium transition-all ${
+                  className={`shrink-0 px-3.5 py-1.5 rounded-xl font-medium transition-all cursor-pointer ${
                     selectedFoodCategory === cat
                       ? "bg-teal-600 text-white dark:bg-teal-500 dark:text-black font-bold shadow-md shadow-teal-500/20"
                       : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -901,7 +937,7 @@ export default function LandingPage() {
                   <p className="text-xs text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">{food.tip}</p>
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 dark:border-white/5 flex items-center justify-between text-xs">
+                <div className="pt-3 border-t border-slate-100 dark:border-white/5 flex flex-wrap items-center justify-between gap-2 text-xs">
                   <div className="flex items-center gap-1.5">
                     {food.isDiabetic ? (
                       <span className="text-emerald-600 dark:text-emerald-400 text-[11px] font-semibold flex items-center gap-1">
@@ -913,7 +949,7 @@ export default function LandingPage() {
                       </span>
                     )}
                   </div>
-                  <span className="text-slate-500 dark:text-slate-400 text-[11px]">
+                  <span className="text-slate-500 dark:text-slate-400 text-[11px] shrink-0">
                     {food.calories} kcal • {food.carbs}g carbs
                   </span>
                 </div>
@@ -1175,25 +1211,25 @@ export default function LandingPage() {
       {/* 9. FINAL DOWNLOAD CTA BANNER */}
       {/* ========================================================================= */}
       <section id="download" className="py-20 px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="max-w-5xl mx-auto rounded-3xl p-8 sm:p-14 bg-gradient-to-r from-emerald-900 via-teal-950 to-slate-950 text-white border border-emerald-500/40 shadow-2xl shadow-emerald-500/10 text-center relative overflow-hidden">
-          <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
+        <div className="max-w-5xl mx-auto rounded-3xl p-6 sm:p-14 bg-gradient-to-r from-emerald-900 via-teal-950 to-slate-950 text-white border border-emerald-500/40 shadow-2xl shadow-emerald-500/10 text-center relative overflow-hidden">
+          <div className="relative z-10 space-y-5 sm:space-y-6 max-w-2xl mx-auto">
             <Badge variant="success" className="text-xs uppercase px-3 py-1 bg-emerald-500/20 text-emerald-300 border-emerald-500/30">
               Available Worldwide
             </Badge>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
+            <h2 className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
               Begin Your Journey to Better Health Today.
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
               Download NutriHealth now on Android and iOS. Take the guesswork out of daily nutrition, blood sugar, and medication.
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 pt-2">
               <button
                 type="button"
                 onClick={() => alert("Google Play Store build is linking to your store publication.")}
-                className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-black hover:bg-neutral-900 text-white border border-white/20 hover:border-emerald-500/60 shadow-xl transition-all cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center sm:justify-start gap-3 px-5 py-3 rounded-2xl bg-black hover:bg-neutral-900 text-white border border-white/20 hover:border-emerald-500/60 shadow-xl transition-all cursor-pointer"
               >
-                <Download className="w-5 h-5 text-emerald-400" />
+                <Download className="w-5 h-5 text-emerald-400 shrink-0" />
                 <div className="text-left leading-none">
                   <span className="text-[10px] text-slate-400 uppercase">Direct Download</span>
                   <p className="text-sm font-bold text-white mt-1">Android APK / Play Store</p>
@@ -1203,9 +1239,9 @@ export default function LandingPage() {
               <button
                 type="button"
                 onClick={() => alert("Apple TestFlight / App Store build is preparing for distribution.")}
-                className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-black hover:bg-neutral-900 text-white border border-white/20 hover:border-emerald-500/60 shadow-xl transition-all cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center sm:justify-start gap-3 px-5 py-3 rounded-2xl bg-black hover:bg-neutral-900 text-white border border-white/20 hover:border-emerald-500/60 shadow-xl transition-all cursor-pointer"
               >
-                <Download className="w-5 h-5 text-teal-400" />
+                <Download className="w-5 h-5 text-teal-400 shrink-0" />
                 <div className="text-left leading-none">
                   <span className="text-[10px] text-slate-400 uppercase">Direct Download</span>
                   <p className="text-sm font-bold text-white mt-1">iOS App Store</p>
