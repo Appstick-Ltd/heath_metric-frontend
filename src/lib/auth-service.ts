@@ -109,7 +109,7 @@ export class AuthService {
     const session: AuthSession = {
       user: targetUser,
       token: `auth-token-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-      expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
+      expiresAt: Date.now() + 8 * 60 * 60 * 1000, // 8 hours
     };
 
     // Store in browser
@@ -119,7 +119,7 @@ export class AuthService {
         // Also set cookie so Next.js middleware and SSR can detect auth
         document.cookie = `${COOKIE_NAME}=${encodeURIComponent(
           session.token
-        )}; path=/; max-age=604800; SameSite=Lax`;
+        )}; path=/; max-age=28800; SameSite=Lax`;
       } catch (err) {
         console.error("Failed to persist admin session:", err);
       }

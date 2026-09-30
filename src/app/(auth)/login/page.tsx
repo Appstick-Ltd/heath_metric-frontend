@@ -6,26 +6,28 @@ import { HeartPulse, Lock, User, Users, ArrowRight, ShieldCheck, Eye, EyeOff, Al
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { AuthService } from "@/lib/auth-service";
+import { AuthService, AdminUser } from "@/lib/auth-service";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get("redirect") || "/dashboard";
 
-  const [username, setUsername] = React.useState("admin");
-  const [password, setPassword] = React.useState("admin123");
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState(false);
+  const [activeAdmin, setActiveAdmin] = React.useState<AdminUser | null>(null);
 
-  // If already authenticated, redirect straight to dashboard
+  // Check if a session already exists to give the user the option, but NEVER auto-redirect
   React.useEffect(() => {
-    if (AuthService.isAuthenticated()) {
-      router.replace(redirectUrl);
+    const current = AuthService.getCurrentAdmin();
+    if (current) {
+      setActiveAdmin(current);
     }
-  }, [router, redirectUrl]);
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,6 +75,41 @@ function LoginForm() {
 
       <form onSubmit={handleLogin}>
         <CardContent className="space-y-4">
+          {/* Active Session Notice if already signed in */}
+          {activeAdmin && (
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-xs flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
+                <span className="text-slate-600 dark:text-slate-300 truncate">
+                  Signed in: <strong className="text-slate-900 dark:text-white">{activeAdmin.name}</strong> ({activeAdmin.role})
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-7 text-[11px] px-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/50"
+                  onClick={() => router.push(redirectUrl)}
+                >
+                  Dashboard &rarr;
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  className="h-7 text-[11px] px-2 text-rose-600 hover:text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                  onClick={() => {
+                    AuthService.logout();
+                    setActiveAdmin(null);
+                  }}
+                >
+                  Sign Out
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Error Alert */}
           {errorMessage && (
             <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/50 text-rose-700 dark:text-rose-300 text-xs flex items-start gap-2.5 animate-in fade-in zoom-in-95">
@@ -116,18 +153,9 @@ function LoginForm() {
 
           {/* Password Field */}
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                Password
-              </label>
-              <button
-                type="button"
-                onClick={() => handleQuickFill("admin", "admin123")}
-                className="text-[11px] text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 hover:underline font-medium"
-              >
-                Reset to default
-              </button>
-            </div>
+            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              Password
+            </label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input

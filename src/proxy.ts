@@ -24,11 +24,6 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // If already logged in and visiting /login, redirect to /dashboard
-  if (pathname === '/login' && isAuthenticated) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
   return NextResponse.next();
 }
 
@@ -36,15 +31,22 @@ export const middleware = proxy;
 
 export const config = {
   matcher: [
-    '/',
     '/login',
+    '/dashboard',
     '/dashboard/:path*',
+    '/users',
     '/users/:path*',
+    '/health-analytics',
     '/health-analytics/:path*',
+    '/subscriptions',
     '/subscriptions/:path*',
+    '/referrals',
     '/referrals/:path*',
+    '/cms-foods',
     '/cms-foods/:path*',
+    '/medicines',
     '/medicines/:path*',
+    '/settings',
     '/settings/:path*',
   ],
 };
