@@ -50,20 +50,21 @@ export interface FamilyInvitation {
 export interface BloodSugarRecord {
   id: string;
   user_id: string;
-  member_id: string;
+  member_id?: string;
   value: number;
-  reading_type: 'fasting' | 'post_meal' | 'bedtime' | 'random';
+  reading_type: 'fasting' | 'post_meal' | 'postMeal' | 'bedtime' | 'random' | string;
   timestamp: string;
+  unit?: string | null;
   note?: string | null;
 }
 
 export interface BloodPressureRecord {
   id: string;
   user_id: string;
-  member_id: string;
+  member_id?: string;
   systolic: number;
   diastolic: number;
-  pulse: number;
+  pulse?: number;
   timestamp: string;
   note?: string | null;
 }
@@ -71,7 +72,7 @@ export interface BloodPressureRecord {
 export interface WeightRecord {
   id: string;
   user_id: string;
-  member_id: string;
+  member_id?: string;
   weight: number;
   bmi: number;
   timestamp: string;
@@ -83,31 +84,33 @@ export interface Medicine {
   user_id?: string;
   member_id?: string;
   name: string;
-  dosage: string;
-  type: string;
-  frequency: string;
-  schedule_times: string[];
+  dosage?: string;
+  type?: string;
+  frequency?: string;
+  schedule_times?: string[];
   instructions?: string | null;
   start_date?: string;
   reminder_enabled?: boolean;
+  item_json?: any;
 }
 
 export interface Meal {
   id: string;
   user_id: string;
-  member_id: string;
+  member_id?: string;
   name: string;
-  meal_type: 'breakfast' | 'lunch' | 'snack' | 'dinner';
+  meal_type: string;
   custom_type_name?: string | null;
   calories: number;
-  carbs: number;
-  protein: number;
-  fat: number;
+  carbs?: number;
+  protein?: number;
+  fat?: number;
   time: string;
   is_completed: boolean;
   date?: string;
   foods?: Array<{
     name: string;
+    quantity?: string;
     portion?: string;
     calories?: number;
   }>;
@@ -116,12 +119,12 @@ export interface Meal {
 export interface SymptomRecord {
   id: string;
   user_id: string;
-  member_id: string;
+  member_id?: string;
   body_region: string;
-  is_front: boolean;
+  is_front?: boolean;
   vas_score: number;
-  sensation_qualities: string[];
-  aggravating_factors: string[];
+  sensation_qualities?: string[];
+  aggravating_factors?: string[];
   timestamp: string;
   note?: string | null;
 }
@@ -135,6 +138,8 @@ export interface Subscription {
   expiry_date?: string | null;
   price_paid: string;
   created_at?: string;
+  user_name?: string;
+  user_email?: string;
 }
 
 export interface Referral {
@@ -144,6 +149,9 @@ export interface Referral {
   referee_id?: string | null;
   status: 'pending' | 'rewarded';
   created_at: string;
+  referrer_name?: string;
+  referrer_email?: string;
+  referee_name?: string;
 }
 
 export interface CMSFoodItem {

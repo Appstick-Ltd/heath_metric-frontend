@@ -238,7 +238,7 @@ export default function SubscriptionsPage() {
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50/75 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-slate-400 font-semibold uppercase">
                 <tr>
-                  <th className="py-3 px-4">User ID</th>
+                  <th className="py-3 px-4">Patient / Account</th>
                   <th className="py-3 px-4">Plan Tier</th>
                   <th className="py-3 px-4">Price Paid</th>
                   <th className="py-3 px-4">Status</th>
@@ -249,8 +249,16 @@ export default function SubscriptionsPage() {
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {filteredSubs.map((sub) => (
                   <tr key={sub.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30">
-                    <td className="py-3 px-4 font-mono font-medium text-slate-800 dark:text-slate-200">
-                      {sub.user_id}
+                    <td className="py-3 px-4">
+                      <p className="font-semibold text-slate-900 dark:text-slate-100">
+                        {sub.user_name || "Patient User"}
+                      </p>
+                      <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                        {sub.user_email || "No email"}
+                      </p>
+                      <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                        ID: {sub.user_id}
+                      </p>
                     </td>
                     <td className="py-3 px-4 capitalize font-semibold text-slate-900 dark:text-slate-100">
                       {sub.plan_type}

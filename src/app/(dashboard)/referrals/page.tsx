@@ -142,11 +142,32 @@ export default function ReferralsPage() {
                     <td className="py-3 px-4 font-mono font-bold text-emerald-600 dark:text-emerald-400">
                       {ref.referral_code}
                     </td>
-                    <td className="py-3 px-4 font-mono text-slate-700 dark:text-slate-300">
-                      {ref.referrer_id}
+                    <td className="py-3 px-4">
+                      <p className="font-semibold text-slate-900 dark:text-slate-100">
+                        {ref.referrer_name || "Referrer"}
+                      </p>
+                      {ref.referrer_email && (
+                        <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                          {ref.referrer_email}
+                        </p>
+                      )}
+                      <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                        ID: {ref.referrer_id}
+                      </p>
                     </td>
-                    <td className="py-3 px-4 font-mono text-slate-500">
-                      {ref.referee_id || <span className="italic text-slate-400">Unused / Link only</span>}
+                    <td className="py-3 px-4">
+                      {ref.referee_id ? (
+                        <div>
+                          <p className="font-semibold text-slate-800 dark:text-slate-200">
+                            {ref.referee_name || "Referred User"}
+                          </p>
+                          <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                            ID: {ref.referee_id}
+                          </p>
+                        </div>
+                      ) : (
+                        <span className="italic text-slate-400 text-xs">Unclaimed Link / Shared Code</span>
+                      )}
                     </td>
                     <td className="py-3 px-4">
                       <Badge variant={ref.status === "rewarded" ? "success" : "warning"}>

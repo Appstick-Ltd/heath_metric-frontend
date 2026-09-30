@@ -6,9 +6,14 @@ import {
   BloodSugarRecord,
   BloodPressureRecord,
   WeightRecord,
+  SymptomRecord,
+  Medicine,
+  Meal,
   Subscription,
   Referral,
-  AuditLog
+  AuditLog,
+  CMSFoodItem,
+  MasterMedicinePreset
 } from '@/types/database';
 import {
   KPISummary,
@@ -17,6 +22,45 @@ import {
   ActivityEvent,
   VitalDistributionData
 } from '@/types/dashboard';
+
+/**
+ * Standardized Blood Sugar Normalizer
+ * In the mobile app, users log in mmol/L (< 35) or mg/dL (>= 35).
+ * 1 mmol/L = 18.018 mg/dL.
+ */
+export function normalizeBloodSugar(value: number, unit?: string | null): {
+  isMmol: boolean;
+  raw: number;
+  valMgDl: number;
+  valMmol: number;
+  display: string;
+  shortDisplay: string;
+  category: 'Normal' | 'Pre-diabetic' | 'High' | 'Critical';
+} {
+  const numVal = Number(value) || 0;
+  const isMmol = unit === 'mmol/L' || (unit == null && numVal > 0 && numVal < 35.0);
+  const valMgDl = isMmol ? Math.round(numVal * 18.018) : Math.round(numVal);
+  const valMmol = isMmol ? Number(numVal.toFixed(1)) : Number((numVal / 18.018).toFixed(1));
+
+  let category: 'Normal' | 'Pre-diabetic' | 'High' | 'Critical' = 'Normal';
+  if (valMgDl < 70 || valMgDl >= 250) {
+    category = 'Critical';
+  } else if (valMgDl >= 180) {
+    category = 'High';
+  } else if (valMgDl >= 100) {
+    category = 'Pre-diabetic';
+  } else {
+    category = 'Normal';
+  }
+
+  const display = isMmol
+    ? `${valMmol} mmol/L (${valMgDl} mg/dL)`
+    : `${valMgDl} mg/dL (${valMmol} mmol/L)`;
+
+  const shortDisplay = isMmol ? `${valMmol} mmol/L` : `${valMgDl} mg/dL`;
+
+  return { isMmol, raw: numVal, valMgDl, valMmol, display, shortDisplay, category };
+}
 
 export class DataService {
   private static getClient() {
@@ -34,29 +78,41 @@ export class DataService {
   }> {
     const supabase = this.getClient();
 
-    // Query live Supabase tables
+    // Query live Supabase tables with exact counts
     const [
-      profilesRes,
+      sugarCountRes,
+      bpCountRes,
+      weightCountRes,
+      symCountRes,
       subsRes,
       sugarsRes,
       bpRes,
-      referralsRes
+      referralsRes,
+      profiles
     ] = await Promise.all([
-      supabase.from('profiles').select('id, created_at'),
-      supabase.from('subscriptions').select('plan_type, status, price_paid, created_at'),
+      supabase.from('blood_sugar_records').select('*', { count: 'exact', head: true }),
+      supabase.from('blood_pressure_records').select('*', { count: 'exact', head: true }),
+      supabase.from('weight_records').select('*', { count: 'exact', head: true }),
+      supabase.from('symptom_records').select('*', { count: 'exact', head: true }),
+      supabase.from('subscriptions').select('user_id, plan_type, status, price_paid, created_at'),
       supabase.from('blood_sugar_records').select('id, user_id, value, reading_type, timestamp').order('timestamp', { ascending: false }).limit(20),
       supabase.from('blood_pressure_records').select('id, user_id, systolic, diastolic, pulse, timestamp').order('timestamp', { ascending: false }).limit(20),
       supabase.from('referrals').select('id, status, created_at'),
+      this.getProfiles(),
     ]);
 
-    const rawProfiles = profilesRes.data || [];
     const subscriptions = subsRes.data || [];
     const sugarRecords = sugarsRes.data || [];
     const bpRecords = bpRes.data || [];
     const referrals = referralsRes.data || [];
 
-    // Deduplicate profiles by email so identical user is not counted twice
-    const profiles = await this.getProfiles();
+    // Map profiles for name resolution
+    const userMap = new Map<string, string>();
+    profiles.forEach((p) => {
+      userMap.set(p.id, p.name || 'Patient');
+      if (p.email) userMap.set(p.email, p.name || 'Patient');
+    });
+
     const totalUsers = profiles.length;
     const activeProUsers = subscriptions.filter(
       (s) => s.status === 'active' && s.plan_type !== 'free'
@@ -74,7 +130,13 @@ export class DataService {
       }
     });
 
-    const totalVitalsCount = sugarRecords.length + bpRecords.length;
+    // Exact count of all vitals in database (Sugar + BP + Weight + Symptoms)
+    const totalVitalsCount =
+      (sugarCountRes.count || 0) +
+      (bpCountRes.count || 0) +
+      (weightCountRes.count || 0) +
+      (symCountRes.count || 0);
+
     const rewardedReferrals = referrals.filter((r) => r.status === 'rewarded').length;
     const referralConversionRate =
       referrals.length > 0 ? Number(((rewardedReferrals / referrals.length) * 100).toFixed(1)) : 0;
@@ -150,19 +212,21 @@ export class DataService {
       }
     ];
 
-    // Combine latest database activities
+    // Combine latest database activities with normalized glucose & resolved user names
     const recentActivities: ActivityEvent[] = [];
 
-    // Critical Sugar alerts from database
+    // Critical/High Sugar alerts
     sugarRecords.forEach((s) => {
-      if (s.value >= 200 || s.value < 70) {
+      const norm = normalizeBloodSugar(Number(s.value));
+      if (norm.category === 'Critical' || norm.category === 'High') {
+        const userName = userMap.get(s.user_id) || 'Patient';
         recentActivities.push({
           id: `sugar-${s.id}`,
           type: 'vital_alert',
-          title: `Critical Glucose Reading: ${s.value} mg/dL`,
-          description: `User ${s.user_id} logged ${s.reading_type} reading out of safe range.`,
+          title: norm.category === 'Critical' ? `Critical Glucose: ${norm.display}` : `High Glucose: ${norm.display}`,
+          description: `${userName} logged ${s.reading_type} reading out of safe range.`,
           timestamp: new Date(s.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          severity: 'critical',
+          severity: norm.category === 'Critical' ? 'critical' : 'warning',
           user_id: s.user_id,
         });
       }
@@ -171,11 +235,12 @@ export class DataService {
     // High Blood Pressure alerts from database
     bpRecords.forEach((bp) => {
       if (bp.systolic >= 140 || bp.diastolic >= 90) {
+        const userName = userMap.get(bp.user_id) || 'Patient';
         recentActivities.push({
           id: `bp-${bp.id}`,
           type: 'vital_alert',
           title: `Hypertension Spike: ${bp.systolic}/${bp.diastolic} mmHg`,
-          description: `Pulse: ${bp.pulse} bpm logged by user ${bp.user_id}`,
+          description: `Pulse: ${bp.pulse || 72} bpm logged by ${userName}`,
           timestamp: new Date(bp.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           severity: 'warning',
           user_id: bp.user_id,
@@ -185,11 +250,12 @@ export class DataService {
 
     // Subscriptions
     subscriptions.slice(0, 3).forEach((sub, i) => {
+      const userName = userMap.get(sub.user_id) || 'Patient';
       recentActivities.push({
         id: `sub-${i}`,
         type: 'subscription_new',
-        title: `Subscription: ${sub.plan_type.toUpperCase()} (${sub.price_paid || (sub.plan_type === 'annual' ? '$39.99' : '$4.99')})`,
-        description: `Status: ${sub.status}. Recorded in database.`,
+        title: `Subscription: ${sub.plan_type?.toUpperCase()} (${sub.price_paid || (sub.plan_type === 'annual' ? '$39.99' : '$4.99')})`,
+        description: `Status: ${sub.status} — Active for ${userName}`,
         timestamp: 'Live DB',
         severity: 'normal',
       });
@@ -292,16 +358,30 @@ export class DataService {
     sugarRecords: BloodSugarRecord[];
     bpRecords: BloodPressureRecord[];
     weightRecords: WeightRecord[];
+    symptomRecords: SymptomRecord[];
+    medicines: Medicine[];
+    meals: Meal[];
     subscription: Subscription | undefined;
   }> {
     const supabase = this.getClient();
 
-    // Check if this user has linked alias IDs (e.g. Google ID and Supabase UUID)
-    const linkedIds = [userId];
-    if (userId === 'google-103003459837378213705') {
-      linkedIds.push('f001e815-7fe4-40ed-a43f-92df33bdece2');
-    } else if (userId === 'f001e815-7fe4-40ed-a43f-92df33bdece2') {
-      linkedIds.push('google-103003459837378213705');
+    // Dynamically find all linked alias IDs sharing this email
+    const { data: targetProfile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle();
+
+    let linkedIds = [userId];
+    if (targetProfile) {
+      const email = this.resolveProfileEmail(targetProfile);
+      const { data: allProfiles } = await supabase.from('profiles').select('id, email, name');
+      if (allProfiles) {
+        const sameEmailIds = allProfiles
+          .filter((p) => this.resolveProfileEmail(p) === email)
+          .map((p) => p.id);
+        linkedIds = Array.from(new Set([...linkedIds, ...sameEmailIds]));
+      }
     }
 
     const [
@@ -311,14 +391,20 @@ export class DataService {
       sugarRes,
       bpRes,
       weightRes,
+      symptomRes,
+      medRes,
+      mealRes,
       subRes
     ] = await Promise.all([
       supabase.from('profiles').select('*').in('id', linkedIds).order('updated_at', { ascending: false }).limit(1).maybeSingle(),
       supabase.from('family_members').select('*').in('user_id', linkedIds),
       supabase.from('family_invitations').select('id, inviter_id, invitee_email, role, status, created_at, expires_at').in('inviter_id', linkedIds).order('created_at', { ascending: false }),
-      supabase.from('blood_sugar_records').select('*').in('user_id', linkedIds).order('timestamp', { ascending: false }).limit(20),
-      supabase.from('blood_pressure_records').select('*').in('user_id', linkedIds).order('timestamp', { ascending: false }).limit(20),
-      supabase.from('weight_records').select('*').in('user_id', linkedIds).order('timestamp', { ascending: false }).limit(20),
+      supabase.from('blood_sugar_records').select('*').in('user_id', linkedIds).order('timestamp', { ascending: false }).limit(30),
+      supabase.from('blood_pressure_records').select('*').in('user_id', linkedIds).order('timestamp', { ascending: false }).limit(30),
+      supabase.from('weight_records').select('*').in('user_id', linkedIds).order('timestamp', { ascending: false }).limit(30),
+      supabase.from('symptom_records').select('*').in('user_id', linkedIds).order('timestamp', { ascending: false }).limit(30),
+      supabase.from('medicines').select('*').in('user_id', linkedIds).order('created_at', { ascending: false }).limit(30),
+      supabase.from('meals').select('*').in('user_id', linkedIds).order('created_at', { ascending: false }).limit(30),
       supabase.from('subscriptions').select('*').in('user_id', linkedIds).order('created_at', { ascending: false }).limit(1).maybeSingle(),
     ]);
 
@@ -334,6 +420,9 @@ export class DataService {
       sugarRecords: (sugarRes.data as BloodSugarRecord[]) || [],
       bpRecords: (bpRes.data as BloodPressureRecord[]) || [],
       weightRecords: (weightRes.data as WeightRecord[]) || [],
+      symptomRecords: (symptomRes.data as SymptomRecord[]) || [],
+      medicines: (medRes.data as Medicine[]) || [],
+      meals: (mealRes.data as Meal[]) || [],
       subscription: (subRes.data as Subscription) || undefined,
     };
   }
@@ -343,16 +432,30 @@ export class DataService {
   // ==========================================
   public static async getSubscriptions(): Promise<Subscription[]> {
     const supabase = this.getClient();
-    const { data, error } = await supabase
-      .from('subscriptions')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const [subsRes, profs] = await Promise.all([
+      supabase.from('subscriptions').select('*').order('created_at', { ascending: false }),
+      this.getProfiles(),
+    ]);
 
-    if (error) {
-      console.warn('Supabase getSubscriptions notice:', error.message);
+    if (subsRes.error) {
+      console.warn('Supabase getSubscriptions notice:', subsRes.error.message);
       return [];
     }
-    return (data || []) as Subscription[];
+
+    const profMap = new Map<string, { name: string; email: string }>();
+    profs.forEach((p) => {
+      profMap.set(p.id, { name: p.name || 'User', email: p.email || '' });
+    });
+
+    const list = (subsRes.data || []) as Subscription[];
+    return list.map((s) => {
+      const info = profMap.get(s.user_id);
+      return {
+        ...s,
+        user_name: info?.name || 'Patient User',
+        user_email: info?.email || '',
+      };
+    });
   }
 
   public static async updateSubscriptionPlan(
@@ -381,16 +484,32 @@ export class DataService {
   // ==========================================
   public static async getReferrals(): Promise<Referral[]> {
     const supabase = this.getClient();
-    const { data, error } = await supabase
-      .from('referrals')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const [refsRes, profs] = await Promise.all([
+      supabase.from('referrals').select('*').order('created_at', { ascending: false }),
+      this.getProfiles(),
+    ]);
 
-    if (error) {
-      console.warn('Supabase getReferrals notice:', error.message);
+    if (refsRes.error) {
+      console.warn('Supabase getReferrals notice:', refsRes.error.message);
       return [];
     }
-    return (data || []) as Referral[];
+
+    const profMap = new Map<string, { name: string; email: string }>();
+    profs.forEach((p) => {
+      profMap.set(p.id, { name: p.name || 'User', email: p.email || '' });
+    });
+
+    const list = (refsRes.data || []) as Referral[];
+    return list.map((r) => {
+      const refInfo = profMap.get(r.referrer_id);
+      const refereeInfo = r.referee_id ? profMap.get(r.referee_id) : null;
+      return {
+        ...r,
+        referrer_name: refInfo?.name || 'Referrer',
+        referrer_email: refInfo?.email || '',
+        referee_name: refereeInfo?.name,
+      };
+    });
   }
 
   public static async updateReferralStatus(
@@ -406,6 +525,78 @@ export class DataService {
     return !error;
   }
 
+  // ==========================================
+  // 5. CMS FOODS (NUTRITION & "CAN I EAT?")
+  // ==========================================
+  public static async getCmsFoods(): Promise<CMSFoodItem[]> {
+    const supabase = this.getClient();
+    const { data, error } = await supabase
+      .from('cms_foods')
+      .select('*')
+      .order('name', { ascending: true });
+
+    if (error) {
+      console.warn('Supabase getCmsFoods notice:', error.message);
+      return [];
+    }
+    return (data || []) as CMSFoodItem[];
+  }
+
+  public static async createCmsFood(food: Omit<CMSFoodItem, 'id'>): Promise<boolean> {
+    const supabase = this.getClient();
+    const { error } = await supabase.from('cms_foods').insert(food);
+    return !error;
+  }
+
+  public static async updateCmsFood(id: string, food: Partial<CMSFoodItem>): Promise<boolean> {
+    const supabase = this.getClient();
+    const { error } = await supabase
+      .from('cms_foods')
+      .update({ ...food, updated_at: new Date().toISOString() })
+      .eq('id', id);
+    return !error;
+  }
+
+  public static async deleteCmsFood(id: string): Promise<boolean> {
+    const supabase = this.getClient();
+    const { error } = await supabase.from('cms_foods').delete().eq('id', id);
+    return !error;
+  }
+
+  // ==========================================
+  // 6. MASTER MEDICINES PRESETS & DIRECTORY
+  // ==========================================
+  public static async getMasterMedicines(): Promise<MasterMedicinePreset[]> {
+    const supabase = this.getClient();
+    const { data, error } = await supabase
+      .from('master_medicines')
+      .select('*')
+      .order('name', { ascending: true });
+
+    if (error) {
+      console.warn('Supabase getMasterMedicines notice:', error.message);
+      return [];
+    }
+    return (data || []) as MasterMedicinePreset[];
+  }
+
+  public static async createMasterMedicine(med: Omit<MasterMedicinePreset, 'id'>): Promise<boolean> {
+    const supabase = this.getClient();
+    const { error } = await supabase.from('master_medicines').insert(med);
+    return !error;
+  }
+
+  public static async updateMasterMedicine(id: string, med: Partial<MasterMedicinePreset>): Promise<boolean> {
+    const supabase = this.getClient();
+    const { error } = await supabase.from('master_medicines').update(med).eq('id', id);
+    return !error;
+  }
+
+  public static async deleteMasterMedicine(id: string): Promise<boolean> {
+    const supabase = this.getClient();
+    const { error } = await supabase.from('master_medicines').delete().eq('id', id);
+    return !error;
+  }
 
   // ==========================================
   // 7. POPULATION HEALTH VITALS & SYMPTOMS
@@ -427,22 +618,22 @@ export class DataService {
     const bps = bpRes.data || [];
     const symptoms = symptomRes.data || [];
 
-    // Compute live Blood Sugar ADA bands
+    // Compute live Blood Sugar ADA bands normalized from mmol/L or mg/dL
     let normalSugar = 0, preSugar = 0, highSugar = 0, critSugar = 0;
     sugars.forEach((s) => {
-      const v = Number(s.value);
-      if (v < 100) normalSugar++;
-      else if (v <= 125) preSugar++;
-      else if (v < 200) highSugar++;
+      const norm = normalizeBloodSugar(Number(s.value));
+      if (norm.valMgDl < 100) normalSugar++;
+      else if (norm.valMgDl <= 125) preSugar++;
+      else if (norm.valMgDl < 200) highSugar++;
       else critSugar++;
     });
 
     const totalSugars = Math.max(sugars.length, 1);
     const sugarDistribution: VitalDistributionData[] = [
-      { category: 'Normal (< 100 mg/dL)', count: normalSugar, percentage: Math.round((normalSugar / totalSugars) * 100), color: '#10b981' },
-      { category: 'Pre-diabetic (100-125)', count: preSugar, percentage: Math.round((preSugar / totalSugars) * 100), color: '#f59e0b' },
-      { category: 'High (126-199)', count: highSugar, percentage: Math.round((highSugar / totalSugars) * 100), color: '#f97316' },
-      { category: 'Critical (>= 200)', count: critSugar, percentage: Math.round((critSugar / totalSugars) * 100), color: '#ef4444' },
+      { category: 'Normal (< 100 mg/dL / < 5.5 mmol/L)', count: normalSugar, percentage: Math.round((normalSugar / totalSugars) * 100), color: '#10b981' },
+      { category: 'Pre-diabetic (100-125 / 5.6-6.9)', count: preSugar, percentage: Math.round((preSugar / totalSugars) * 100), color: '#f59e0b' },
+      { category: 'High (126-199 / 7.0-11.0)', count: highSugar, percentage: Math.round((highSugar / totalSugars) * 100), color: '#f97316' },
+      { category: 'Critical (>= 200 / >= 11.1)', count: critSugar, percentage: Math.round((critSugar / totalSugars) * 100), color: '#ef4444' },
     ];
 
     // Compute live Blood Pressure AHA bands
@@ -579,7 +770,7 @@ export class DataService {
   // 10. DELETE USER & ALL RELATED DATA
   // ==========================================
   public static async deleteUserAllData(userId: string): Promise<{ success: boolean; error?: string }> {
-    // 1. Attempt server-side deletion endpoint first (elevated privileges + auth purge)
+    // 1. Attempt server-side deletion endpoint first
     try {
       const response = await fetch('/api/users/delete', {
         method: 'POST',
@@ -593,9 +784,7 @@ export class DataService {
           return { success: true };
         }
       }
-    } catch {
-      // If server API route is unavailable, continue with direct Supabase client cleanup
-    }
+    } catch {}
 
     // 2. Direct client-side cleanup fallback across all child tables
     const supabase = this.getClient();
@@ -620,19 +809,16 @@ export class DataService {
     for (const { table, column } of tableCleanups) {
       try {
         await supabase.from(table as any).delete().eq(column, userId);
-      } catch {
-        // Table or column might not exist or empty
-      }
+      } catch {}
     }
 
-    // Finally delete the profile row itself
+    // Finally delete profile row
     const { error } = await supabase.from('profiles').delete().eq('id', userId);
 
     if (error) {
       return { success: false, error: error.message };
     }
 
-    // Log admin action
     await this.logAdminAction(
       'System Admin',
       'Administrator',
@@ -672,9 +858,8 @@ export class DataService {
         supabase
           .from('blood_sugar_records')
           .select('id, user_id, value, reading_type, timestamp')
-          .or('value.gte.200,value.lt.70')
           .order('timestamp', { ascending: false })
-          .limit(5),
+          .limit(10),
         supabase
           .from('blood_pressure_records')
           .select('id, user_id, systolic, diastolic, timestamp')
@@ -694,18 +879,21 @@ export class DataService {
           .limit(3),
       ]);
 
-      // Critical sugar readings
+      // Normalize glucose readings to prevent false positives from mmol/L readings
       (sugarRes.data || []).forEach((s) => {
-        const isLow = Number(s.value) < 70;
-        notifications.push({
-          id: `sugar-${s.id}`,
-          type: 'critical_vital',
-          title: isLow ? `⚠️ Low Glucose: ${s.value} mg/dL` : `🚨 High Glucose: ${s.value} mg/dL`,
-          description: `User ${s.user_id?.slice(0, 8)}... — ${s.reading_type} reading`,
-          timestamp: s.timestamp,
-          severity: 'critical',
-          read: false,
-        });
+        const norm = normalizeBloodSugar(Number(s.value));
+        if (norm.category === 'Critical' || norm.category === 'High') {
+          const isLow = norm.valMgDl < 70;
+          notifications.push({
+            id: `sugar-${s.id}`,
+            type: 'critical_vital',
+            title: isLow ? `⚠️ Low Glucose: ${norm.display}` : `🚨 High Glucose: ${norm.display}`,
+            description: `Patient logged ${s.reading_type} reading`,
+            timestamp: s.timestamp,
+            severity: norm.category === 'Critical' ? 'critical' : 'warning',
+            read: false,
+          });
+        }
       });
 
       // Hypertension spikes
@@ -714,7 +902,7 @@ export class DataService {
           id: `bp-${bp.id}`,
           type: 'critical_vital',
           title: `🩺 Hypertension: ${bp.systolic}/${bp.diastolic} mmHg`,
-          description: `User ${bp.user_id?.slice(0, 8)}... exceeded safe threshold`,
+          description: `Patient exceeded safe threshold`,
           timestamp: bp.timestamp,
           severity: 'warning',
           read: false,
@@ -757,4 +945,3 @@ export class DataService {
     );
   }
 }
-

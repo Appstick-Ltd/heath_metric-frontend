@@ -17,6 +17,10 @@ import {
   CheckCircle2,
   Clock,
   Mail,
+  Scale,
+  Pill,
+  Utensils,
+  Flame,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,8 +29,19 @@ import { Input } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { TableSkeleton } from "@/components/ui/skeleton";
 import { LoadingSpinner } from "@/components/ui/loader";
-import { DataService } from "@/lib/data-service";
-import { Profile, FamilyMember, FamilyInvitation, BloodSugarRecord, BloodPressureRecord, WeightRecord, Subscription } from "@/types/database";
+import { DataService, normalizeBloodSugar } from "@/lib/data-service";
+import {
+  Profile,
+  FamilyMember,
+  FamilyInvitation,
+  BloodSugarRecord,
+  BloodPressureRecord,
+  WeightRecord,
+  SymptomRecord,
+  Medicine,
+  Meal,
+  Subscription
+} from "@/types/database";
 import { formatDate, formatDateTime, formatTimeAgo } from "@/lib/utils";
 import { UserAvatar } from "@/components/ui/user-avatar";
 
@@ -42,6 +57,9 @@ export default function UsersPage() {
     sugarRecords: BloodSugarRecord[];
     bpRecords: BloodPressureRecord[];
     weightRecords: WeightRecord[];
+    symptomRecords: SymptomRecord[];
+    medicines: Medicine[];
+    meals: Meal[];
     subscription: Subscription | undefined;
   } | null>(null);
   const [isDetailOpen, setIsDetailOpen] = React.useState(false);
@@ -510,27 +528,47 @@ export default function UsersPage() {
 
             {/* Sugar Records */}
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <HeartPulse className="h-4 w-4 text-rose-500" />
-                <h4 className="font-semibold text-slate-900 dark:text-slate-100">
-                  Recent Blood Sugar Readings
-                </h4>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <HeartPulse className="h-4 w-4 text-rose-500" />
+                  <h4 className="font-semibold text-slate-900 dark:text-slate-100">
+                    Blood Sugar Readings ({userDetails.sugarRecords.length})
+                  </h4>
+                </div>
+                <span className="text-[11px] text-slate-400">Auto-normalized mmol/L & mg/dL</span>
               </div>
               {userDetails.sugarRecords.length === 0 ? (
                 <p className="text-slate-400 italic">No sugar records in database yet.</p>
               ) : (
                 <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
-                  {userDetails.sugarRecords.map((s) => (
-                    <div key={s.id} className="p-2.5 flex items-center justify-between">
-                      <div>
-                        <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                          {s.value} mg/dL
-                        </span>
-                        <span className="ml-2 text-slate-400 capitalize">({s.reading_type})</span>
+                  {userDetails.sugarRecords.map((s) => {
+                    const norm = normalizeBloodSugar(Number(s.value));
+                    return (
+                      <div key={s.id} className="p-2.5 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                            {norm.display}
+                          </span>
+                          <span className="text-slate-400 capitalize">({s.reading_type})</span>
+                          <Badge
+                            variant={
+                              norm.category === "Critical"
+                                ? "danger"
+                                : norm.category === "High"
+                                ? "warning"
+                                : norm.category === "Pre-diabetic"
+                                ? "outline"
+                                : "success"
+                            }
+                            className="text-[10px]"
+                          >
+                            {norm.category}
+                          </Badge>
+                        </div>
+                        <span className="text-[11px] text-slate-400">{formatDate(s.timestamp)}</span>
                       </div>
-                      <span className="text-[11px] text-slate-400">{formatDate(s.timestamp)}</span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -540,24 +578,194 @@ export default function UsersPage() {
               <div className="flex items-center gap-2 mb-2">
                 <Activity className="h-4 w-4 text-sky-500" />
                 <h4 className="font-semibold text-slate-900 dark:text-slate-100">
-                  Recent Blood Pressure Readings
+                  Blood Pressure Readings ({userDetails.bpRecords.length})
                 </h4>
               </div>
               {userDetails.bpRecords.length === 0 ? (
                 <p className="text-slate-400 italic">No BP records in database yet.</p>
               ) : (
                 <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
-                  {userDetails.bpRecords.map((bp) => (
-                    <div key={bp.id} className="p-2.5 flex items-center justify-between">
-                      <div>
+                  {userDetails.bpRecords.map((bp) => {
+                    const isHypertension = bp.systolic >= 140 || bp.diastolic >= 90;
+                    const isElevated = bp.systolic >= 120 && bp.systolic < 140;
+                    return (
+                      <div key={bp.id} className="p-2.5 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                            {bp.systolic}/{bp.diastolic} mmHg
+                          </span>
+                          {bp.pulse && (
+                            <span className="text-slate-400">Pulse: {bp.pulse} bpm</span>
+                          )}
+                          <Badge
+                            variant={isHypertension ? "danger" : isElevated ? "warning" : "success"}
+                            className="text-[10px]"
+                          >
+                            {isHypertension ? "Hypertensive" : isElevated ? "Elevated" : "Optimal"}
+                          </Badge>
+                        </div>
+                        <span className="text-[11px] text-slate-400">{formatDate(bp.timestamp)}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Weight & BMI Records */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Scale className="h-4 w-4 text-emerald-600" />
+                <h4 className="font-semibold text-slate-900 dark:text-slate-100">
+                  Weight & BMI Tracking ({userDetails.weightRecords.length})
+                </h4>
+              </div>
+              {userDetails.weightRecords.length === 0 ? (
+                <p className="text-slate-400 italic">No weight tracking logs in database yet.</p>
+              ) : (
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+                  {userDetails.weightRecords.map((wt) => (
+                    <div key={wt.id} className="p-2.5 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
                         <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">
-                          {bp.systolic}/{bp.diastolic} mmHg
+                          {wt.weight} kg
                         </span>
-                        {bp.pulse && (
-                          <span className="ml-2 text-slate-400">Pulse: {bp.pulse} bpm</span>
+                        <span className="text-slate-500">BMI: <strong className="text-emerald-600">{wt.bmi}</strong></span>
+                      </div>
+                      <span className="text-[11px] text-slate-400">{formatDate(wt.timestamp)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Symptom & Pain Records */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Flame className="h-4 w-4 text-amber-500" />
+                <h4 className="font-semibold text-slate-900 dark:text-slate-100">
+                  Reported Pain & Symptoms ({userDetails.symptomRecords.length})
+                </h4>
+              </div>
+              {userDetails.symptomRecords.length === 0 ? (
+                <p className="text-slate-400 italic">No pain or symptoms logged by this user.</p>
+              ) : (
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+                  {userDetails.symptomRecords.map((sym) => (
+                    <div key={sym.id} className="p-2.5 flex items-center justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                            {sym.body_region}
+                          </span>
+                          <span className="text-[11px] text-slate-400">
+                            ({sym.is_front ? "Anterior / Front" : "Posterior / Back"})
+                          </span>
+                          <Badge
+                            variant={sym.vas_score >= 7 ? "danger" : sym.vas_score >= 4 ? "warning" : "info"}
+                            className="text-[10px]"
+                          >
+                            VAS Pain: {sym.vas_score}/10
+                          </Badge>
+                        </div>
+                        {sym.sensation_qualities && sym.sensation_qualities.length > 0 && (
+                          <p className="text-[11px] text-slate-500 mt-0.5">
+                            Sensation: {sym.sensation_qualities.join(", ")}
+                          </p>
+                        )}
+                        {sym.aggravating_factors && sym.aggravating_factors.length > 0 && (
+                          <p className="text-[11px] text-slate-400">
+                            Aggravated by: {sym.aggravating_factors.join(", ")}
+                          </p>
                         )}
                       </div>
-                      <span className="text-[11px] text-slate-400">{formatDate(bp.timestamp)}</span>
+                      <span className="text-[11px] text-slate-400 shrink-0">{formatDate(sym.timestamp)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Prescribed Medicines */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Pill className="h-4 w-4 text-purple-500" />
+                <h4 className="font-semibold text-slate-900 dark:text-slate-100">
+                  Active Prescriptions & Medicines ({userDetails.medicines.length})
+                </h4>
+              </div>
+              {userDetails.medicines.length === 0 ? (
+                <p className="text-slate-400 italic">No medicine prescriptions logged by user.</p>
+              ) : (
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+                  {userDetails.medicines.map((med) => (
+                    <div key={med.id} className="p-2.5 flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                            {med.name}
+                          </span>
+                          {med.dosage && (
+                            <Badge variant="outline" className="text-[10px]">
+                              {med.dosage}
+                            </Badge>
+                          )}
+                          <Badge variant="default" className="text-[10px] capitalize">
+                            {med.type || "tablet"}
+                          </Badge>
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          Frequency: <strong className="text-slate-700 dark:text-slate-300">{med.frequency || "Daily"}</strong>
+                          {med.schedule_times && med.schedule_times.length > 0 && ` • Times: ${med.schedule_times.join(", ")}`}
+                        </p>
+                        {med.instructions && (
+                          <p className="text-[11px] text-slate-400 italic mt-0.5">
+                            Instructions: {med.instructions}
+                          </p>
+                        )}
+                      </div>
+                      {med.reminder_enabled && (
+                        <Badge variant="success" className="text-[10px]">Reminder Active</Badge>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Daily Meals Log */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Utensils className="h-4 w-4 text-amber-600" />
+                <h4 className="font-semibold text-slate-900 dark:text-slate-100">
+                  Daily Meals & Nutrition Logs ({userDetails.meals.length})
+                </h4>
+              </div>
+              {userDetails.meals.length === 0 ? (
+                <p className="text-slate-400 italic">No meals logged by user in database.</p>
+              ) : (
+                <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+                  {userDetails.meals.map((meal) => (
+                    <div key={meal.id} className="p-2.5 flex items-center justify-between">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                            {meal.name}
+                          </span>
+                          <Badge variant="info" className="text-[10px] capitalize">
+                            {meal.meal_type}
+                          </Badge>
+                          {meal.calories > 0 && (
+                            <span className="text-[11px] text-emerald-600 font-semibold">
+                              {meal.calories} kcal
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-0.5">
+                          Scheduled: {meal.time || "Unspecified"}
+                          {meal.is_completed ? " • Completed ✓" : " • Pending"}
+                        </p>
+                      </div>
                     </div>
                   ))}
                 </div>
