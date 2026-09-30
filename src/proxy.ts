@@ -12,15 +12,10 @@ export function proxy(request: NextRequest) {
     pathname.startsWith('/users') ||
     pathname.startsWith('/health-analytics') ||
     pathname.startsWith('/subscriptions') ||
-    pathname.startsWith('/referrals');
-
-  // Root redirect
-  if (pathname === '/') {
-    if (isAuthenticated) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
+    pathname.startsWith('/referrals') ||
+    pathname.startsWith('/cms-foods') ||
+    pathname.startsWith('/medicines') ||
+    pathname.startsWith('/settings');
 
   // If trying to access protected route without cookie, redirect to /login
   if (isProtectedRoute && !isAuthenticated) {
@@ -48,5 +43,8 @@ export const config = {
     '/health-analytics/:path*',
     '/subscriptions/:path*',
     '/referrals/:path*',
+    '/cms-foods/:path*',
+    '/medicines/:path*',
+    '/settings/:path*',
   ],
 };
