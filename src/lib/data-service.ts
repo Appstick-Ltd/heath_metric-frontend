@@ -1053,7 +1053,7 @@ export class DataService {
     }> = [];
 
     try {
-      const [sugarRes, bpRes, profileRes, subRes] = await Promise.all([
+      const [sugarRes, bpRes, profileRes, subRes, refRes, allProfilesRes] = await Promise.all([
         supabase
           .from('blood_sugar_records')
           .select('id, user_id, value, reading_type, timestamp')
@@ -1067,27 +1067,43 @@ export class DataService {
           .limit(5),
         supabase
           .from('profiles')
-          .select('id, name, created_at')
+          .select('id, name, email, created_at')
           .order('created_at', { ascending: false })
-          .limit(3),
+          .limit(4),
         supabase
           .from('subscriptions')
           .select('id, user_id, plan_type, status, created_at')
           .neq('plan_type', 'free')
           .order('created_at', { ascending: false })
-          .limit(3),
+          .limit(4),
+        supabase
+          .from('referrals')
+          .select('id, referrer_id, referee_id, referral_code, created_at')
+          .not('referee_id', 'is', null)
+          .order('created_at', { ascending: false })
+          .limit(4),
+        supabase
+          .from('profiles')
+          .select('id, name, email'),
       ]);
+
+      const profMap = new Map<string, { name: string; email: string }>();
+      (allProfilesRes.data || []).forEach((p) => {
+        profMap.set(p.id, { name: p.name || 'Patient', email: p.email || '' });
+      });
 
       // Normalize glucose readings to prevent false positives from mmol/L readings
       (sugarRes.data || []).forEach((s) => {
         const norm = normalizeBloodSugar(Number(s.value));
+        const user = profMap.get(s.user_id);
+        const userName = user?.name || 'Patient';
         if (norm.category === 'Critical' || norm.category === 'High') {
           const isLow = norm.valMgDl < 70;
           notifications.push({
             id: `sugar-${s.id}`,
             type: 'critical_vital',
             title: isLow ? `⚠️ Low Glucose: ${norm.display}` : `🚨 High Glucose: ${norm.display}`,
-            description: `Patient logged ${s.reading_type} reading`,
+            description: `${userName} logged ${s.reading_type} reading`,
             timestamp: s.timestamp,
             severity: norm.category === 'Critical' ? 'critical' : 'warning',
             read: false,
@@ -1097,13 +1113,32 @@ export class DataService {
 
       // Hypertension spikes
       (bpRes.data || []).forEach((bp) => {
+        const user = profMap.get(bp.user_id);
+        const userName = user?.name || 'Patient';
         notifications.push({
           id: `bp-${bp.id}`,
           type: 'critical_vital',
           title: `🩺 Hypertension: ${bp.systolic}/${bp.diastolic} mmHg`,
-          description: `Patient exceeded safe threshold`,
+          description: `${userName} exceeded safe threshold`,
           timestamp: bp.timestamp,
           severity: 'warning',
+          read: false,
+        });
+      });
+
+      // New referral claims
+      (refRes.data || []).forEach((r) => {
+        const referee = profMap.get(r.referee_id);
+        const referrer = profMap.get(r.referrer_id);
+        const friendName = referee?.name || 'Friend';
+        const inviterName = referrer?.name || 'Referrer';
+        notifications.push({
+          id: `ref-${r.id}`,
+          type: 'referral',
+          title: `🎁 Referral Claimed: ${friendName}`,
+          description: `Joined using ${inviterName}'s code (${r.referral_code}) • +100 coins`,
+          timestamp: r.created_at,
+          severity: 'info',
           read: false,
         });
       });
@@ -1114,7 +1149,7 @@ export class DataService {
           id: `user-${p.id}`,
           type: 'new_user',
           title: `👤 New User: ${p.name || 'Unnamed Patient'}`,
-          description: 'Registered and profile created in database',
+          description: p.email ? `Registered with ${p.email}` : 'Profile created in database',
           timestamp: p.created_at,
           severity: 'info',
           read: false,
@@ -1123,11 +1158,13 @@ export class DataService {
 
       // New pro subscriptions
       (subRes.data || []).forEach((s) => {
+        const user = profMap.get(s.user_id);
+        const userName = user?.name || 'User';
         notifications.push({
           id: `sub-${s.id}`,
           type: 'subscription',
-          title: `💳 New ${s.plan_type?.toUpperCase()} Subscription`,
-          description: `Status: ${s.status} — Revenue event logged`,
+          title: `👑 New ${s.plan_type?.toUpperCase()} Pro Member`,
+          description: `${userName} activated VIP Pro (${s.status})`,
           timestamp: s.created_at,
           severity: 'info',
           read: false,
