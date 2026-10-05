@@ -884,7 +884,8 @@ export class DataService {
       const { data, error } = await supabase
         .from('admin_audit_logs')
         .select('*')
-        .order('timestamp', { ascending: false });
+        .order('timestamp', { ascending: false })
+        .limit(200);
 
       if (!error && data && data.length > 0) {
         return data as AuditLog[];
@@ -1005,6 +1006,15 @@ export class DataService {
       { table: 'subscriptions', column: 'user_id' },
     ];
 
+    // Capture user profile info for readable audit trail before deletion
+    let userIdentifier = userId;
+    try {
+      const { data: prof } = await supabase.from('profiles').select('name, email').eq('id', userId).single();
+      if (prof) {
+        userIdentifier = prof.email ? `${prof.email} (${prof.name || 'User'})` : (prof.name || userId);
+      }
+    } catch {}
+
     for (const { table, column } of tableCleanups) {
       try {
         await supabase.from(table as any).delete().eq(column, userId);
@@ -1021,8 +1031,8 @@ export class DataService {
     await this.logAdminAction(
       'System Admin',
       'Administrator',
-      `Hard-deleted all data for user ${userId}`,
-      userId,
+      `Hard-deleted all data for user: ${userIdentifier}`,
+      userIdentifier,
       'critical'
     );
 
