@@ -140,6 +140,21 @@ export interface Subscription {
   created_at?: string;
   user_name?: string;
   user_email?: string;
+  payment_method?: string | null;
+  transaction_id?: string | null;
+}
+
+export interface PaymentTransaction {
+  id: string;
+  user_id: string;
+  plan_type: string;
+  amount: string;
+  currency?: string;
+  payment_method?: string | null;
+  transaction_id?: string | null;
+  status: 'completed' | 'refunded' | 'pending' | 'failed' | string;
+  notes?: string | null;
+  created_at: string;
 }
 
 export interface Referral {
