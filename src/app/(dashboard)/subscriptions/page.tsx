@@ -227,10 +227,12 @@ export default function SubscriptionsPage() {
               <Inbox className="h-8 w-8" />
             </div>
             <h3 className="font-semibold text-sm text-slate-800 dark:text-slate-200">
-              No Subscriptions Logged in Database
+              No Subscriptions Found
             </h3>
             <p className="text-xs text-slate-500 max-w-sm">
-              Your Supabase `subscriptions` table currently has 0 rows. In-app purchases from users will appear here automatically.
+              {filterPlan === "ALL"
+                ? "No user accounts or subscriptions logged yet."
+                : `No accounts currently found under the ${filterPlan.toUpperCase()} tier.`}
             </p>
           </div>
         ) : (
@@ -260,8 +262,13 @@ export default function SubscriptionsPage() {
                         ID: {sub.user_id}
                       </p>
                     </td>
-                    <td className="py-3 px-4 capitalize font-semibold text-slate-900 dark:text-slate-100">
-                      {sub.plan_type}
+                    <td className="py-3 px-4">
+                      <Badge
+                        variant={sub.plan_type === "free" ? "outline" : "success"}
+                        className="capitalize font-semibold"
+                      >
+                        {sub.plan_type === "free" ? "Free Tier" : `Pro ${sub.plan_type}`}
+                      </Badge>
                     </td>
                     <td className="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400">
                       {sub.price_paid || "$0.00"}
@@ -275,7 +282,11 @@ export default function SubscriptionsPage() {
                       {formatDate(sub.start_date)}
                     </td>
                     <td className="py-3 px-4 text-slate-400">
-                      {sub.expiry_date ? formatDate(sub.expiry_date) : "Auto-renews"}
+                      {sub.expiry_date
+                        ? formatDate(sub.expiry_date)
+                        : sub.plan_type === "free"
+                        ? "Forever (Free)"
+                        : "Auto-renews"}
                     </td>
                   </tr>
                 ))}

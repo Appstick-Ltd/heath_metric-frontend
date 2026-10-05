@@ -439,23 +439,55 @@ export class DataService {
 
     if (subsRes.error) {
       console.warn('Supabase getSubscriptions notice:', subsRes.error.message);
-      return [];
     }
 
-    const profMap = new Map<string, { name: string; email: string }>();
+    const profMap = new Map<string, Profile>();
     profs.forEach((p) => {
-      profMap.set(p.id, { name: p.name || 'User', email: p.email || '' });
+      profMap.set(p.id, p);
     });
 
-    const list = (subsRes.data || []) as Subscription[];
-    return list.map((s) => {
-      const info = profMap.get(s.user_id);
-      return {
+    const seenUserIds = new Set<string>();
+    const result: Subscription[] = [];
+
+    // 1. Existing subscription records in database
+    const rawSubs = (subsRes.data || []) as Subscription[];
+    rawSubs.forEach((s) => {
+      seenUserIds.add(s.user_id);
+      const prof = profMap.get(s.user_id);
+      result.push({
         ...s,
-        user_name: info?.name || 'Patient User',
-        user_email: info?.email || '',
-      };
+        user_name: s.user_name || prof?.name || 'Patient User',
+        user_email: s.user_email || prof?.email || '',
+      });
     });
+
+    // 2. Add all registered users who don't have an explicit entry as active Free Tier
+    profs.forEach((p) => {
+      if (!seenUserIds.has(p.id)) {
+        result.push({
+          id: `free_${p.id}`,
+          user_id: p.id,
+          plan_type: 'free',
+          status: 'active',
+          price_paid: '$0.00',
+          start_date: p.created_at || new Date().toISOString(),
+          expiry_date: null,
+          created_at: p.created_at || new Date().toISOString(),
+          user_name: p.name || 'User',
+          user_email: p.email || '',
+        });
+      }
+    });
+
+    // 3. Sort: Active paid plans first (annual/monthly), then newest accounts
+    result.sort((a, b) => {
+      const aPaid = (a.plan_type !== 'free' && a.status === 'active') ? 1 : 0;
+      const bPaid = (b.plan_type !== 'free' && b.status === 'active') ? 1 : 0;
+      if (aPaid !== bPaid) return bPaid - aPaid;
+      return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+    });
+
+    return result;
   }
 
   public static async updateSubscriptionPlan(
