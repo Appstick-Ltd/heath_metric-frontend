@@ -85,6 +85,24 @@ export default function UsersPage() {
     try {
       const data = await DataService.getProfiles();
       setUsers(data);
+
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        const searchParam = (params.get("search") || params.get("userId") || "").trim();
+        if (searchParam) {
+          setSearchQuery(searchParam);
+          const target = searchParam.toLowerCase();
+          const matched = data.find(
+            (u) =>
+              u.id.toLowerCase() === target ||
+              (u.email && u.email.toLowerCase() === target) ||
+              (u.name && u.name.toLowerCase().includes(target))
+          );
+          if (matched) {
+            openUserDetail(matched);
+          }
+        }
+      }
     } catch (e) {
       console.warn(e);
     } finally {

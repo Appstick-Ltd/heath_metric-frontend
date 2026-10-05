@@ -167,6 +167,7 @@ export interface Referral {
   referrer_name?: string;
   referrer_email?: string;
   referee_name?: string;
+  referee_email?: string;
 }
 
 export interface CMSFoodItem {
