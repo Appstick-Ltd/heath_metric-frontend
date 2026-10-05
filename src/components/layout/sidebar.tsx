@@ -12,8 +12,6 @@ import {
   HeartPulse,
   LogOut,
   ShieldCheck,
-  Apple,
-  Pill,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,8 +24,6 @@ const NAV_ITEMS = [
   { name: "Health Analytics", href: "/health-analytics", icon: Activity },
   { name: "Subscriptions", href: "/subscriptions", icon: CreditCard },
   { name: "Referral Program", href: "/referrals", icon: Gift },
-  { name: "Food Database", href: "/cms-foods", icon: Apple },
-  { name: "Medicine Presets", href: "/medicines", icon: Pill },
   { name: "App Settings", href: "/settings", icon: Settings },
 ];
 

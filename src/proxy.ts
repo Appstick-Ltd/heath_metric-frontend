@@ -13,8 +13,6 @@ export function proxy(request: NextRequest) {
     pathname.startsWith('/health-analytics') ||
     pathname.startsWith('/subscriptions') ||
     pathname.startsWith('/referrals') ||
-    pathname.startsWith('/cms-foods') ||
-    pathname.startsWith('/medicines') ||
     pathname.startsWith('/settings');
 
   // If trying to access protected route without cookie, redirect to /login
@@ -42,10 +40,6 @@ export const config = {
     '/subscriptions/:path*',
     '/referrals',
     '/referrals/:path*',
-    '/cms-foods',
-    '/cms-foods/:path*',
-    '/medicines',
-    '/medicines/:path*',
     '/settings',
     '/settings/:path*',
   ],
