@@ -21,6 +21,10 @@ import {
   Pill,
   Utensils,
   Flame,
+  X,
+  Download,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -64,6 +68,10 @@ export default function UsersPage() {
   } | null>(null);
   const [isDetailOpen, setIsDetailOpen] = React.useState(false);
   const [isUpgradeOpen, setIsUpgradeOpen] = React.useState(false);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(10);
 
   // Delete state
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
@@ -153,6 +161,77 @@ export default function UsersPage() {
     return matchesSearch && matchesCondition;
   });
 
+  // Reset pagination on filter or search changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, conditionFilter]);
+
+  const totalPages = Math.ceil(filteredUsers.length / pageSize) || 1;
+  const paginatedUsers = filteredUsers.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  const exportToCSV = () => {
+    if (filteredUsers.length === 0) {
+      alert("No patient records to export.");
+      return;
+    }
+
+    const headers = [
+      "User ID",
+      "Name",
+      "Email",
+      "Age",
+      "Gender",
+      "Blood Group",
+      "Height (cm)",
+      "Weight (kg)",
+      "BMI",
+      "Conditions",
+      "Diet Preference",
+      "Member Since",
+    ];
+
+    const rows = filteredUsers.map((u) => {
+      const bmi =
+        u.height && u.weight
+          ? (u.weight / Math.pow(u.height / 100, 2)).toFixed(1)
+          : "N/A";
+      const conditionsStr = (u.conditions || []).join("; ");
+
+      return [
+        `"${u.id}"`,
+        `"${(u.name || "").replace(/"/g, '""')}"`,
+        `"${(u.email || "").replace(/"/g, '""')}"`,
+        u.age || "",
+        `"${u.gender || ""}"`,
+        `"${u.blood_group || ""}"`,
+        u.height || "",
+        u.weight || "",
+        bmi,
+        `"${conditionsStr.replace(/"/g, '""')}"`,
+        `"${(u.dietary_preference || "Standard").replace(/"/g, '""')}"`,
+        `"${u.created_at ? new Date(u.created_at).toISOString().split("T")[0] : ""}"`,
+      ];
+    });
+
+    const csvContent =
+      "data:text/csv;charset=utf-8,\uFEFF" +
+      [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `patients_directory_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Page Header */}
@@ -166,6 +245,10 @@ export default function UsersPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={exportToCSV} title="Export filtered patients to CSV">
+            <Download className="h-3.5 w-3.5 mr-1.5 text-emerald-600" />
+            Export CSV
+          </Button>
           <Button variant="outline" size="sm" onClick={fetchUsers}>
             <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} />
             Refresh
@@ -185,8 +268,18 @@ export default function UsersPage() {
               placeholder="Search by name, ID, or blood group..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 text-xs"
+              className="pl-9 pr-8 text-xs"
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                title="Clear search"
+                type="button"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
 
           <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto">
@@ -234,7 +327,8 @@ export default function UsersPage() {
             </div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <>
+            <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50/75 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">
                 <tr>
@@ -249,7 +343,7 @@ export default function UsersPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-                {filteredUsers.map((user) => {
+                {paginatedUsers.map((user) => {
                   const bmi =
                     user.height && user.weight
                       ? (user.weight / Math.pow(user.height / 100, 2)).toFixed(1)
@@ -380,6 +474,95 @@ export default function UsersPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          {filteredUsers.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 py-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 text-xs text-slate-500">
+              <div className="flex items-center gap-2">
+                <span>
+                  Showing{" "}
+                  <strong className="text-slate-800 dark:text-slate-200">
+                    {filteredUsers.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+                  </strong>{" "}
+                  to{" "}
+                  <strong className="text-slate-800 dark:text-slate-200">
+                    {Math.min(currentPage * pageSize, filteredUsers.length)}
+                  </strong>{" "}
+                  of{" "}
+                  <strong className="text-slate-800 dark:text-slate-200">
+                    {filteredUsers.length}
+                  </strong>{" "}
+                  patients
+                </span>
+                <span className="text-slate-300 dark:text-slate-700">|</span>
+                <div className="flex items-center gap-1.5">
+                  <span>Rows:</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => {
+                      setPageSize(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 cursor-pointer"
+                  >
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage <= 1}
+                  className="h-8 px-2.5 text-xs"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5 mr-1" />
+                  Previous
+                </Button>
+
+                <div className="flex items-center gap-1 px-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                    .map((p, idx, arr) => {
+                      const prev = arr[idx - 1];
+                      const hasGap = prev && p - prev > 1;
+                      return (
+                        <React.Fragment key={p}>
+                          {hasGap && <span className="px-1 text-slate-400">...</span>}
+                          <button
+                            onClick={() => setCurrentPage(p)}
+                            className={`h-8 min-w-8 px-2 rounded-lg text-xs font-medium transition-all ${
+                              currentPage === p
+                                ? "bg-emerald-600 text-white shadow-xs"
+                                : "hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400"
+                            }`}
+                          >
+                            {p}
+                          </button>
+                        </React.Fragment>
+                      );
+                    })}
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage >= totalPages}
+                  className="h-8 px-2.5 text-xs"
+                >
+                  Next
+                  <ChevronRight className="h-3.5 w-3.5 ml-1" />
+                </Button>
+              </div>
+            </div>
+          )}
+          </>
         )}
       </Card>
 
