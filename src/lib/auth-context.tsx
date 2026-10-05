@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { AuthService, AdminUser, AuthSession } from "./auth-service";
 
 interface AuthContextType {
@@ -23,17 +22,20 @@ const AuthContext = React.createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
   const [session, setSession] = React.useState<AuthSession | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    // Check initial session
-    const current = AuthService.getSession();
-    if (current) {
-      setSession(current);
-    }
-    setIsLoading(false);
+    let ignore = false;
+    Promise.resolve().then(() => {
+      if (!ignore) {
+        setSession(AuthService.getSession());
+        setIsLoading(false);
+      }
+    });
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const login = async (username: string, pass: string) => {

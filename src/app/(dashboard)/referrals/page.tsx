@@ -9,7 +9,6 @@ import {
   Users,
   Coins,
   CheckCircle2,
-  Clock,
   Copy,
   Check,
   UserCheck,
@@ -72,7 +71,7 @@ export default function ReferralsPage() {
 
   // Pagination
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [pageSize, setPageSize] = React.useState(10);
+  const pageSize = 10;
 
   // Accordion for showing friends under a user row
   const [expandedCodes, setExpandedCodes] = React.useState<Set<string>>(new Set());
@@ -105,7 +104,7 @@ export default function ReferralsPage() {
     setTimeout(() => setNotification(null), 4000);
   };
 
-  const fetchReferrals = async () => {
+  const fetchReferrals = React.useCallback(async () => {
     setLoading(true);
     try {
       const [data, profs] = await Promise.all([
@@ -119,10 +118,29 @@ export default function ReferralsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   React.useEffect(() => {
-    fetchReferrals();
+    let ignore = false;
+    (async () => {
+      try {
+        const [data, profs] = await Promise.all([
+          DataService.getReferrals(),
+          DataService.getProfiles(),
+        ]);
+        if (!ignore) {
+          setReferrals(data);
+          setProfiles(profs);
+        }
+      } catch (e) {
+        console.warn("Failed to fetch referrals:", e);
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const handleCopyCode = (code: string) => {
@@ -270,10 +288,12 @@ export default function ReferralsPage() {
     });
   }, [userReferralGroups, statusFilter, searchQuery]);
 
-  // Reset page when filter changes
-  React.useEffect(() => {
+  // Reset page when filter changes without cascading effects
+  const [prevFilter, setPrevFilter] = React.useState({ searchQuery, statusFilter });
+  if (prevFilter.searchQuery !== searchQuery || prevFilter.statusFilter !== statusFilter) {
+    setPrevFilter({ searchQuery, statusFilter });
     setCurrentPage(1);
-  }, [searchQuery, statusFilter, pageSize]);
+  }
 
   // Paginated Groups
   const totalPages = Math.max(1, Math.ceil(filteredGroups.length / pageSize));
@@ -443,7 +463,7 @@ export default function ReferralsPage() {
             {activeTab === "users" && (
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as any)}
+                onChange={(e) => setStatusFilter(e.target.value as "all" | "has_friends" | "no_friends")}
                 className="px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 focus:outline-none cursor-pointer"
               >
                 <option value="all">All Referrers</option>

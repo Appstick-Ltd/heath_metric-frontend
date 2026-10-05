@@ -18,24 +18,33 @@ interface RevenueChartProps {
   data: RevenueDataPoint[];
 }
 
-function makeTooltip(isDark: boolean) {
-  // eslint-disable-next-line react/display-name
-  return function RevenueTooltip(props: any) {
-    const { active, payload, label } = props;
-    if (!active || !payload || !payload.length) return null;
-    return (
-      <div className={`rounded-xl border px-4 py-3 text-xs shadow-xl ${isDark ? "bg-slate-900 border-slate-700 text-slate-100" : "bg-white border-slate-200 text-slate-800"}`}>
-        <p className="font-semibold mb-2 text-[11px] uppercase tracking-wider text-slate-400">{label}</p>
-        {payload.map((p: any, i: number) => (
-          <div key={i} className="flex items-center gap-2 mt-1">
-            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: p.color }} />
-            <span className={isDark ? "text-slate-300" : "text-slate-600"}>{p.name}:</span>
-            <span className="font-bold">${p.value}</span>
-          </div>
-        ))}
-      </div>
-    );
-  };
+interface TooltipPayloadItem {
+  color?: string;
+  name?: string;
+  value?: number | string;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayloadItem[];
+  label?: string;
+}
+
+function RevenueTooltip({ active, payload, label }: CustomTooltipProps) {
+  const isDark = useIsDark();
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div className={`rounded-xl border px-4 py-3 text-xs shadow-xl ${isDark ? "bg-slate-900 border-slate-700 text-slate-100" : "bg-white border-slate-200 text-slate-800"}`}>
+      <p className="font-semibold mb-2 text-[11px] uppercase tracking-wider text-slate-400">{label}</p>
+      {payload.map((p, i) => (
+        <div key={i} className="flex items-center gap-2 mt-1">
+          <span className="h-2 w-2 rounded-full" style={{ backgroundColor: p.color }} />
+          <span className={isDark ? "text-slate-300" : "text-slate-600"}>{p.name}:</span>
+          <span className="font-bold">${p.value}</span>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function RevenueChart({ data }: RevenueChartProps) {
@@ -85,7 +94,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
                 tick={{ fill: axisColor }}
               />
               <Tooltip
-                content={makeTooltip(isDark) as any}
+                content={<RevenueTooltip />}
                 cursor={{ fill: isDark ? "rgba(100,116,139,0.08)" : "rgba(148,163,184,0.08)" }}
               />
               <Bar dataKey="monthlyRevenue" fill="#10b981" radius={[4, 4, 0, 0]} name="Monthly Plan" stackId="a" />

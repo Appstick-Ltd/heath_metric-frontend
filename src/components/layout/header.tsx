@@ -11,19 +11,17 @@ import {
   AlertTriangle,
   Info,
   RefreshCw,
-  ShieldCheck,
   LogOut,
   ChevronDown,
   Gift,
   Crown,
   UserPlus,
   CheckCheck,
-  Activity,
   ArrowRight,
 } from "lucide-react";
 import { ThemeToggle } from "./theme-toggle";
 import { DataService } from "@/lib/data-service";
-import { formatDateTime, formatTimeAgo } from "@/lib/utils";
+import { formatTimeAgo } from "@/lib/utils";
 import { useAdminAuth } from "@/lib/auth-context";
 import { UserAvatar } from "@/components/ui/user-avatar";
 
@@ -44,33 +42,24 @@ export function Header() {
   const [profileDropdownOpen, setProfileDropdownOpen] = React.useState(false);
   const [notifications, setNotifications] = React.useState<Notification[]>([]);
   const [notifLoading, setNotifLoading] = React.useState(false);
-  const [readIds, setReadIds] = React.useState<Set<string>>(new Set());
+  const [readIds, setReadIds] = React.useState<Set<string>>(() => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      const saved = localStorage.getItem("read_notification_ids");
+      if (saved) return new Set(JSON.parse(saved));
+    } catch {}
+    return new Set();
+  });
   const panelRef = React.useRef<HTMLDivElement>(null);
   const profileRef = React.useRef<HTMLDivElement>(null);
 
   const adminName = user?.name || "Super Admin";
   const adminRole = user?.role || "Super Admin";
   const adminEmail = user?.email || "admin@nutrihealth.com";
-  const initials = adminName
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase() || "SA";
-
-  // Load read notifications from localStorage on mount
-  React.useEffect(() => {
-    try {
-      const saved = localStorage.getItem("read_notification_ids");
-      if (saved) {
-        setReadIds(new Set(JSON.parse(saved)));
-      }
-    } catch {}
-  }, []);
 
   const unreadCount = notifications.filter((n) => !readIds.has(n.id)).length;
 
-  const loadNotifications = async () => {
+  const loadNotifications = React.useCallback(async () => {
     setNotifLoading(true);
     try {
       const data = await DataService.getRecentNotifications();
@@ -80,21 +69,37 @@ export function Header() {
     } finally {
       setNotifLoading(false);
     }
-  };
+  }, []);
 
   // Load notifications on mount and periodically every 25s
   React.useEffect(() => {
-    loadNotifications();
-    const interval = setInterval(loadNotifications, 25000);
-    return () => clearInterval(interval);
-  }, []);
+    let ignore = false;
+    (async () => {
+      try {
+        const data = await DataService.getRecentNotifications();
+        if (!ignore) {
+          setNotifications(data as Notification[]);
+        }
+      } catch {}
+    })();
 
-  // Refresh notifications when panel opens
-  React.useEffect(() => {
-    if (notificationsOpen) {
+    const interval = setInterval(() => {
+      loadNotifications();
+    }, 25000);
+
+    return () => {
+      ignore = true;
+      clearInterval(interval);
+    };
+  }, [loadNotifications]);
+
+  const toggleNotifications = () => {
+    const next = !notificationsOpen;
+    setNotificationsOpen(next);
+    if (next) {
       loadNotifications();
     }
-  }, [notificationsOpen]);
+  };
 
   // Mark all notifications as read
   const markAllAsRead = () => {
@@ -215,7 +220,7 @@ export function Header() {
         {/* Notifications Popover */}
         <div className="relative" ref={panelRef}>
           <button
-            onClick={() => setNotificationsOpen(!notificationsOpen)}
+            onClick={toggleNotifications}
             className="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors relative cursor-pointer"
             title="Notifications"
           >

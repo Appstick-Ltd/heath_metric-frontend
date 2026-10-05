@@ -2,30 +2,29 @@
 
 import * as React from "react";
 
+function subscribe(callback: () => void) {
+  if (typeof window === "undefined") return () => {};
+  const observer = new MutationObserver(callback);
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class"],
+  });
+  return () => observer.disconnect();
+}
+
+function getSnapshot(): boolean {
+  return typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+}
+
+function getServerSnapshot(): boolean {
+  return false;
+}
+
 /**
  * Returns whether the current rendered theme is dark.
- * Subscribes to DOM class changes so components re-render
- * whenever the user toggles the theme.
+ * Subscribes to DOM class changes using useSyncExternalStore
+ * for zero-flicker, reactive, cascading-render-free updates.
  */
 export function useIsDark(): boolean {
-  const [isDark, setIsDark] = React.useState(false);
-
-  React.useEffect(() => {
-    // Read initial state
-    setIsDark(document.documentElement.classList.contains("dark"));
-
-    // Watch for class changes on <html>
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains("dark"));
-    });
-
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
-  return isDark;
+  return React.useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

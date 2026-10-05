@@ -10,7 +10,6 @@ import {
   Gift,
   Database,
   Inbox,
-  ShieldCheck,
 } from "lucide-react";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { UserGrowthChart } from "@/components/dashboard/user-growth-chart";

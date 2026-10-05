@@ -139,6 +139,7 @@ export class AuthService {
       } catch (err) {
         console.error("Failed to clear admin session:", err);
       }
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.href = "/login";
     }
   }
@@ -176,7 +177,7 @@ export class AuthService {
         session.user.role = matched.role;
         try {
           localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
-        } catch (_) {}
+        } catch {}
       }
 
       return session;

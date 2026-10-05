@@ -21,12 +21,14 @@ export function UserAvatar({
   // Try proxy first (0), then direct CDN (1), then fallback initials (2)
   const [attempt, setAttempt] = React.useState<number>(0);
   const [loaded, setLoaded] = React.useState(false);
+  const [prevPhotoUrl, setPrevPhotoUrl] = React.useState(photoUrl);
 
-  // Reset attempt if photoUrl changes
-  React.useEffect(() => {
+  // Reset attempt if photoUrl changes without effect
+  if (photoUrl !== prevPhotoUrl) {
+    setPrevPhotoUrl(photoUrl);
     setAttempt(0);
     setLoaded(false);
-  }, [photoUrl]);
+  }
 
   const sizeClasses = {
     xs: "h-6 w-6 text-[10px]",
@@ -80,6 +82,7 @@ export function UserAvatar({
       <div
         className={`relative ${sizeClasses} ${roundedClass} p-[1.5px] bg-gradient-to-tr from-teal-500 to-sky-500 shadow-sm shrink-0 overflow-hidden ${className}`}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           key={currentSrc}
           src={currentSrc}

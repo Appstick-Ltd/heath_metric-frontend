@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { useAdminAuth } from "@/lib/auth-context";
@@ -10,7 +9,6 @@ import { HeartPulse } from "lucide-react";
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAdminAuth();
-  const router = useRouter();
 
   React.useEffect(() => {
     if (!isLoading && !isAuthenticated) {

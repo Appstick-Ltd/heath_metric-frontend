@@ -16,34 +16,45 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
-  TooltipProps,
 } from "recharts";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { LoadingSpinner } from "@/components/ui/loader";
 import { DataService } from "@/lib/data-service";
 import { VitalDistributionData } from "@/types/dashboard";
 import { useIsDark } from "@/lib/use-theme";
 
-function makeChartTooltip(isDark: boolean) {
-  // eslint-disable-next-line react/display-name
-  return function ChartTooltip(props: any) {
-    const { active, payload, label } = props;
-    if (!active || !payload || !payload.length) return null;
-    return (
-      <div className={`rounded-xl border px-3 py-2.5 text-xs shadow-xl ${isDark ? "bg-slate-900 border-slate-700 text-slate-100" : "bg-white border-slate-200 text-slate-800"}`}>
-        <p className="font-semibold mb-1 text-slate-400 text-[10px] truncate max-w-[180px]">{label}</p>
-        {payload.map((p: any, i: number) => (
-          <div key={i} className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full" style={{ backgroundColor: p.payload?.color || p.color }} />
-            <span className="font-bold">{p.value} records</span>
-            <span className={isDark ? "text-slate-400" : "text-slate-500"}>({p.payload?.percentage}%)</span>
-          </div>
-        ))}
-      </div>
-    );
+interface TooltipPayloadItem {
+  color?: string;
+  name?: string;
+  value?: number | string;
+  payload?: {
+    color?: string;
+    percentage?: number;
   };
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayloadItem[];
+  label?: string;
+}
+
+function HealthChartTooltip({ active, payload, label }: CustomTooltipProps) {
+  const isDark = useIsDark();
+  if (!active || !payload || !payload.length) return null;
+  return (
+    <div className={`rounded-xl border px-3 py-2.5 text-xs shadow-xl ${isDark ? "bg-slate-900 border-slate-700 text-slate-100" : "bg-white border-slate-200 text-slate-800"}`}>
+      <p className="font-semibold mb-1 text-slate-400 text-[10px] truncate max-w-[180px]">{label}</p>
+      {payload.map((p, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <span className="h-2 w-2 rounded-full" style={{ backgroundColor: p.payload?.color || p.color }} />
+          <span className="font-bold">{p.value} records</span>
+          <span className={isDark ? "text-slate-400" : "text-slate-500"}>({p.payload?.percentage}%)</span>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export default function HealthAnalyticsPage() {
@@ -56,7 +67,7 @@ export default function HealthAnalyticsPage() {
   const [symptoms, setSymptoms] = React.useState<Array<{ region: string; count: number; avgVas: number }>>([]);
   const [loading, setLoading] = React.useState(true);
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = React.useCallback(async () => {
     setLoading(true);
     try {
       const data = await DataService.getHealthDistributionData();
@@ -68,10 +79,27 @@ export default function HealthAnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   React.useEffect(() => {
-    fetchAnalytics();
+    let ignore = false;
+    (async () => {
+      try {
+        const data = await DataService.getHealthDistributionData();
+        if (!ignore) {
+          setSugarData(data.sugarDistribution);
+          setBpData(data.bpDistribution);
+          setSymptoms(data.symptomAggregates);
+        }
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const totalSugarLogged = sugarData.reduce((acc, curr) => acc + curr.count, 0);
@@ -129,7 +157,7 @@ export default function HealthAnalyticsPage() {
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                       <XAxis dataKey="category" stroke={axisColor} fontSize={10} tickLine={false} axisLine={false} tick={{ fill: axisColor }} />
                       <YAxis stroke={axisColor} fontSize={11} tickLine={false} axisLine={false} tick={{ fill: axisColor }} />
-                      <Tooltip content={makeChartTooltip(isDark) as any} cursor={{ fill: isDark ? "rgba(100,116,139,0.08)" : "rgba(148,163,184,0.08)" }} />
+                      <Tooltip content={<HealthChartTooltip />} cursor={{ fill: isDark ? "rgba(100,116,139,0.08)" : "rgba(148,163,184,0.08)" }} />
                       <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                         {sugarData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
@@ -185,7 +213,7 @@ export default function HealthAnalyticsPage() {
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
                       <XAxis dataKey="category" stroke={axisColor} fontSize={10} tickLine={false} axisLine={false} tick={{ fill: axisColor }} />
                       <YAxis stroke={axisColor} fontSize={11} tickLine={false} axisLine={false} tick={{ fill: axisColor }} />
-                      <Tooltip content={makeChartTooltip(isDark) as any} cursor={{ fill: isDark ? "rgba(100,116,139,0.08)" : "rgba(148,163,184,0.08)" }} />
+                      <Tooltip content={<HealthChartTooltip />} cursor={{ fill: isDark ? "rgba(100,116,139,0.08)" : "rgba(148,163,184,0.08)" }} />
                       <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                         {bpData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />

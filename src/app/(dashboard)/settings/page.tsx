@@ -9,8 +9,6 @@ import {
   Save,
   RefreshCw,
   CheckCircle2,
-  AlertTriangle,
-  Clock,
   Activity,
   Search,
   ChevronLeft,
@@ -21,11 +19,10 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { LoadingSpinner } from "@/components/ui/loader";
 import { DataService } from "@/lib/data-service";
 import { useAdminAuth } from "@/lib/auth-context";
 import { AuditLog } from "@/types/database";
-import { formatDate, formatDateTime } from "@/lib/utils";
+import { formatDateTime } from "@/lib/utils";
 
 export default function SettingsPage() {
   const { user } = useAdminAuth();
@@ -48,7 +45,7 @@ export default function SettingsPage() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const pageSize = 10;
 
-  const loadData = async () => {
+  const loadData = React.useCallback(async () => {
     setLoading(true);
     try {
       const [settings, auditLogs] = await Promise.all([
@@ -57,14 +54,15 @@ export default function SettingsPage() {
       ]);
 
       if (settings.maintenance_mode) {
-        setMaintenanceEnabled(!!settings.maintenance_mode.enabled);
+        setMaintenanceEnabled(!!(settings.maintenance_mode as { enabled?: boolean }).enabled);
       }
       if (settings.min_app_version) {
-        setMinVersion(settings.min_app_version.version || "1.2.0");
+        setMinVersion((settings.min_app_version as { version?: string }).version || "1.2.0");
       }
       if (settings.announcement_banner) {
-        setAnnouncementActive(!!settings.announcement_banner.active);
-        setAnnouncementMessage(settings.announcement_banner.message || "");
+        const banner = settings.announcement_banner as { active?: boolean; message?: string };
+        setAnnouncementActive(!!banner.active);
+        setAnnouncementMessage(banner.message || "");
       }
 
       setLogs(auditLogs);
@@ -73,10 +71,39 @@ export default function SettingsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   React.useEffect(() => {
-    loadData();
+    let ignore = false;
+    (async () => {
+      try {
+        const [settings, auditLogs] = await Promise.all([
+          DataService.getAppSettings(),
+          DataService.getAuditLogs(),
+        ]);
+        if (!ignore) {
+          if (settings.maintenance_mode) {
+            setMaintenanceEnabled(!!(settings.maintenance_mode as { enabled?: boolean }).enabled);
+          }
+          if (settings.min_app_version) {
+            setMinVersion((settings.min_app_version as { version?: string }).version || "1.2.0");
+          }
+          if (settings.announcement_banner) {
+            const banner = settings.announcement_banner as { active?: boolean; message?: string };
+            setAnnouncementActive(!!banner.active);
+            setAnnouncementMessage(banner.message || "");
+          }
+          setLogs(auditLogs);
+        }
+      } catch (e) {
+        console.warn("Failed to load settings:", e);
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   const handleSaveSettings = async () => {
@@ -103,8 +130,9 @@ export default function SettingsPage() {
       setSavedSuccess(true);
       setTimeout(() => setSavedSuccess(false), 3000);
       loadData();
-    } catch (e: any) {
-      alert(e?.message || "Failed to save settings");
+    } catch (e: unknown) {
+      const err = e as Error;
+      alert(err?.message || "Failed to save settings");
     } finally {
       setSaving(false);
     }
@@ -142,10 +170,12 @@ export default function SettingsPage() {
     return filteredLogs.slice(start, start + pageSize);
   }, [filteredLogs, currentPage, pageSize]);
 
-  // Reset to page 1 whenever filter or search query changes
-  React.useEffect(() => {
+  // Reset to page 1 whenever filter or search query changes without cascading effects
+  const [prevFilter, setPrevFilter] = React.useState({ searchQuery, severityFilter });
+  if (prevFilter.searchQuery !== searchQuery || prevFilter.severityFilter !== severityFilter) {
+    setPrevFilter({ searchQuery, severityFilter });
     setCurrentPage(1);
-  }, [searchQuery, severityFilter]);
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">

@@ -3,13 +3,7 @@
 import * as React from "react";
 import {
   CreditCard,
-  DollarSign,
-  TrendingUp,
-  AlertCircle,
   CheckCircle2,
-  Calendar,
-  Sparkles,
-  Zap,
   Inbox,
   RefreshCw,
   Search,
@@ -22,7 +16,7 @@ import {
   Check,
   ShieldCheck,
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -61,7 +55,7 @@ export default function SubscriptionsPage() {
     }
   };
 
-  const fetchSubs = async () => {
+  const fetchSubs = React.useCallback(async () => {
     setLoading(true);
     try {
       const data = await DataService.getSubscriptions();
@@ -71,11 +65,33 @@ export default function SubscriptionsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   React.useEffect(() => {
-    fetchSubs();
+    let ignore = false;
+    (async () => {
+      try {
+        const data = await DataService.getSubscriptions();
+        if (!ignore) {
+          setSubs(data);
+        }
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
   }, []);
+
+  // Reset pagination on filter or search changes without cascading effects
+  const [prevFilter, setPrevFilter] = React.useState({ searchQuery, filterPlan });
+  if (prevFilter.searchQuery !== searchQuery || prevFilter.filterPlan !== filterPlan) {
+    setPrevFilter({ searchQuery, filterPlan });
+    setCurrentPage(1);
+  }
 
   const filteredSubs = subs.filter((s) => {
     const matchesPlan =
@@ -90,11 +106,6 @@ export default function SubscriptionsPage() {
 
     return matchesPlan && matchesSearch;
   });
-
-  // Reset pagination on filter or search changes
-  React.useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, filterPlan]);
 
   const totalPages = Math.ceil(filteredSubs.length / pageSize) || 1;
   const paginatedSubs = filteredSubs.slice(

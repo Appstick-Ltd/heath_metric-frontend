@@ -41,7 +41,8 @@ export async function GET(request: NextRequest) {
         'Access-Control-Allow-Origin': '*',
       },
     });
-  } catch (error: any) {
-    return new NextResponse(`Error proxying image: ${error?.message || error}`, { status: 500 });
+  } catch (error: unknown) {
+    const err = error as Error;
+    return new NextResponse(`Error proxying image: ${err?.message || String(error)}`, { status: 500 });
   }
 }

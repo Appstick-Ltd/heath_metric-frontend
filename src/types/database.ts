@@ -91,7 +91,7 @@ export interface Medicine {
   instructions?: string | null;
   start_date?: string;
   reminder_enabled?: boolean;
-  item_json?: any;
+  item_json?: Record<string, unknown> | null;
 }
 
 export interface Meal {

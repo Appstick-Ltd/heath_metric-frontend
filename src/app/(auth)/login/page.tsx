@@ -6,7 +6,7 @@ import { HeartPulse, Lock, User, Users, ArrowRight, ShieldCheck, Eye, EyeOff, Al
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { AuthService, AdminUser } from "@/lib/auth-service";
+import { AuthService } from "@/lib/auth-service";
 
 function LoginForm() {
   const router = useRouter();
@@ -19,14 +19,11 @@ function LoginForm() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState(false);
-  const [activeAdmin, setActiveAdmin] = React.useState<AdminUser | null>(null);
 
-  // Check if a session already exists to give the user the option, but NEVER auto-redirect
+  const [activeAdmin, setActiveAdmin] = React.useState<import("@/lib/auth-service").AdminUser | null>(null);
+
   React.useEffect(() => {
-    const current = AuthService.getCurrentAdmin();
-    if (current) {
-      setActiveAdmin(current);
-    }
+    setActiveAdmin(AuthService.getCurrentAdmin());
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {

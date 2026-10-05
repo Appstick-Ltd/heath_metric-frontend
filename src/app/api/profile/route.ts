@@ -33,7 +33,8 @@ export async function GET() {
         proxied_avatar_url: proxiedAvatarUrl,
       },
     });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const error = err as Error;
+    return NextResponse.json({ error: error?.message || "Internal server error" }, { status: 500 });
   }
 }

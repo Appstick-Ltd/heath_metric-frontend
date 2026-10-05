@@ -11,7 +11,6 @@ import {
   Activity,
   HeartPulse,
   LogOut,
-  ShieldCheck,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";

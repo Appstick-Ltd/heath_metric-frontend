@@ -19,67 +19,48 @@ function applyDark(dark: boolean) {
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = React.useState<Theme>("system");
-  const [isDark, setIsDark] = React.useState(false);
-  const [mounted, setMounted] = React.useState(false);
+  const mounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
-  // On mount: read saved preference and apply
+  const [theme, setTheme] = React.useState<Theme>(() => {
+    if (typeof window === "undefined") return "system";
+    return (localStorage.getItem("theme") ?? "system") as Theme;
+  });
+
+  // Apply theme when theme state changes
   React.useEffect(() => {
-    setMounted(true);
-    const saved = (localStorage.getItem("theme") ?? "system") as Theme;
-    setTheme(saved);
-
-    if (saved === "dark") {
+    if (!mounted) return;
+    if (theme === "dark") {
       applyDark(true);
-      setIsDark(true);
-    } else if (saved === "light") {
+    } else if (theme === "light") {
       applyDark(false);
-      setIsDark(false);
     } else {
-      // system
-      const prefersDark = getSystemPrefersDark();
-      applyDark(prefersDark);
-      setIsDark(prefersDark);
+      applyDark(getSystemPrefersDark());
     }
-  }, []);
+  }, [mounted, theme]);
 
   // Listen for OS colour-scheme changes when in "system" mode
   React.useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || theme !== "system") return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
 
     const handler = (e: MediaQueryListEvent) => {
-      if (localStorage.getItem("theme") === "system") {
-        applyDark(e.matches);
-        setIsDark(e.matches);
-      }
+      applyDark(e.matches);
     };
 
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
-  }, [mounted]);
+  }, [mounted, theme]);
 
   const cycleTheme = () => {
     setTheme((prev) => {
-      let next: Theme;
-      if (prev === "light") next = "dark";
-      else if (prev === "dark") next = "system";
-      else next = "light";
-
-      localStorage.setItem("theme", next);
-
-      if (next === "dark") {
-        applyDark(true);
-        setIsDark(true);
-      } else if (next === "light") {
-        applyDark(false);
-        setIsDark(false);
-      } else {
-        const prefersDark = getSystemPrefersDark();
-        applyDark(prefersDark);
-        setIsDark(prefersDark);
-      }
-
+      const next: Theme = prev === "light" ? "dark" : prev === "dark" ? "system" : "light";
+      try {
+        localStorage.setItem("theme", next);
+      } catch {}
       return next;
     });
   };

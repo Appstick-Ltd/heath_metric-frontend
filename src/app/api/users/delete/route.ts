@@ -106,7 +106,8 @@ export async function POST(request: NextRequest) {
       success: true,
       message: `User and all related records deleted completely.${authDeleted ? ' Auth account also purged.' : ''}`,
     });
-  } catch (err: any) {
-    return NextResponse.json({ error: err?.message || 'Server error' }, { status: 500 });
+  } catch (err: unknown) {
+    const error = err as Error;
+    return NextResponse.json({ error: error?.message || 'Server error' }, { status: 500 });
   }
 }

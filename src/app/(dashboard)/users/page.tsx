@@ -9,7 +9,6 @@ import {
   HeartPulse,
   Activity,
   Users2,
-  Users,
   Inbox,
   RefreshCw,
   Trash2,
@@ -80,7 +79,14 @@ export default function UsersPage() {
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [deleteResult, setDeleteResult] = React.useState<{ success: boolean; message: string } | null>(null);
 
-  const fetchUsers = async () => {
+  const openUserDetail = React.useCallback(async (user: Profile) => {
+    setSelectedUser(user);
+    const details = await DataService.getProfileDetails(user.id);
+    setUserDetails(details);
+    setIsDetailOpen(true);
+  }, []);
+
+  const fetchUsers = React.useCallback(async () => {
     setLoading(true);
     try {
       const data = await DataService.getProfiles();
@@ -108,18 +114,43 @@ export default function UsersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [openUserDetail]);
 
   React.useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const openUserDetail = async (user: Profile) => {
-    setSelectedUser(user);
-    const details = await DataService.getProfileDetails(user.id);
-    setUserDetails(details);
-    setIsDetailOpen(true);
-  };
+    let ignore = false;
+    (async () => {
+      try {
+        const data = await DataService.getProfiles();
+        if (!ignore) {
+          setUsers(data);
+          if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search);
+            const searchParam = (params.get("search") || params.get("userId") || "").trim();
+            if (searchParam) {
+              setSearchQuery(searchParam);
+              const target = searchParam.toLowerCase();
+              const matched = data.find(
+                (u) =>
+                  u.id.toLowerCase() === target ||
+                  (u.email && u.email.toLowerCase() === target) ||
+                  (u.name && u.name.toLowerCase().includes(target))
+              );
+              if (matched) {
+                openUserDetail(matched);
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.warn(e);
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    })();
+    return () => {
+      ignore = true;
+    };
+  }, [openUserDetail]);
 
   const openUpgradeModal = (user: Profile) => {
     setSelectedUser(user);
@@ -158,8 +189,9 @@ export default function UsersPage() {
       } else {
         setDeleteResult({ success: false, message: result.error || "Failed to delete user. Check RLS policies." });
       }
-    } catch (e: any) {
-      setDeleteResult({ success: false, message: e?.message || "Unexpected error occurred." });
+    } catch (e: unknown) {
+      const err = e as Error;
+      setDeleteResult({ success: false, message: err?.message || "Unexpected error occurred." });
     } finally {
       setIsDeleting(false);
     }
@@ -179,10 +211,12 @@ export default function UsersPage() {
     return matchesSearch && matchesCondition;
   });
 
-  // Reset pagination on filter or search changes
-  React.useEffect(() => {
+  // Reset pagination on filter or search changes without cascading effects
+  const [prevFilter, setPrevFilter] = React.useState({ searchQuery, conditionFilter });
+  if (prevFilter.searchQuery !== searchQuery || prevFilter.conditionFilter !== conditionFilter) {
+    setPrevFilter({ searchQuery, conditionFilter });
     setCurrentPage(1);
-  }, [searchQuery, conditionFilter]);
+  }
 
   const totalPages = Math.ceil(filteredUsers.length / pageSize) || 1;
   const paginatedUsers = filteredUsers.slice(
@@ -1013,7 +1047,10 @@ export default function UsersPage() {
                 <button
                   key={tier.id}
                   onClick={async () => {
-                    const ok = await DataService.updateSubscriptionPlan(selectedUser.id, tier.id as any);
+                    const ok = await DataService.updateSubscriptionPlan(
+                      selectedUser.id,
+                      tier.id as "free" | "monthly" | "annual"
+                    );
                     if (ok) {
                       alert(`Subscription updated to ${tier.name} in Supabase!`);
                     } else {
