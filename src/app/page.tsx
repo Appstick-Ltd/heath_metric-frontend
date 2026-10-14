@@ -522,10 +522,13 @@ export default function LandingPage() {
               {/* Floating Carousel Navigation Controls */}
               <button
                 type="button"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
                   setActiveHeroIndex((prev) => (prev - 1 + APP_SCREENS.length) % APP_SCREENS.length);
                   setIsAutoPlaying(false);
+                  (e.currentTarget as HTMLButtonElement).blur();
                 }}
+                tabIndex={-1}
                 aria-label="Previous screen"
                 className="absolute -left-3 sm:-left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/95 dark:bg-slate-900/95 shadow-xl border border-slate-200/90 dark:border-white/15 text-slate-700 dark:text-slate-200 hover:text-[#006AFA] dark:hover:text-sky-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95 z-30 backdrop-blur-md"
               >
@@ -533,10 +536,13 @@ export default function LandingPage() {
               </button>
               <button
                 type="button"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
                   setActiveHeroIndex((prev) => (prev + 1) % APP_SCREENS.length);
                   setIsAutoPlaying(false);
+                  (e.currentTarget as HTMLButtonElement).blur();
                 }}
+                tabIndex={-1}
                 aria-label="Next screen"
                 className="absolute -right-3 sm:-right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/95 dark:bg-slate-900/95 shadow-xl border border-slate-200/90 dark:border-white/15 text-slate-700 dark:text-slate-200 hover:text-[#006AFA] dark:hover:text-sky-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95 z-30 backdrop-blur-md"
               >
@@ -554,14 +560,21 @@ export default function LandingPage() {
 
                     {/* Display Screen: Natural Aspect Ratio, Zero Cropping */}
                     <div className="relative rounded-[37px] sm:rounded-[41px] overflow-hidden bg-slate-100 dark:bg-slate-950">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        key={hero.id}
-                        src={hero.image}
-                        alt={hero.alt}
-                        className="w-full h-auto block select-none animate-fadeIn"
-                        loading="eager"
-                      />
+                      {/* Stacked images — only active one is visible via opacity */}
+                      <div className="relative w-full">
+                        {APP_SCREENS.map((screen, idx) => (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            key={screen.id}
+                            src={screen.image}
+                            alt={screen.alt}
+                            className={`w-full h-auto select-none transition-opacity duration-500 ease-in-out ${
+                              idx === 0 ? "block" : "absolute inset-0"
+                            } ${activeHeroIndex === idx ? "opacity-100 z-[1]" : "opacity-0 z-0"}`}
+                            loading={idx < 3 ? "eager" : "lazy"}
+                          />
+                        ))}
+                      </div>
 
                       {/* Glass Glare & Specular Reflection Sheen */}
                       <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.04] to-white/[0.12] pointer-events-none z-10" />
@@ -593,10 +606,13 @@ export default function LandingPage() {
                     <button
                       key={s.id}
                       type="button"
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.preventDefault();
                         setActiveHeroIndex(idx);
                         setIsAutoPlaying(false);
+                        (e.currentTarget as HTMLButtonElement).blur();
                       }}
+                      tabIndex={-1}
                       title={s.title}
                       aria-label={`Switch to ${s.title}`}
                       className={`h-1.5 transition-all duration-300 rounded-full ${
