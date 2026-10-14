@@ -291,24 +291,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#07090f] text-slate-900 dark:text-slate-100 font-sans selection:bg-[#006AFA] selection:text-white relative overflow-x-clip transition-colors duration-200">
-      {/* JSON-LD for SEO */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "MobileApplication",
-            name: "HealthTrack",
-            operatingSystem: ["Android", "iOS"],
-            applicationCategory: "HealthApplication",
-            offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-            inLanguage: ["en", "bn", "es", "hi", "ar", "fr", "de", "ja", "pt", "zh", "ur"],
-            description:
-              "HealthTrack - Personal health & vitals tracking. Track glucose, BP, weight, BMI, pain, meals, meds, hydration, prescriptions with Drive backup and doctor PDF reports.",
-          }),
-        }}
-      />
-
       {/* Ambient with Subtle High-Tech Grid */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
         <div className="absolute inset-0 bg-grid-subtle opacity-40 dark:opacity-30 [mask-image:radial-gradient(ellipse_80%_60%_at_50%_15%,#000_60%,transparent_100%)]" />

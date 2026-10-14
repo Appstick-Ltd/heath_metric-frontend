@@ -70,12 +70,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <meta name="referrer" content="no-referrer" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/png" sizes="32x32" href="/icon.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon.png" />
+        {/* JSON-LD for SEO */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "MobileApplication",
+              name: "HealthTrack",
+              operatingSystem: ["Android", "iOS"],
+              applicationCategory: "HealthApplication",
+              offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+              inLanguage: ["en", "bn", "es", "hi", "ar", "fr", "de", "ja", "pt", "zh", "ur"],
+              description:
+                "HealthTrack - Personal health & vitals tracking. Track glucose, BP, weight, BMI, pain, meals, meds, hydration, prescriptions with Drive backup and doctor PDF reports.",
+            }),
+          }}
+        />
         {/* Prevent flash of wrong theme: must run synchronously before any paint */}
         <script
           dangerouslySetInnerHTML={{
