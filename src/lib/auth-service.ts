@@ -14,90 +14,78 @@ export interface AuthSession {
   expiresAt: number;
 }
 
-// Built-in predefined Admin Account (Fixed)
-export const VALID_ADMIN_ACCOUNTS = [
-  {
-    username: "superadmin@gmail.com",
-    aliases: ["superadmin@gmail.com", "superadmin", "admin"],
-    password: "healthtrackapp@123456",
-    name: "Super Admin",
-    email: "superadmin@gmail.com",
-    role: "Super Admin",
-    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
-  },
-];
-
 const SESSION_STORAGE_KEY = "nutri_admin_session";
 const COOKIE_NAME = "admin_session";
 
 export class AuthService {
   /**
-   * Authenticate with username/email and password
+   * Authenticate securely via server-side endpoint.
+   * Credentials and passwords are verified strictly on the server and never exposed in client bundles.
    */
   public static async login(
     identifier: string,
     pass: string
   ): Promise<{ success: boolean; error?: string; session?: AuthSession }> {
-    const cleanId = identifier.trim().toLowerCase();
+    const cleanId = identifier.trim();
     const cleanPass = pass.trim();
 
     if (!cleanId || !cleanPass) {
-      return { success: false, error: "Please enter both username and password." };
+      return { success: false, error: "Please enter both email and password." };
     }
 
-    // Find matching admin account
-    const matchedAccount = VALID_ADMIN_ACCOUNTS.find((acc) => {
-      const isIdMatch =
-        acc.username.toLowerCase() === cleanId ||
-        acc.aliases.some((alias) => alias.toLowerCase() === cleanId);
-      return isIdMatch && acc.password === cleanPass;
-    });
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          identifier: cleanId,
+          password: cleanPass,
+        }),
+      });
 
-    if (!matchedAccount) {
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        return {
+          success: false,
+          error: data.error || "Invalid email or password. Please verify your credentials.",
+        };
+      }
+
+      const session: AuthSession = data.session;
+
+      // Store in browser localStorage
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+          // Redundant fallback cookie setter in case response cookie didn't attach
+          document.cookie = `${COOKIE_NAME}=${encodeURIComponent(
+            session.token
+          )}; path=/; max-age=28800; SameSite=Lax`;
+        } catch (err) {
+          console.error("Failed to persist admin session in localStorage:", err);
+        }
+      }
+
+      return { success: true, session };
+    } catch (err) {
+      console.error("Network or authentication error:", err);
       return {
         success: false,
-        error: "Invalid email or password. Please verify your credentials.",
+        error: "Unable to connect to the authentication server. Please check your connection.",
       };
     }
-
-    const targetUser: AdminUser = {
-      id: `user-${matchedAccount.username}`,
-      username: matchedAccount.username,
-      name: matchedAccount.name,
-      email: matchedAccount.email,
-      role: matchedAccount.role,
-      avatar: matchedAccount.avatar,
-      lastLogin: new Date().toISOString(),
-    };
-
-    const session: AuthSession = {
-      user: targetUser,
-      token: `auth-token-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-      expiresAt: Date.now() + 8 * 60 * 60 * 1000, // 8 hours
-    };
-
-    // Store in browser
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
-        // Also set cookie so Next.js middleware and SSR can detect auth
-        document.cookie = `${COOKIE_NAME}=${encodeURIComponent(
-          session.token
-        )}; path=/; max-age=28800; SameSite=Lax`;
-      } catch (err) {
-        console.error("Failed to persist admin session:", err);
-      }
-    }
-
-    return { success: true, session };
   }
 
   /**
    * Clear session and log out
    */
-  public static logout(): void {
+  public static async logout(): Promise<void> {
     if (typeof window !== "undefined") {
       try {
+        await fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
         localStorage.removeItem(SESSION_STORAGE_KEY);
         document.cookie = `${COOKIE_NAME}=; path=/; max-age=0; SameSite=Lax`;
       } catch (err) {
@@ -127,21 +115,6 @@ export class AuthService {
         // Expired
         this.logout();
         return null;
-      }
-
-      // Auto-enrich existing session with avatar and updated account details if a matching account exists
-      const matched = VALID_ADMIN_ACCOUNTS.find(
-        (acc) => acc.username === session.user?.username || acc.email === session.user?.email
-      );
-
-      if (matched) {
-        session.user.avatar = matched.avatar || session.user.avatar;
-        session.user.name = matched.name || session.user.name;
-        session.user.email = matched.email || session.user.email;
-        session.user.role = matched.role;
-        try {
-          localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
-        } catch {}
       }
 
       return session;
