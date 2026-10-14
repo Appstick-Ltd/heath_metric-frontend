@@ -20,11 +20,12 @@ function LoginForm() {
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState(false);
 
-  const [activeAdmin, setActiveAdmin] = React.useState<import("@/lib/auth-service").AdminUser | null>(null);
-
-  React.useEffect(() => {
-    setActiveAdmin(AuthService.getCurrentAdmin());
-  }, []);
+  const [activeAdmin, setActiveAdmin] = React.useState<import("@/lib/auth-service").AdminUser | null>(() => {
+    if (typeof window !== "undefined") {
+      return AuthService.getCurrentAdmin();
+    }
+    return null;
+  });
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

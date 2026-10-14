@@ -9,7 +9,6 @@ import {
   CreditCard,
   Gift,
   Activity,
-  HeartPulse,
   LogOut,
   Settings,
 } from "lucide-react";

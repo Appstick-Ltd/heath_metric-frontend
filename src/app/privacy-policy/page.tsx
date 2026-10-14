@@ -16,7 +16,6 @@ import {
   ArrowLeft,
   Mail,
   Phone,
-  CheckCircle2,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
