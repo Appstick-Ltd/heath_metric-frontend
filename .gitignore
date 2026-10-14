@@ -44,3 +44,10 @@ next-env.d.ts
 supabase_credentials.txt
 *credentials*.txt
 *.credentials
+
+# development & scratchpad docs
+plan.md
+AGENTS.md
+CLAUDE.md
+dashboard_schema.sql
+
