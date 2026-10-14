@@ -67,7 +67,7 @@ export function ThemeToggle() {
 
   // Avoid hydration mismatch: render placeholder until mounted
   if (!mounted) {
-    return <div className="h-9 w-9 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse" />;
+    return <div className="h-9 w-9 rounded-[8px] bg-slate-100 dark:bg-slate-800 animate-pulse" />;
   }
 
   const icon =
@@ -91,7 +91,7 @@ export function ThemeToggle() {
       onClick={cycleTheme}
       aria-label={label}
       title={label}
-      className="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 relative group"
+      className="p-2 rounded-[8px] text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-200 relative group"
     >
       <span className="transition-all duration-300 inline-block group-hover:scale-110">
         {icon}

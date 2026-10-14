@@ -303,46 +303,41 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 bg-white/90 dark:bg-[#07090f]/90 backdrop-blur-2xl border-b border-slate-200/80 dark:border-white/[0.08] shadow-sm transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-[72px] flex items-center justify-between gap-3">
           <Link href="/" className="flex items-center gap-3 group shrink-0" aria-label="HealthTrack home">
-            <div className="relative h-10 w-10 sm:h-11 sm:w-11 rounded-2xl overflow-hidden bg-white shadow-md shadow-[#006AFA]/20 border border-slate-200/90 dark:border-white/10 group-hover:scale-105 group-hover:shadow-[0_0_20px_rgba(0,106,250,0.35)] transition-all duration-300 p-0.5">
+            <div className="relative h-10 w-10 sm:h-11 sm:w-11 rounded-[8px] overflow-hidden bg-white shadow-md shadow-[#006AFA]/20 border border-slate-200/90 dark:border-white/10 group-hover:scale-105 group-hover:shadow-[0_0_20px_rgba(0,106,250,0.35)] transition-all duration-300 p-0.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.jpeg" alt="HealthTrack logo" className="w-full h-full object-contain" />
             </div>
             <div className="leading-none">
-              <div className="flex items-center gap-1.5">
-                <span className="font-black text-base sm:text-lg tracking-tight text-slate-950 dark:text-white uppercase">
-                  Health<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#006AFA] via-blue-500 to-[#69C3FF]">Track</span>
-                </span>
-                <span className="text-[9px] uppercase font-extrabold px-1.5 py-0.5 rounded-md bg-[#006AFA]/10 dark:bg-[#006AFA]/20 text-[#006AFA] dark:text-sky-400 border border-[#006AFA]/25 shadow-sm">
-                  v1.0.0
-                </span>
-              </div>
+              <span className="font-black text-base sm:text-lg tracking-tight text-slate-950 dark:text-white uppercase">
+                Health<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#006AFA] via-blue-500 to-[#69C3FF]">Track</span>
+              </span>
             </div>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-1 text-[13px] font-semibold text-slate-600 dark:text-slate-300 bg-slate-100/70 dark:bg-white/[0.03] p-1.5 rounded-full border border-slate-200/60 dark:border-white/[0.06] backdrop-blur-md" aria-label="Primary">
-            <a href="#features" className="px-3.5 py-1.5 rounded-full hover:bg-white dark:hover:bg-white/10 hover:text-[#006AFA] dark:hover:text-white transition-all duration-200 shadow-none hover:shadow-sm">Features</a>
-            <a href="#vitals" className="px-3.5 py-1.5 rounded-full hover:bg-white dark:hover:bg-white/10 hover:text-[#006AFA] dark:hover:text-white transition-all duration-200 shadow-none hover:shadow-sm">Vitals</a>
-            <a href="#how-it-works" className="px-3.5 py-1.5 rounded-full hover:bg-white dark:hover:bg-white/10 hover:text-[#006AFA] dark:hover:text-white transition-all duration-200 shadow-none hover:shadow-sm">How It Works</a>
-            <a href="#reports" className="px-3.5 py-1.5 rounded-full hover:bg-white dark:hover:bg-white/10 hover:text-[#006AFA] dark:hover:text-white transition-all duration-200 shadow-none hover:shadow-sm">Doctor Reports</a>
-            <a href="#faq" className="px-3.5 py-1.5 rounded-full hover:bg-white dark:hover:bg-white/10 hover:text-[#006AFA] dark:hover:text-white transition-all duration-200 shadow-none hover:shadow-sm">FAQ</a>
+          <nav className="hidden lg:flex items-center gap-1 text-[13px] font-semibold text-slate-600 dark:text-slate-300 bg-slate-100/70 dark:bg-white/[0.03] p-1.5 rounded-[8px] border border-slate-200/60 dark:border-white/[0.06] backdrop-blur-md" aria-label="Primary">
+            <a href="#features" className="px-3.5 py-1.5 rounded-[8px] hover:bg-white dark:hover:bg-white/10 hover:text-[#006AFA] dark:hover:text-white transition-all duration-200 shadow-none hover:shadow-sm">Features</a>
+            <a href="#vitals" className="px-3.5 py-1.5 rounded-[8px] hover:bg-white dark:hover:bg-white/10 hover:text-[#006AFA] dark:hover:text-white transition-all duration-200 shadow-none hover:shadow-sm">Vitals</a>
+            <a href="#how-it-works" className="px-3.5 py-1.5 rounded-[8px] hover:bg-white dark:hover:bg-white/10 hover:text-[#006AFA] dark:hover:text-white transition-all duration-200 shadow-none hover:shadow-sm">How It Works</a>
+            <a href="#reports" className="px-3.5 py-1.5 rounded-[8px] hover:bg-white dark:hover:bg-white/10 hover:text-[#006AFA] dark:hover:text-white transition-all duration-200 shadow-none hover:shadow-sm">Doctor Reports</a>
+            <a href="#faq" className="px-3.5 py-1.5 rounded-[8px] hover:bg-white dark:hover:bg-white/10 hover:text-[#006AFA] dark:hover:text-white transition-all duration-200 shadow-none hover:shadow-sm">FAQ</a>
           </nav>
 
           <div className="flex items-center gap-2.5 shrink-0">
-            <div className="flex items-center justify-center border border-slate-200/80 dark:border-white/10 rounded-xl bg-slate-100/80 dark:bg-white/[0.05] p-0.5 shadow-sm">
+            <div className="flex items-center justify-center border border-slate-200/80 dark:border-white/10 rounded-[8px] bg-slate-100/80 dark:bg-white/[0.05] p-0.5 shadow-sm">
               <ThemeToggle />
             </div>
             <a
               href="#download"
-              className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-[#006AFA] via-blue-600 to-[#50B2FF] hover:brightness-110 shadow-lg shadow-[#006AFA]/30 hover:shadow-[#006AFA]/45 hover:scale-[1.03] active:scale-[0.98] transition-all duration-200"
+              className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-[8px] text-sm font-bold text-white bg-gradient-to-r from-[#006AFA] via-blue-600 to-[#50B2FF] hover:brightness-110 shadow-lg shadow-[#006AFA]/30 hover:shadow-[#006AFA]/45 hover:scale-[1.03] active:scale-[0.98] transition-all duration-200"
             >
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-4 h-4" />
               <span>Get App</span>
             </a>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle navigation menu"
               aria-expanded={mobileMenuOpen}
-              className="lg:hidden p-2 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300"
+              className="lg:hidden h-11 w-11 flex items-center justify-center rounded-[8px] bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300"
             >
               <ChevronDown className={`h-5 w-5 transition-transform duration-300 ${mobileMenuOpen ? "rotate-180" : ""}`} />
             </button>
@@ -363,7 +358,7 @@ export default function LandingPage() {
                 key={href}
                 href={href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-800 dark:text-slate-200 font-medium transition-colors"
+                className="block px-3 py-2.5 rounded-[8px] hover:bg-slate-100 dark:hover:bg-white/5 text-slate-800 dark:text-slate-200 font-medium transition-colors"
               >
                 {label}
               </a>
@@ -377,16 +372,6 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
           {/* Left Column: Clear Hierarchy, Balanced Rhythm, Zero Blank Voids */}
           <div className="lg:col-span-6 space-y-6">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider text-[#006AFA] dark:text-sky-400 border border-[#006AFA]/30 bg-[#006AFA]/5 dark:bg-[#006AFA]/10 backdrop-blur-md shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-[#006AFA] dark:bg-sky-400 animate-pulse shadow-[0_0_8px_#006AFA]" />
-                <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                Clinical-grade vitals &amp; nutrition platform
-              </span>
-              <Badge variant="success" className="text-[10px] uppercase font-bold tracking-wide shadow-sm">Offline-first</Badge>
-              <Badge variant="info" className="text-[10px] font-bold tracking-wide shadow-sm">12 languages</Badge>
-            </div>
-
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[54px] font-black tracking-tight text-slate-950 dark:text-white leading-[1.12]">
               Clinical-grade vitals &amp;{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#006AFA] via-blue-600 to-[#69C3FF]">
@@ -404,9 +389,9 @@ export default function LandingPage() {
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <a
                   href="#download"
-                  className="inline-flex items-center justify-center gap-3 px-5 py-3 rounded-2xl bg-slate-950 hover:bg-slate-900 text-white border border-slate-800/80 hover:border-sky-500/50 shadow-xl hover:shadow-[0_12px_28px_-6px_rgba(0,106,250,0.3)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
+                  className="inline-flex items-center justify-center gap-3 h-12 px-6 rounded-[8px] min-w-[180px] bg-slate-950 hover:bg-slate-900 text-white border border-slate-800/80 hover:border-sky-500/50 shadow-xl hover:shadow-[0_12px_28px_-6px_rgba(0,106,250,0.3)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
                 >
-                  <svg className="w-7 h-7 shrink-0" viewBox="0 0 512 512" aria-hidden="true">
+                  <svg className="w-6 h-6 shrink-0" viewBox="0 0 512 512" aria-hidden="true">
                     <path fill="#4285F4" d="M48.7 18.5c-4.8 5.2-7.7 13-7.7 23v429c0 10 2.9 17.8 7.7 23l2.4 2.4L275 272v-5.8L51.1 16.1l-2.4 2.4z" />
                     <path fill="#FFBA00" d="M350.8 347.8l-75.8-75.8V266l75.8-75.8 1.8 1 89.8 51.1c25.7 14.6 25.7 38.5 0 53.1l-89.8 51.1-1.8 1.4z" />
                     <path fill="#00E676" d="M275 266.2L51.1 490.1c8.4 8.9 22.3 9.9 37.9 1.1l263.6-149.8-77.6-75.2z" />
@@ -414,47 +399,23 @@ export default function LandingPage() {
                   </svg>
                   <span className="text-left leading-none">
                     <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Get it on</span>
-                    <span className="text-sm sm:text-base font-bold block mt-1">Google Play</span>
+                    <span className="text-sm font-bold block mt-1">Google Play</span>
                   </span>
                 </a>
                 <a
                   href="#download"
-                  className="inline-flex items-center justify-center gap-3 px-5 py-3 rounded-2xl bg-slate-950 hover:bg-slate-900 text-white border border-slate-800/80 hover:border-white/30 shadow-xl hover:shadow-[0_12px_28px_-6px_rgba(255,255,255,0.15)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
+                  className="inline-flex items-center justify-center gap-3 h-12 px-6 rounded-[8px] min-w-[180px] bg-slate-950 hover:bg-slate-900 text-white border border-slate-800/80 hover:border-white/30 shadow-xl hover:shadow-[0_12px_28px_-6px_rgba(255,255,255,0.15)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
                 >
-                  <svg className="w-7 h-7 fill-white shrink-0" viewBox="0 0 384 512" aria-hidden="true">
+                  <svg className="w-6 h-6 fill-white shrink-0" viewBox="0 0 384 512" aria-hidden="true">
                     <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
                   </svg>
                   <span className="text-left leading-none">
                     <span className="text-[10px] text-slate-400 font-medium">Download on the</span>
-                    <span className="text-sm sm:text-base font-bold block mt-1">App Store</span>
+                    <span className="text-sm font-bold block mt-1">App Store</span>
                   </span>
                 </a>
               </div>
-
-              <div className="flex items-center gap-2.5 text-xs text-slate-600 dark:text-slate-300 pt-0.5">
-                <div className="flex" aria-label="4.8 out of 5 stars">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className={`w-3.5 h-3.5 ${i < 5 ? "fill-amber-400 text-amber-400 drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]" : "text-slate-300"}`} />
-                  ))}
-                </div>
-                <span className="font-semibold text-[11px] text-slate-600 dark:text-slate-300">Designed for daily clinical use</span>
-              </div>
             </div>
-
-            <dl className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-6 gap-y-2.5 pt-1 text-xs font-semibold text-slate-600 dark:text-slate-400">
-              {[
-                "Fasting 3.9–5.5 mmol/L (ADA)",
-                "AHA BP staging built-in",
-                "PDF + Excel doctor export",
-                "Drive auto-backup • Private",
-              ].map((t) => (
-                <div key={t} className="flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                  <dt className="sr-only">Highlight</dt>
-                  <dd>{t}</dd>
-                </div>
-              ))}
-            </dl>
 
             {/* Mini rings like app Health Overview */}
             <div className="grid grid-cols-4 gap-2 sm:gap-3 max-w-lg pt-1">
@@ -464,12 +425,11 @@ export default function LandingPage() {
                 ["Meals", "orange", "Done"],
                 ["Water", "cyan", "2.0L"],
               ].map(([label, color, sub]) => (
-                <div key={label} className="rounded-2xl border border-slate-200/90 dark:border-white/10 bg-white/80 dark:bg-white/[0.03] backdrop-blur-md p-3 text-center card-glow-hover shadow-sm hover:shadow-md transition-all duration-300">
-                  <div className={`mx-auto w-9 h-9 rounded-full border-[3px] flex items-center justify-center text-[10px] font-black transition-transform duration-300 hover:scale-105 ${
-                    color === "emerald" ? "border-emerald-500 text-emerald-600 shadow-[0_0_12px_rgba(16,185,129,0.25)]" :
+                <div key={label} className="rounded-[8px] border border-slate-200/90 dark:border-white/10 bg-white/80 dark:bg-white/[0.03] backdrop-blur-md p-3 text-center card-glow-hover shadow-sm hover:shadow-md transition-all duration-300">
+                  <div className={`mx-auto w-9 h-9 rounded-full border-[3px] flex items-center justify-center text-[10px] font-black transition-transform duration-300 hover:scale-105 ${color === "emerald" ? "border-emerald-500 text-emerald-600 shadow-[0_0_12px_rgba(16,185,129,0.25)]" :
                     color === "blue" ? "border-[#006AFA] text-[#006AFA] shadow-[0_0_12px_rgba(0,106,250,0.25)]" :
-                    color === "orange" ? "border-orange-500 text-orange-600 shadow-[0_0_12px_rgba(249,115,22,0.25)]" : "border-cyan-500 text-cyan-600 shadow-[0_0_12px_rgba(6,182,212,0.25)]"
-                  }`}>
+                      color === "orange" ? "border-orange-500 text-orange-600 shadow-[0_0_12px_rgba(249,115,22,0.25)]" : "border-cyan-500 text-cyan-600 shadow-[0_0_12px_rgba(6,182,212,0.25)]"
+                    }`}>
                     {sub === "2.0L" ? "2L" : "●"}
                   </div>
                   <p className="text-[11px] font-bold mt-1.5 text-slate-800 dark:text-slate-200">{label}</p>
@@ -530,7 +490,7 @@ export default function LandingPage() {
                 }}
                 tabIndex={-1}
                 aria-label="Previous screen"
-                className="absolute -left-3 sm:-left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/95 dark:bg-slate-900/95 shadow-xl border border-slate-200/90 dark:border-white/15 text-slate-700 dark:text-slate-200 hover:text-[#006AFA] dark:hover:text-sky-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95 z-30 backdrop-blur-md"
+                className="absolute -left-3 sm:-left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-[8px] bg-white/95 dark:bg-slate-900/95 shadow-xl border border-slate-200/90 dark:border-white/15 text-slate-700 dark:text-slate-200 hover:text-[#006AFA] dark:hover:text-sky-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95 z-30 backdrop-blur-md"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -544,22 +504,22 @@ export default function LandingPage() {
                 }}
                 tabIndex={-1}
                 aria-label="Next screen"
-                className="absolute -right-3 sm:-right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/95 dark:bg-slate-900/95 shadow-xl border border-slate-200/90 dark:border-white/15 text-slate-700 dark:text-slate-200 hover:text-[#006AFA] dark:hover:text-sky-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95 z-30 backdrop-blur-md"
+                className="absolute -right-3 sm:-right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-[8px] bg-white/95 dark:bg-slate-900/95 shadow-xl border border-slate-200/90 dark:border-white/15 text-slate-700 dark:text-slate-200 hover:text-[#006AFA] dark:hover:text-sky-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95 z-30 backdrop-blur-md"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
 
-              {/* Obsidian Titanium Flagship Chassis */}
-              <div className="relative p-[3.5px] sm:p-[4px] rounded-[44px] sm:rounded-[48px] bg-gradient-to-b from-[#2a2f3a] via-[#151820] to-[#0a0c10] shadow-[0_20px_50px_-15px_rgba(0,106,250,0.35),0_25px_60px_-20px_rgba(0,0,0,0.65),0_0_0_1px_rgba(255,255,255,0.18)] ring-1 ring-slate-900/90 dark:ring-white/20 transition-all duration-300 hover:scale-[1.01]">
+              {/* Obsidian Titanium Flagship Chassis — Modern Ultra 8px Edition */}
+              <div className="relative p-[3px] sm:p-[3.5px] rounded-[8px] bg-gradient-to-b from-[#323846] via-[#161a24] to-[#0c0e14] shadow-[0_20px_50px_-15px_rgba(0,106,250,0.35),0_25px_60px_-20px_rgba(0,0,0,0.65),0_0_0_1px_rgba(255,255,255,0.18)] ring-1 ring-slate-900/90 dark:ring-white/20 transition-all duration-300 hover:scale-[1.01]">
                 {/* Mirror Chamfer */}
-                <div className="relative rounded-[41px] sm:rounded-[45px] p-[2px] sm:p-[2.5px] bg-gradient-to-b from-white/35 via-white/5 to-transparent dark:from-white/20 dark:to-transparent">
+                <div className="relative rounded-[8px] p-[2px] bg-gradient-to-b from-white/35 via-white/5 to-transparent dark:from-white/20 dark:to-transparent">
                   {/* Midnight Bezel */}
-                  <div className="relative rounded-[39px] sm:rounded-[43px] overflow-hidden bg-black p-[2px] shadow-inner">
+                  <div className="relative rounded-[8px] overflow-hidden bg-black p-[2px] shadow-inner">
                     {/* Microscopic Acoustic Speaker Slit */}
-                    <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-10 h-[2px] bg-[#22252c] rounded-full z-20 pointer-events-none" />
+                    <div className="absolute top-1 left-1/2 -translate-x-1/2 w-10 h-[2px] bg-[#22252c] rounded-full z-20 pointer-events-none" />
 
                     {/* Display Screen: Natural Aspect Ratio, Zero Cropping */}
-                    <div className="relative rounded-[37px] sm:rounded-[41px] overflow-hidden bg-slate-100 dark:bg-slate-950">
+                    <div className="relative rounded-[8px] overflow-hidden bg-slate-100 dark:bg-slate-950">
                       {/* Stacked images — only active one is visible via opacity */}
                       <div className="relative w-full">
                         {APP_SCREENS.map((screen, idx) => (
@@ -568,9 +528,8 @@ export default function LandingPage() {
                             key={screen.id}
                             src={screen.image}
                             alt={screen.alt}
-                            className={`w-full h-auto select-none transition-opacity duration-500 ease-in-out ${
-                              idx === 0 ? "block" : "absolute inset-0"
-                            } ${activeHeroIndex === idx ? "opacity-100 z-[1]" : "opacity-0 z-0"}`}
+                            className={`w-full h-auto select-none transition-opacity duration-500 ease-in-out ${idx === 0 ? "block" : "absolute inset-0"
+                              } ${activeHeroIndex === idx ? "opacity-100 z-[1]" : "opacity-0 z-0"}`}
                             loading={idx < 3 ? "eager" : "lazy"}
                           />
                         ))}
@@ -584,7 +543,7 @@ export default function LandingPage() {
                       <button
                         type="button"
                         onClick={() => setModalScreen(hero.image)}
-                        className="absolute bottom-2.5 right-2.5 p-2 rounded-xl bg-black/80 hover:bg-black text-white backdrop-blur-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity shadow-lg z-20"
+                        className="absolute bottom-2.5 right-2.5 p-2 rounded-[8px] bg-black/80 hover:bg-black text-white backdrop-blur-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity shadow-lg z-20"
                         aria-label={`Expand ${hero.title}`}
                         title="View full screen"
                       >
@@ -615,11 +574,10 @@ export default function LandingPage() {
                       tabIndex={-1}
                       title={s.title}
                       aria-label={`Switch to ${s.title}`}
-                      className={`h-1.5 transition-all duration-300 rounded-full ${
-                        active
-                          ? "w-7 bg-[#006AFA] shadow-md shadow-[#006AFA]/50"
-                          : "w-1.5 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-500"
-                      }`}
+                      className={`h-1.5 transition-all duration-300 rounded-full ${active
+                        ? "w-7 bg-[#006AFA] shadow-md shadow-[#006AFA]/50"
+                        : "w-1.5 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-500"
+                        }`}
                     />
                   );
                 })}
@@ -631,9 +589,9 @@ export default function LandingPage() {
 
       {/* Clinical standards strip */}
       <section aria-label="Clinical standards" className="px-4 sm:px-6 lg:px-8 relative z-10 pb-4">
-        <div className="max-w-7xl mx-auto py-3 px-4 rounded-2xl bg-white/60 dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/[0.06] backdrop-blur-md shadow-sm flex flex-wrap items-center justify-center gap-2 text-[11px] font-bold">
+        <div className="max-w-7xl mx-auto py-3 px-4 rounded-[8px] bg-white/60 dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/[0.06] backdrop-blur-md shadow-sm flex flex-wrap items-center justify-center gap-2 text-[11px] font-bold">
           {["ADA Glucose", "AHA Blood Pressure", "WHO BMI", "GI Index 0–100", "VAS Pain 1–10", "Bengali + English"].map((b) => (
-            <span key={b} className="px-3.5 py-1.5 rounded-full bg-white dark:bg-white/[0.05] border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-slate-300 shadow-sm hover:border-[#006AFA]/40 hover:text-[#006AFA] dark:hover:text-sky-400 hover:scale-105 transition-all duration-200">
+            <span key={b} className="px-3.5 py-1.5 rounded-[8px] bg-white dark:bg-white/[0.05] border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-slate-300 shadow-sm hover:border-[#006AFA]/40 hover:text-[#006AFA] dark:hover:text-sky-400 hover:scale-105 transition-all duration-200">
               {b}
             </span>
           ))}
@@ -642,7 +600,7 @@ export default function LandingPage() {
 
       {/* Metrics */}
       <section className="py-8 px-4 sm:px-6 lg:px-8 relative z-20">
-        <div className="max-w-7xl mx-auto rounded-3xl p-7 sm:p-10 bg-gradient-to-b from-white/95 to-slate-50/90 dark:from-[#0B0F19]/90 dark:to-[#07090f]/90 border border-slate-200/90 dark:border-white/10 backdrop-blur-2xl shadow-[0_20px_50px_-15px_rgba(0,106,250,0.12)] relative overflow-hidden">
+        <div className="max-w-7xl mx-auto rounded-[8px] p-7 sm:p-10 bg-gradient-to-b from-white/95 to-slate-50/90 dark:from-[#0B0F19]/90 dark:to-[#07090f]/90 border border-slate-200/90 dark:border-white/10 backdrop-blur-2xl shadow-[0_20px_50px_-15px_rgba(0,106,250,0.12)] relative overflow-hidden">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center md:divide-x divide-slate-200/70 dark:divide-white/[0.08]">
             {[
               ["10+", "Vitals contexts & meal slots", "text-slate-950 dark:text-white"],
@@ -664,7 +622,7 @@ export default function LandingPage() {
       <section id="features" className="scroll-mt-24 py-20 sm:py-28 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider text-[#006AFA] dark:text-sky-400 border border-[#006AFA]/30 bg-[#006AFA]/5 dark:bg-[#006AFA]/10 backdrop-blur-md shadow-sm mb-3">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[8px] text-[11px] font-bold uppercase tracking-wider text-[#006AFA] dark:text-sky-400 border border-[#006AFA]/30 bg-[#006AFA]/5 dark:bg-[#006AFA]/10 backdrop-blur-md shadow-sm mb-3">
               <Sparkles className="w-3.5 h-3.5 shrink-0" />
               Why HealthTrack?
             </span>
@@ -727,10 +685,10 @@ export default function LandingPage() {
             ].map((f) => {
               const Icon = f.icon;
               return (
-                <div key={f.title} className="relative rounded-3xl p-6 sm:p-7 bg-white/90 dark:bg-[#0B0F19]/80 border border-slate-200/90 dark:border-white/10 hover:border-[#006AFA]/50 hover:shadow-[0_20px_40px_-15px_rgba(0,106,250,0.2)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group overflow-hidden card-glow-hover">
+                <div key={f.title} className="relative rounded-[8px] p-6 sm:p-7 bg-white/90 dark:bg-[#0B0F19]/80 border border-slate-200/90 dark:border-white/10 hover:border-[#006AFA]/50 hover:shadow-[0_20px_40px_-15px_rgba(0,106,250,0.2)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group overflow-hidden card-glow-hover">
                   <div className="absolute inset-x-6 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-sky-400/30 dark:via-sky-400/20 to-transparent pointer-events-none" />
                   <div>
-                    <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center mb-5 shadow-sm group-hover:scale-110 transition-transform duration-300 ${f.chip}`}>
+                    <div className={`w-12 h-12 rounded-[8px] border flex items-center justify-center mb-5 shadow-sm group-hover:scale-110 transition-transform duration-300 ${f.chip}`}>
                       <Icon className="w-6 h-6" />
                     </div>
                     <h3 className="text-[17px] font-bold mb-2 group-hover:text-[#006AFA] dark:group-hover:text-sky-400 transition-colors">{f.title}</h3>
@@ -752,31 +710,30 @@ export default function LandingPage() {
       <section id="vitals" className="scroll-mt-24 py-20 px-4 sm:px-6 lg:px-8 bg-slate-50/70 dark:bg-white/[0.015] border-y border-slate-200/80 dark:border-white/5 relative">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-10 items-start">
           <div>
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider text-[#006AFA] dark:text-sky-400 border border-[#006AFA]/30 bg-[#006AFA]/5 dark:bg-[#006AFA]/10 backdrop-blur-md shadow-sm mb-3">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[8px] text-[11px] font-bold uppercase tracking-wider text-[#006AFA] dark:text-sky-400 border border-[#006AFA]/30 bg-[#006AFA]/5 dark:bg-[#006AFA]/10 backdrop-blur-md shadow-sm mb-3">
               Vitals, exactly like the app
             </span>
             <h2 className="text-3xl sm:text-4xl font-black mt-2">Tap a tab — same thresholds as Flutter.</h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mt-3 max-w-lg">
-              These are the literal constants from <code className="px-1.5 py-0.5 rounded bg-slate-200/80 dark:bg-white/10 text-[11px] font-mono text-[#006AFA] dark:text-sky-300">AppConstants</code> and
+              These are the literal constants from <code className="px-1.5 py-0.5 rounded-[8px] bg-slate-200/80 dark:bg-white/10 text-[11px] font-mono text-[#006AFA] dark:text-sky-300">AppConstants</code> and
               the Health tab segmented control (Sugar / Pressure / Weight / Body Map).
             </p>
-            <div className="flex flex-wrap gap-2 mt-6 p-1.5 rounded-2xl bg-slate-200/60 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.06] backdrop-blur-md w-fit" aria-label="Vitals tabs">
+            <div className="flex flex-wrap gap-2 mt-6 p-1.5 rounded-[8px] bg-slate-200/60 dark:bg-white/[0.04] border border-slate-200/80 dark:border-white/[0.06] backdrop-blur-md w-fit" aria-label="Vitals tabs">
               {VITALS_TABS.map((t) => (
                 <button
                   key={t.id}
                   aria-pressed={activeVital === t.id}
                   onClick={() => setActiveVital(t.id)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 ${
-                    activeVital === t.id
-                      ? "bg-[#006AFA] text-white shadow-md shadow-[#006AFA]/30 scale-[1.02]"
-                      : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-white/10"
-                  }`}
+                  className={`px-4 py-2 rounded-[8px] text-xs font-bold transition-all duration-200 ${activeVital === t.id
+                    ? "bg-[#006AFA] text-white shadow-md shadow-[#006AFA]/30 scale-[1.02]"
+                    : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-white/10"
+                    }`}
                 >
                   {t.label}
                 </button>
               ))}
             </div>
-            <div className="mt-6 rounded-3xl border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-7 shadow-lg backdrop-blur-xl card-glow-hover transition-all duration-300">
+            <div className="mt-6 rounded-[8px] border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-7 shadow-lg backdrop-blur-xl card-glow-hover transition-all duration-300">
               <div className="flex items-center justify-between">
                 <h3 className="font-bold text-lg">{vital.label}</h3>
                 <Badge variant="info" className="text-[11px] font-bold">{vital.unit}</Badge>
@@ -791,9 +748,9 @@ export default function LandingPage() {
               </ul>
             </div>
           </div>
-          <div className="rounded-3xl border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-6 sm:p-8 shadow-xl backdrop-blur-xl relative overflow-hidden card-glow-hover transition-all duration-300">
+          <div className="rounded-[8px] border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-6 sm:p-8 shadow-xl backdrop-blur-xl relative overflow-hidden card-glow-hover transition-all duration-300">
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-11 h-11 rounded-2xl bg-[#006AFA]/10 flex items-center justify-center text-[#006AFA] shadow-sm">
+              <div className="w-11 h-11 rounded-[8px] bg-[#006AFA]/10 flex items-center justify-center text-[#006AFA] shadow-sm">
                 <CalendarCheck className="w-6 h-6" />
               </div>
               <div>
@@ -820,7 +777,7 @@ export default function LandingPage() {
                 </li>
               ))}
             </ol>
-            <div className="mt-6 rounded-2xl bg-amber-500/10 border border-amber-500/25 p-4 text-[11px] text-amber-900 dark:text-amber-300 leading-relaxed shadow-sm">
+            <div className="mt-6 rounded-[8px] bg-amber-500/10 border border-amber-500/25 p-4 text-[11px] text-amber-900 dark:text-amber-300 leading-relaxed shadow-sm">
               <strong>Clinical note:</strong> Fasting Normal ≤ 99 mg/dL • Post-Meal ≤ 139 • BP Normal &lt; 120/80 • BMI Normal &lt; 25 • GI Low ≤ 55. The app colors every reading Green / Amber / Red automatically.
             </div>
           </div>
@@ -834,7 +791,7 @@ export default function LandingPage() {
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" />
         <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-10 items-center relative z-10">
           <div>
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider text-teal-300 border border-teal-500/30 bg-teal-500/10 backdrop-blur-md shadow-sm mb-3">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[8px] text-[11px] font-bold uppercase tracking-wider text-teal-300 border border-teal-500/30 bg-teal-500/10 backdrop-blur-md shadow-sm mb-3">
               Doctor-ready exports
             </span>
             <h2 className="text-3xl sm:text-4xl font-black mt-2 leading-tight">Walk in with a telemetry report, not screenshots.</h2>
@@ -857,17 +814,17 @@ export default function LandingPage() {
             </ul>
             <div className="flex flex-wrap gap-2 mt-6">
               {["7 days", "15 days", "30 days", "90 days", "1 year", "Custom"].map((p, i) => (
-                <span key={p} className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${i === 2 ? "bg-teal-400 text-slate-950 border-teal-300 shadow-md shadow-teal-500/30 scale-105" : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"}`}>{p}</span>
+                <span key={p} className={`px-3 py-1.5 rounded-[8px] text-xs font-bold border transition-all ${i === 2 ? "bg-teal-400 text-slate-950 border-teal-300 shadow-md shadow-teal-500/30 scale-105" : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"}`}>{p}</span>
               ))}
             </div>
           </div>
-          <div className="rounded-3xl bg-white text-slate-900 p-6 sm:p-8 shadow-[0_25px_60px_-15px_rgba(20,184,166,0.35)] border border-teal-500/20 relative card-glow-hover transition-all duration-300">
+          <div className="rounded-[8px] bg-white text-slate-900 p-6 sm:p-8 shadow-[0_25px_60px_-15px_rgba(20,184,166,0.35)] border border-teal-500/20 relative card-glow-hover transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-teal-700">HealthTrack Medical Telemetry Report</p>
                 <p className="text-xs text-slate-500 mt-1">REPORT ID • Confidential • Physician sign-off included</p>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center border border-teal-100 shadow-sm">
+              <div className="w-12 h-12 rounded-[8px] bg-teal-50 flex items-center justify-center border border-teal-100 shadow-sm">
                 <Stethoscope className="w-7 h-7 text-teal-600" />
               </div>
             </div>
@@ -877,7 +834,7 @@ export default function LandingPage() {
                 ["Avg BP", "118/76", "Normal"],
                 ["Adherence", "92%", "1,240 doses"],
               ].map(([k, v, s]) => (
-                <div key={k} className="rounded-2xl border border-slate-200/90 bg-slate-50/80 p-3 hover:border-teal-500/50 hover:bg-teal-50/30 transition-all">
+                <div key={k} className="rounded-[8px] border border-slate-200/90 bg-slate-50/80 p-3 hover:border-teal-500/50 hover:bg-teal-50/30 transition-all">
                   <p className="text-[10px] font-bold uppercase text-slate-500">{k}</p>
                   <p className="text-lg font-black mt-0.5">{v}</p>
                   <p className="text-[10px] text-emerald-600 font-semibold">{s}</p>
@@ -885,10 +842,10 @@ export default function LandingPage() {
               ))}
             </div>
             <div className="flex gap-2.5 mt-5">
-              <span className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-teal-700 to-teal-600 hover:from-teal-600 hover:to-teal-500 text-white text-xs font-bold shadow-lg shadow-teal-700/25 hover:shadow-teal-700/40 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer">
+              <span className="flex-1 inline-flex items-center justify-center gap-2 h-12 px-5 rounded-[8px] bg-gradient-to-r from-teal-700 to-teal-600 hover:from-teal-600 hover:to-teal-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-teal-700/25 hover:shadow-teal-700/40 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer">
                 <FileText className="w-4 h-4" /> Download PDF
               </span>
-              <span className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#107C41] to-[#149950] hover:from-[#149950] hover:to-[#17a858] text-white text-xs font-bold shadow-lg shadow-[#107C41]/25 hover:shadow-[#107C41]/40 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer">
+              <span className="flex-1 inline-flex items-center justify-center gap-2 h-12 px-5 rounded-[8px] bg-gradient-to-r from-[#107C41] to-[#149950] hover:from-[#149950] hover:to-[#17a858] text-white text-xs sm:text-sm font-bold shadow-lg shadow-[#107C41]/25 hover:shadow-[#107C41]/40 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer">
                 <FileSpreadsheet className="w-4 h-4" /> Excel .xlsx
               </span>
             </div>
@@ -900,43 +857,43 @@ export default function LandingPage() {
       {/* Personalization: language + theme + offline */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-5 sm:gap-6">
-          <div className="relative rounded-3xl border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-7 sm:p-8 card-glow-hover backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group">
+          <div className="relative rounded-[8px] border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-7 sm:p-8 card-glow-hover backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group">
             <div className="absolute inset-x-6 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#006AFA]/30 dark:via-sky-400/20 to-transparent pointer-events-none" />
-            <div className="w-12 h-12 rounded-2xl bg-[#006AFA]/10 border border-[#006AFA]/20 flex items-center justify-center text-[#006AFA] shadow-sm group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 rounded-[8px] bg-[#006AFA]/10 border border-[#006AFA]/20 flex items-center justify-center text-[#006AFA] shadow-sm group-hover:scale-110 transition-transform">
               <Languages className="w-6 h-6" />
             </div>
             <h3 className="font-bold text-lg mt-5 group-hover:text-[#006AFA] dark:group-hover:text-sky-400 transition-colors">12 languages, Bengali-first</h3>
             <p className="text-[13px] text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">Elder-friendly. Switch in Profile → Language. Meal slots + food keywords fully localized.</p>
             <div className="flex flex-wrap gap-1.5 mt-5">
               {LANGUAGES.map((l) => (
-                <span key={l} className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/[0.05] border border-slate-200/60 dark:border-white/[0.06] text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:border-[#006AFA]/40 hover:text-[#006AFA] transition-colors">{l}</span>
+                <span key={l} className="px-2.5 py-1 rounded-[8px] bg-slate-100 dark:bg-white/[0.05] border border-slate-200/60 dark:border-white/[0.06] text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:border-[#006AFA]/40 hover:text-[#006AFA] transition-colors">{l}</span>
               ))}
             </div>
           </div>
-          <div className="relative rounded-3xl border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-7 sm:p-8 card-glow-hover backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group">
+          <div className="relative rounded-[8px] border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-7 sm:p-8 card-glow-hover backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group">
             <div className="absolute inset-x-6 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent pointer-events-none" />
-            <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 shadow-sm group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 rounded-[8px] bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 shadow-sm group-hover:scale-110 transition-transform">
               <Moon className="w-6 h-6" />
             </div>
             <h3 className="font-bold text-lg mt-5 group-hover:text-indigo-500 transition-colors">Dark / Light / System</h3>
             <p className="text-[13px] text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">Material 3, Plus Jakarta Sans + Uncut Sans, SolarIcons, soft shadows + primary glow. Toggle it top-right — this page respects it.</p>
             <div className="mt-5 flex items-center gap-2 text-xs font-semibold">
-              <span className="px-3 py-1.5 rounded-xl bg-slate-950 text-white border border-slate-800 shadow-sm">Dark #0B1120</span>
-              <span className="px-3 py-1.5 rounded-xl bg-white text-slate-900 border border-slate-200 shadow-sm">Light #FFFFFF</span>
-              <span className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#006AFA] to-[#69C3FF] text-white shadow-md shadow-[#006AFA]/30">Brand #006AFA</span>
+              <span className="px-3 py-1.5 rounded-[8px] bg-slate-950 text-white border border-slate-800 shadow-sm">Dark #0B1120</span>
+              <span className="px-3 py-1.5 rounded-[8px] bg-white text-slate-900 border border-slate-200 shadow-sm">Light #FFFFFF</span>
+              <span className="px-3 py-1.5 rounded-[8px] bg-gradient-to-r from-[#006AFA] to-[#69C3FF] text-white shadow-md shadow-[#006AFA]/30">Brand #006AFA</span>
             </div>
           </div>
-          <div className="relative rounded-3xl border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-7 sm:p-8 card-glow-hover backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group">
+          <div className="relative rounded-[8px] border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-7 sm:p-8 card-glow-hover backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group">
             <div className="absolute inset-x-6 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent pointer-events-none" />
-            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 shadow-sm group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 rounded-[8px] bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 shadow-sm group-hover:scale-110 transition-transform">
               <Wifi className="w-6 h-6" />
             </div>
             <h3 className="font-bold text-lg mt-5 group-hover:text-emerald-500 transition-colors">Offline-first + secure</h3>
             <p className="text-[13px] text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">On-device cache, Supabase RLS, TLS 1.3 + AES-256, Google sign-in + email verification, delete-anytime. You own your data.</p>
             <div className="mt-5 grid grid-cols-3 gap-2 text-center text-[11px] font-bold">
-              <span className="rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 py-2.5 shadow-sm">AES-256</span>
-              <span className="rounded-xl bg-sky-500/10 border border-sky-500/25 text-sky-700 dark:text-sky-400 py-2.5 shadow-sm">RLS</span>
-              <span className="rounded-xl bg-purple-500/10 border border-purple-500/25 text-purple-700 dark:text-purple-400 py-2.5 shadow-sm">Export</span>
+              <span className="rounded-[8px] bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 py-2.5 shadow-sm">AES-256</span>
+              <span className="rounded-[8px] bg-sky-500/10 border border-sky-500/25 text-sky-700 dark:text-sky-400 py-2.5 shadow-sm">RLS</span>
+              <span className="rounded-[8px] bg-purple-500/10 border border-purple-500/25 text-purple-700 dark:text-purple-400 py-2.5 shadow-sm">Export</span>
             </div>
           </div>
         </div>
@@ -946,7 +903,7 @@ export default function LandingPage() {
       <section id="how-it-works" className="scroll-mt-24 py-20 px-4 sm:px-6 lg:px-8 bg-slate-50/70 dark:bg-white/[0.015] border-y border-slate-200/80 dark:border-white/5 relative">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider text-[#006AFA] dark:text-sky-400 border border-[#006AFA]/30 bg-[#006AFA]/5 dark:bg-[#006AFA]/10 backdrop-blur-md shadow-sm mb-3">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[8px] text-[11px] font-bold uppercase tracking-wider text-[#006AFA] dark:text-sky-400 border border-[#006AFA]/30 bg-[#006AFA]/5 dark:bg-[#006AFA]/10 backdrop-blur-md shadow-sm mb-3">
               Simple 4-step workflow
             </span>
             <h2 className="text-3xl sm:text-4xl font-black mt-2">Less than 60 seconds a day</h2>
@@ -980,9 +937,9 @@ export default function LandingPage() {
       {/* Testimonials + pricing */}
       <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-5 gap-6">
-          <div className="lg:col-span-3 rounded-3xl border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-7 sm:p-9 shadow-xl backdrop-blur-xl card-glow-hover transition-all duration-300">
+          <div className="lg:col-span-3 rounded-[8px] border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-7 sm:p-9 shadow-xl backdrop-blur-xl card-glow-hover transition-all duration-300">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-[#006AFA]/10 flex items-center justify-center text-[#006AFA] shadow-sm">
+              <div className="w-9 h-9 rounded-[8px] bg-[#006AFA]/10 flex items-center justify-center text-[#006AFA] shadow-sm">
                 <Quote className="w-5 h-5" />
               </div>
               <h2 className="font-black text-xl sm:text-2xl">Built for families managing chronic care</h2>
@@ -993,7 +950,7 @@ export default function LandingPage() {
                 ["Dr. S. Karim", "Patients bring the telemetry PDF. Clean averages, adherence %, sign-off — saves 10 minutes."],
                 ["Nasrin, Chittagong", "Water + meds reminders + pain map. My BP log finally makes sense to my doctor."],
               ].map(([name, quote]) => (
-                <figure key={name} className="rounded-2xl bg-slate-50/80 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 p-5 flex flex-col justify-between gap-3.5 hover:border-[#006AFA]/40 hover:shadow-md transition-all duration-300">
+                <figure key={name} className="rounded-[8px] bg-slate-50/80 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 p-5 flex flex-col justify-between gap-3.5 hover:border-[#006AFA]/40 hover:shadow-md transition-all duration-300">
                   <div>
                     <div className="flex gap-0.5 mb-2.5">{Array.from({ length: 5 }).map((_, i) => (<Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400 drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]" />))}</div>
                     <blockquote className="text-xs leading-relaxed text-slate-600 dark:text-slate-300">“{quote}”</blockquote>
@@ -1004,7 +961,7 @@ export default function LandingPage() {
             </div>
             <p className="text-[11px] text-slate-400 mt-4">Early-user stories reflecting real app workflows. Ratings shown for illustration until store launch.</p>
           </div>
-          <div className="lg:col-span-2 rounded-3xl bg-gradient-to-br from-slate-950 via-[#080d19] to-black text-white p-7 sm:p-9 flex flex-col justify-between border border-white/10 shadow-2xl relative overflow-hidden card-glow-hover transition-all duration-300">
+          <div className="lg:col-span-2 rounded-[8px] bg-gradient-to-br from-slate-950 via-[#080d19] to-black text-white p-7 sm:p-9 flex flex-col justify-between border border-white/10 shadow-2xl relative overflow-hidden card-glow-hover transition-all duration-300">
             <div className="absolute -top-20 -right-20 w-44 h-44 bg-[#006AFA]/25 rounded-full blur-[60px] pointer-events-none" />
             <div className="relative z-10">
               <Badge variant="success" className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[10px] uppercase font-bold tracking-wider shadow-sm">Free • Pro hides ads</Badge>
@@ -1020,7 +977,7 @@ export default function LandingPage() {
                 ))}
               </ul>
             </div>
-            <a href="#download" className="mt-7 inline-flex items-center justify-center gap-2.5 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-[#006AFA] via-blue-600 to-[#50B2FF] font-bold text-sm text-white shadow-xl shadow-[#006AFA]/30 hover:shadow-[#006AFA]/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 relative z-10">
+            <a href="#download" className="mt-7 inline-flex items-center justify-center gap-2.5 h-12 px-6 rounded-[8px] bg-gradient-to-r from-[#006AFA] via-blue-600 to-[#50B2FF] font-bold text-sm text-white shadow-xl shadow-[#006AFA]/30 hover:shadow-[#006AFA]/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 relative z-10 w-full sm:w-auto">
               <Smartphone className="w-4 h-4" /> Get HealthTrack free
             </a>
           </div>
@@ -1031,7 +988,7 @@ export default function LandingPage() {
       <section id="faq" className="scroll-mt-24 py-20 px-4 sm:px-6 lg:px-8 bg-slate-50/70 dark:bg-white/[0.015] border-y border-slate-200/80 dark:border-white/5">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider text-[#006AFA] dark:text-sky-400 border border-[#006AFA]/30 bg-[#006AFA]/5 dark:bg-[#006AFA]/10 backdrop-blur-md shadow-sm mb-3">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[8px] text-[11px] font-bold uppercase tracking-wider text-[#006AFA] dark:text-sky-400 border border-[#006AFA]/30 bg-[#006AFA]/5 dark:bg-[#006AFA]/10 backdrop-blur-md shadow-sm mb-3">
               Got questions?
             </span>
             <h2 className="text-3xl sm:text-4xl font-black mt-2">Frequently asked questions</h2>
@@ -1040,7 +997,7 @@ export default function LandingPage() {
             {FAQS.map((f, i) => {
               const open = activeFaq === i;
               return (
-                <div key={i} className={`rounded-2xl border bg-white/95 dark:bg-[#0a0e18]/95 overflow-hidden shadow-sm transition-all duration-200 ${open ? "border-[#006AFA]/60 shadow-md ring-1 ring-[#006AFA]/20 dark:border-sky-500/50" : "border-slate-200/90 dark:border-white/10 hover:border-[#006AFA]/40"}`}>
+                <div key={i} className={`rounded-[8px] border bg-white/95 dark:bg-[#0a0e18]/95 overflow-hidden shadow-sm transition-all duration-200 ${open ? "border-[#006AFA]/60 shadow-md ring-1 ring-[#006AFA]/20 dark:border-sky-500/50" : "border-slate-200/90 dark:border-white/10 hover:border-[#006AFA]/40"}`}>
                   <button
                     onClick={() => setActiveFaq(open ? null : i)}
                     aria-expanded={open}
@@ -1059,11 +1016,11 @@ export default function LandingPage() {
 
       {/* Download */}
       <section id="download" className="scroll-mt-24 py-20 px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="max-w-5xl mx-auto rounded-[36px] p-8 sm:p-14 bg-gradient-to-br from-[#020b18] via-[#051329] to-[#040817] text-white border border-[#006AFA]/40 shadow-[0_30px_70px_-15px_rgba(0,106,250,0.35)] text-center relative overflow-hidden card-glow-hover">
+        <div className="max-w-5xl mx-auto rounded-[8px] p-8 sm:p-14 bg-gradient-to-br from-[#020b18] via-[#051329] to-[#040817] text-white border border-[#006AFA]/40 shadow-[0_30px_70px_-15px_rgba(0,106,250,0.35)] text-center relative overflow-hidden card-glow-hover">
           <div className="absolute -top-32 -left-32 w-72 h-72 bg-[#006AFA]/30 rounded-full blur-[90px] pointer-events-none" />
           <div className="absolute -bottom-32 -right-32 w-72 h-72 bg-sky-500/20 rounded-full blur-[90px] pointer-events-none" />
           <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
-            <div className="mx-auto w-16 h-16 sm:w-20 sm:h-20 rounded-3xl overflow-hidden bg-white p-1.5 shadow-2xl border border-white/30 hover:scale-105 transition-transform duration-300">
+            <div className="mx-auto w-16 h-16 sm:w-20 sm:h-20 rounded-[8px] overflow-hidden bg-white p-1.5 shadow-2xl border border-white/30 hover:scale-105 transition-transform duration-300">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.jpeg" alt="HealthTrack logo" className="w-full h-full object-contain" />
             </div>
@@ -1076,14 +1033,14 @@ export default function LandingPage() {
               Free download. Email or Google sign-in, verify once, and start your first 10-second log. Your records back up to your own Google Drive.
             </p>
             <div className="grid sm:grid-cols-2 gap-3.5 pt-2 text-left">
-              <a href="mailto:info@appstick.com.bd?subject=HealthTrack%20Android%20Download" className="inline-flex items-center gap-3.5 px-6 py-4 rounded-2xl bg-black/90 hover:bg-neutral-900 border border-white/20 hover:border-sky-500/80 shadow-lg hover:shadow-sky-500/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200">
+              <a href="mailto:info@appstick.com.bd?subject=HealthTrack%20Android%20Download" className="inline-flex items-center gap-3.5 h-16 px-6 rounded-[8px] bg-black/90 hover:bg-neutral-900 border border-white/20 hover:border-sky-500/80 shadow-lg hover:shadow-sky-500/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200">
                 <Download className="w-5 h-5 text-sky-400 shrink-0" />
                 <span className="leading-none">
                   <span className="text-[10px] text-slate-400 uppercase font-semibold">Get for Android</span>
                   <span className="text-sm font-bold block mt-1">Play Store / APK — Request link</span>
                 </span>
               </a>
-              <a href="mailto:info@appstick.com.bd?subject=HealthTrack%20iOS%20Download" className="inline-flex items-center gap-3.5 px-6 py-4 rounded-2xl bg-black/90 hover:bg-neutral-900 border border-white/20 hover:border-teal-500/80 shadow-lg hover:shadow-teal-500/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200">
+              <a href="mailto:info@appstick.com.bd?subject=HealthTrack%20iOS%20Download" className="inline-flex items-center gap-3.5 h-16 px-6 rounded-[8px] bg-black/90 hover:bg-neutral-900 border border-white/20 hover:border-teal-500/80 shadow-lg hover:shadow-teal-500/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200">
                 <Smartphone className="w-5 h-5 text-teal-400 shrink-0" />
                 <span className="leading-none">
                   <span className="text-[10px] text-slate-400 uppercase font-semibold">Get for iPhone</span>
@@ -1108,7 +1065,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           <div className="space-y-3">
             <div className="flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-xl overflow-hidden bg-white border border-slate-200 dark:border-white/10 p-0.5 shadow-sm">
+              <div className="h-9 w-9 rounded-[8px] overflow-hidden bg-white border border-slate-200 dark:border-white/10 p-0.5 shadow-sm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/logo.jpeg" alt="HealthTrack" className="w-full h-full object-contain" />
               </div>
@@ -1172,12 +1129,12 @@ export default function LandingPage() {
       {/* Lightbox */}
       {modalScreen && (
         <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn" onClick={() => setModalScreen(null)} role="dialog" aria-modal="true" aria-label="Fullscreen screenshot">
-          <div className="relative max-w-sm w-full bg-white dark:bg-slate-900 rounded-[32px] overflow-hidden shadow-2xl border border-white/20 p-2" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setModalScreen(null)} aria-label="Close preview" className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/70 hover:bg-black text-white transition-colors">
+          <div className="relative max-w-sm w-full bg-white dark:bg-slate-900 rounded-[8px] overflow-hidden shadow-2xl border border-white/20 p-2" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setModalScreen(null)} aria-label="Close preview" className="absolute top-4 right-4 z-20 p-2 rounded-[8px] bg-black/70 hover:bg-black text-white transition-colors">
               <X className="w-4 h-4" />
             </button>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={modalScreen} alt="Fullscreen app preview" className="w-full h-auto aspect-[720/1565] object-cover rounded-[24px]" />
+            <img src={modalScreen} alt="Fullscreen app preview" className="w-full h-auto aspect-[720/1565] object-cover rounded-[8px]" />
           </div>
         </div>
       )}
