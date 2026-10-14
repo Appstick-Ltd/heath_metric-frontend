@@ -222,3 +222,16 @@ html.dark body {
   box-shadow: 0 20px 40px -15px rgba(0, 106, 250, 0.25);
 }
 
+/* Hide Next.js Development Indicator / Toast / Tools badge */
+nextjs-portal,
+#nextjs-dev-indicator,
+[data-nextjs-toast],
+div[data-nextjs-dev-tools-button],
+div[data-next-badge],
+[data-next-mark] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
