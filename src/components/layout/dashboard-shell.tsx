@@ -26,7 +26,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
             Verifying Admin Authorization...
           </p>
-          <p className="text-xs text-slate-400 mt-0.5">NutriHealth Operations Portal</p>
+          <p className="text-xs text-slate-400 mt-0.5">HealthTrack Operations Portal</p>
         </div>
       </div>
     );

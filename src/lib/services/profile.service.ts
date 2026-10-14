@@ -37,7 +37,7 @@ export class ProfileService {
       .replace(/[^a-zA-Z0-9]/g, '')
       .toLowerCase()
       .slice(0, 10);
-    return `${cleanName}@nutrihealth.app`;
+    return `${cleanName}@healthtrack.app`;
   }
 
   public static async getProfiles(): Promise<Profile[]> {

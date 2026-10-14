@@ -55,7 +55,7 @@ export function Header() {
 
   const adminName = user?.name || "Super Admin";
   const adminRole = user?.role || "Super Admin";
-  const adminEmail = user?.email || "admin@nutrihealth.com";
+  const adminEmail = user?.email || "admin@healthtrack.app";
 
   const unreadCount = notifications.filter((n) => !readIds.has(n.id)).length;
 

@@ -59,11 +59,16 @@ function LoginForm() {
   return (
     <Card className="border-slate-200/80 dark:border-slate-800 shadow-2xl backdrop-blur-md overflow-hidden">
       <CardHeader className="text-center pb-4">
-        <div className="mx-auto h-12 w-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/25 mb-3">
-          <HeartPulse className="h-6 w-6" />
+        <div className="mx-auto h-14 w-14 rounded-2xl overflow-hidden bg-white shadow-xl shadow-sky-500/20 border border-slate-200 dark:border-white/10 p-1 mb-3 flex items-center justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.jpeg"
+            alt="HealthTrack Logo"
+            className="w-full h-full object-contain"
+          />
         </div>
-        <CardTitle className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-          NutriHealth Admin Portal
+        <CardTitle className="text-2xl font-black tracking-tight text-slate-900 dark:text-white uppercase">
+          Health<span className="text-sky-500">Track</span> Admin Portal
         </CardTitle>
         <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
           Enter your administrative credentials to manage clinical records and operations
@@ -143,7 +148,7 @@ function LoginForm() {
                   setUsername(e.target.value);
                   setErrorMessage(null);
                 }}
-                placeholder="admin or admin@nutrihealth.com"
+                placeholder="admin or admin@healthtrack.app"
               />
             </div>
           </div>

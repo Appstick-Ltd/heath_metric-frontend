@@ -60,7 +60,7 @@ export class SettingsService {
     const settings: Record<string, unknown> = {
       maintenance_mode: { enabled: false },
       min_app_version: { version: '1.2.0' },
-      announcement_banner: { message: 'Welcome to NutriHealth Operations. Real-time database connected.', active: true },
+      announcement_banner: { message: 'Welcome to HealthTrack Operations. Real-time database connected.', active: true },
     };
 
     try {

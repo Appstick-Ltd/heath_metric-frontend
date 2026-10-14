@@ -36,18 +36,23 @@ export function Sidebar() {
   return (
     <aside className="w-64 border-r border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md flex flex-col h-screen sticky top-0 shrink-0 z-30 select-none">
       {/* Brand Header */}
-      <div className="h-16 flex items-center gap-3 px-6 border-b border-slate-100 dark:border-slate-800">
-        <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
-          <HeartPulse className="h-5 w-5" />
+      <div className="h-16 flex items-center gap-3 px-5 border-b border-slate-100 dark:border-slate-800">
+        <div className="h-9 w-9 rounded-xl overflow-hidden bg-white shadow-md shadow-sky-500/15 border border-slate-200 dark:border-white/10 p-0.5 flex items-center justify-center shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.jpeg"
+            alt="HealthTrack Logo"
+            className="w-full h-full object-contain"
+          />
         </div>
         <div>
-          <span className="font-bold text-base tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5">
-            NutriHealth
-            <span className="text-[10px] uppercase font-extrabold px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400">
+          <span className="font-bold text-base tracking-tight text-slate-900 dark:text-white flex items-center gap-1.5 uppercase">
+            Health<span className="text-sky-500">Track</span>
+            <span className="text-[10px] uppercase font-extrabold px-1.5 py-0.5 rounded-md bg-sky-100 dark:bg-sky-950/60 text-sky-700 dark:text-sky-400">
               Admin
             </span>
           </span>
-          <p className="text-[11px] text-slate-400 font-medium">Operations Portal</p>
+          <p className="text-[10px] text-slate-400 font-semibold tracking-wide">Operations Portal</p>
         </div>
       </div>
 

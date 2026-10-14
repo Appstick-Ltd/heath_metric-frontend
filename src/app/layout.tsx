@@ -5,14 +5,56 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#07090f" },
+  ],
 };
 
 export const metadata: Metadata = {
-  title: "NutriHealth | Smart Glucose, Blood Pressure & Food Nutrition Tracker",
-  description: "The complete personal health companion for diabetes, hypertension, vitals tracking, and clinical food guidance.",
-  icons: {
-    icon: "/favicon.ico",
+  metadataBase: new URL("https://healthtrack.app"),
+  title: {
+    default: "HealthTrack | Personal Health & Vitals Companion",
+    template: "%s | HealthTrack",
   },
+  description:
+    "HealthTrack (v1.0.0+3) makes health monitoring simple, accessible and insightful. Track glucose (mmol/L & mg/dL), blood pressure, weight + BMI, pain body map, precision meal planning, medications, hydration, prescriptions with Google Drive backup, and doctor-ready PDF + Excel reports. 12 languages, offline-first.",
+  keywords: [
+    "HealthTrack",
+    "health tracker",
+    "diabetes tracker",
+    "blood sugar mmol/L mg/dL",
+    "blood pressure tracker AHA",
+    "BMI tracker",
+    "medication reminder",
+    "meal planner",
+    "glycemic index",
+    "prescription vault",
+    "Google Drive health backup",
+    "doctor PDF report",
+    "hydration tracker",
+    "pain body map VAS",
+  ],
+  authors: [{ name: "Appstick Ltd" }],
+  creator: "Appstick Ltd",
+  icons: {
+    icon: "/logo.jpeg",
+    apple: "/logo.jpeg",
+  },
+  openGraph: {
+    type: "website",
+    title: "HealthTrack — Personal Health & Vitals Companion",
+    description:
+      "Glucose, BP, weight, pain, meals, meds, water, prescriptions + Drive backup + doctor PDF/Excel. 12 languages supported. Offline-first.",
+    images: [{ url: "/logo.jpeg", width: 512, height: 512, alt: "HealthTrack logo" }],
+  },
+  twitter: {
+    card: "summary",
+    title: "HealthTrack",
+    description: "Clinical precision, everyday convenience. Diabetes, hypertension, nutrition & chronic care in one app.",
+    images: ["/logo.jpeg"],
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
@@ -31,7 +73,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+      <body className="antialiased min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
         {children}
       </body>
     </html>
