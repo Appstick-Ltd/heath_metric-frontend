@@ -14,35 +14,17 @@ export interface AuthSession {
   expiresAt: number;
 }
 
-// Built-in predefined Admin & User Accounts
+// Built-in predefined Admin Account (Fixed)
 export const VALID_ADMIN_ACCOUNTS = [
   {
-    username: "admin",
-    aliases: ["admin@healthtrack.app", "admin@healthtrack.com", "administrator", "superadmin"],
-    password: "admin123",
+    username: "superadmin@gmail.com",
+    aliases: ["superadmin@gmail.com", "superadmin", "admin"],
+    password: "healthtrackapp@123456",
     name: "Super Admin",
-    email: "admin@healthtrack.app",
+    email: "superadmin@gmail.com",
     role: "Super Admin",
     avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80",
   },
-  {
-    username: "clinical",
-    aliases: ["clinical@healthtrack.app", "nutritionist"],
-    password: "clinical123",
-    name: "Dr. Sarah Chen",
-    email: "clinical@healthtrack.app",
-    role: "Clinical Specialist",
-    avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&auto=format&fit=crop&q=80",
-  },
-  {
-    username: "user",
-    aliases: ["user@healthtrack.app", "patient@healthtrack.app", "patient"],
-    password: "user123",
-    name: "General App User",
-    email: "user@healthtrack.app",
-    role: "Patient User",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-  }
 ];
 
 const SESSION_STORAGE_KEY = "nutri_admin_session";
@@ -63,7 +45,7 @@ export class AuthService {
       return { success: false, error: "Please enter both username and password." };
     }
 
-    // Find matching admin or predefined account
+    // Find matching admin account
     const matchedAccount = VALID_ADMIN_ACCOUNTS.find((acc) => {
       const isIdMatch =
         acc.username.toLowerCase() === cleanId ||
@@ -71,40 +53,22 @@ export class AuthService {
       return isIdMatch && acc.password === cleanPass;
     });
 
-    let targetUser: AdminUser;
-
-    if (matchedAccount) {
-      targetUser = {
-        id: `user-${matchedAccount.username}`,
-        username: matchedAccount.username,
-        name: matchedAccount.name,
-        email: matchedAccount.email,
-        role: matchedAccount.role,
-        avatar: matchedAccount.avatar,
-        lastLogin: new Date().toISOString(),
-      };
-    } else if (cleanPass.length >= 4) {
-      // Allow dynamic regular user login
-      const formattedName = cleanId.includes("@")
-        ? cleanId.split("@")[0].replace(/[._]/g, " ")
-        : cleanId;
-      const capitalizedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1);
-      
-      targetUser = {
-        id: `user-gen-${Date.now()}`,
-        username: cleanId,
-        name: capitalizedName,
-        email: cleanId.includes("@") ? cleanId : `${cleanId}@healthtrack.app`,
-        role: "Patient User",
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${cleanId}`,
-        lastLogin: new Date().toISOString(),
-      };
-    } else {
+    if (!matchedAccount) {
       return {
         success: false,
-        error: "Invalid username or password. (Use 'admin'/'admin123' for Admin or 'user'/'user123' for General User)",
+        error: "Invalid email or password. Please verify your credentials.",
       };
     }
+
+    const targetUser: AdminUser = {
+      id: `user-${matchedAccount.username}`,
+      username: matchedAccount.username,
+      name: matchedAccount.name,
+      email: matchedAccount.email,
+      role: matchedAccount.role,
+      avatar: matchedAccount.avatar,
+      lastLogin: new Date().toISOString(),
+    };
 
     const session: AuthSession = {
       user: targetUser,
@@ -140,7 +104,7 @@ export class AuthService {
         console.error("Failed to clear admin session:", err);
       }
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-      window.location.href = "/login";
+      window.location.href = "/mc-portal/auth";
     }
   }
 

@@ -1,14 +1,19 @@
 export interface KPISummary {
   totalUsers: number;
   userGrowthPercent: number;
-  activeProUsers: number;
-  proGrowthPercent: number;
-  mrr: number;
-  mrrGrowthPercent: number;
+  criticalAlerts: number;
+  criticalAlertsChange: number;
+  activeMedications: number;
+  medicationsChange: number;
   vitalsLoggedToday: number;
   vitalsGrowthPercent: number;
   referralConversionRate: number;
   referralGrowthPercent: number;
+  // Backward compatibility fields
+  activeProUsers?: number;
+  proGrowthPercent?: number;
+  mrr?: number;
+  mrrGrowthPercent?: number;
 }
 
 export interface UserGrowthDataPoint {
@@ -26,6 +31,14 @@ export interface RevenueDataPoint {
   total: number;
 }
 
+export interface HealthStagingData {
+  category: string;
+  count: number;
+  percentage: number;
+  status: 'normal' | 'warning' | 'critical';
+  color: string;
+}
+
 export interface VitalDistributionData {
   category: string;
   count: number;
@@ -35,7 +48,7 @@ export interface VitalDistributionData {
 
 export interface ActivityEvent {
   id: string;
-  type: 'vital_alert' | 'subscription_new' | 'user_register' | 'referral_claim' | 'medicine_warning';
+  type: 'vital_alert' | 'user_register' | 'medicine_warning' | 'cloud_sync' | 'referral_claim' | 'subscription_new';
   title: string;
   description: string;
   timestamp: string;

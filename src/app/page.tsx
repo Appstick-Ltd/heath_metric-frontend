@@ -217,16 +217,16 @@ const VITALS_TABS = [
 const LANGUAGES = [
   "English (US)",
   "English (UK)",
-  "Bengali",
   "Español",
-  "हिन्दी",
-  "العربية",
   "Français",
   "Deutsch",
-  "日本語",
   "Português",
+  "Italiano",
+  "العربية",
+  "हिन्दी",
+  "日本語",
+  "한국어",
   "简体中文",
-  "اردو",
 ];
 
 const FAQS = [
@@ -260,11 +260,11 @@ const FAQS = [
   },
   {
     q: "Does it support multiple languages and work offline?",
-    a: "Yes! HealthTrack supports 12 international languages including English and Bengali, with localized meal categories and comprehensive nutrition tracking. Offline-first on-device caching ensures smooth operation without internet; data automatically synchronizes when you reconnect.",
+    a: "Yes! HealthTrack supports international languages with localized meal categories and global clinical nutrition metrics. Offline-first on-device caching ensures smooth operation without internet; data automatically synchronizes when you reconnect.",
   },
   {
-    q: "Is it free? What is Pro?",
-    a: "Core tracking is free and ad-supported (banner / interstitial / rewarded). Pro hides all ads. Referral coins and subscription tiers are managed in-app — no payment needed to start logging today.",
+    q: "Is HealthTrack free to use?",
+    a: "Yes! Core vitals logging, Google Drive cloud vault backups, and clinical PDF telemetry exports are completely free, supported by non-intrusive Google AdMob advertisements. No payment or credit card is needed to start logging today.",
   },
   {
     q: "Is HealthTrack a medical device?",
@@ -279,6 +279,22 @@ export default function LandingPage() {
   const [isAutoPlaying, setIsAutoPlaying] = React.useState(true);
   const [modalScreen, setModalScreen] = React.useState<string | null>(null);
   const [activeVital, setActiveVital] = React.useState("sugar");
+  const [activeSection, setActiveSection] = React.useState<string>("home");
+
+  // Interactive Live Tools State (from Blueprint Section 3)
+  const [bmiHeightCm, setBmiHeightCm] = React.useState(172);
+  const [bmiWeightKg, setBmiWeightKg] = React.useState(68);
+
+  // Blood sugar converter state
+  const [sugarInput, setSugarInput] = React.useState(5.4);
+  const [sugarUnit, setSugarUnit] = React.useState<"mmol/L" | "mg/dL">("mmol/L");
+  const [sugarContext, setSugarContext] = React.useState<"fasting" | "postMeal" | "bedtime">("fasting");
+
+  // Anatomical Body Pain Map interactive state (from Blueprint Section 2)
+  const [painBodyView, setPainBodyView] = React.useState<"front" | "back">("front");
+  const [selectedPainZone, setSelectedPainZone] = React.useState("Head / Migraine");
+  const [vasScore, setVasScore] = React.useState(4);
+  const [painQuality, setPainQuality] = React.useState("Throbbing");
 
   React.useEffect(() => {
     if (!isAutoPlaying) return;
@@ -286,8 +302,86 @@ export default function LandingPage() {
     return () => clearInterval(t);
   }, [isAutoPlaying]);
 
+  React.useEffect(() => {
+    const sectionIds = ["home", "features", "vitals", "pain-map", "tools", "reports", "faq"];
+
+    const handleScroll = () => {
+      if (window.scrollY < 250) {
+        setActiveSection("home");
+        return;
+      }
+
+      const scrollPosition = window.scrollY + 140;
+
+      let current = "home";
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (el) {
+          const top = el.offsetTop;
+          const height = el.offsetHeight;
+          if (scrollPosition >= top && scrollPosition < top + height) {
+            current = id;
+          }
+        }
+      }
+
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 80) {
+        current = "faq";
+      }
+
+      setActiveSection(current);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const hero = APP_SCREENS[activeHeroIndex];
   const vital = VITALS_TABS.find((v) => v.id === activeVital)!;
+
+  // Derived BMI
+  const bmiValue = Number((bmiWeightKg / Math.pow(bmiHeightCm / 100, 2)).toFixed(1));
+  const bmiCategory =
+    bmiValue < 18.5
+      ? { label: "Underweight", color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/25", advice: "Gradual caloric surplus and resistance training recommended." }
+      : bmiValue <= 24.9
+        ? { label: "Normal Weight (Optimal)", color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/25", advice: "Maintain balanced macro intake and consistent daily hydration." }
+        : bmiValue <= 29.9
+          ? { label: "Overweight", color: "text-amber-600", bg: "bg-amber-600/10", border: "border-amber-600/25", advice: "Moderate caloric deficit with 30 mins brisk walking suggested." }
+          : { label: "Obese (High Risk)", color: "text-rose-500", bg: "bg-rose-500/10", border: "border-rose-500/25", advice: "Physician consultation recommended for personalized glycemic plan." };
+
+  // Derived Blood Sugar Conversion & ADA Staging
+  const sugarInMmol = sugarUnit === "mmol/L" ? sugarInput : sugarInput / 18.0182;
+  const sugarInMgdl = sugarUnit === "mg/dL" ? sugarInput : sugarInput * 18.0182;
+  const convertedSugarDisplay =
+    sugarUnit === "mmol/L"
+      ? `${Math.round(sugarInMgdl)} mg/dL`
+      : `${sugarInMmol.toFixed(1)} mmol/L`;
+
+  const sugarEvaluation = React.useMemo(() => {
+    if (sugarInMmol < 3.9) {
+      return { stage: "Hypoglycemia (Low)", color: "text-rose-600 dark:text-rose-400", bg: "bg-rose-500/10", advice: "Immediate fast-acting glucose required (15g carbs)." };
+    }
+    if (sugarContext === "fasting") {
+      if (sugarInMmol <= 5.5) return { stage: "Normal Fasting", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-500/10", advice: "Ideal ADA fasting range (70–99 mg/dL / 3.9–5.5 mmol/L)." };
+      if (sugarInMmol <= 6.9) return { stage: "Elevated / Pre-Diabetic", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/10", advice: "Impaired fasting glucose. Monitor meal carbohydrates." };
+      return { stage: "High Glycemic / Diabetic", color: "text-rose-600 dark:text-rose-400", bg: "bg-rose-500/10", advice: "Fasting glucose elevated (≥126 mg/dL). Share report with doctor." };
+    } else {
+      if (sugarInMmol <= 7.8) return { stage: "Normal Post-Meal", color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-500/10", advice: "Standard post-prandial glycemic response (<140 mg/dL)." };
+      if (sugarInMmol <= 11.0) return { stage: "Elevated Post-Meal", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/10", advice: "Impaired glucose tolerance (140–199 mg/dL). Check meal portion." };
+      return { stage: "High Post-Meal Spike", color: "text-rose-600 dark:text-rose-400", bg: "bg-rose-500/10", advice: "Significant glycemic spike (≥200 mg/dL). Review insulin/medication timing." };
+    }
+  }, [sugarInMmol, sugarContext]);
+
+  const NAV_ITEMS = [
+    { href: "#home", label: "Home", id: "home" },
+    { href: "#features", label: "Features", id: "features" },
+    { href: "#vitals", label: "Vitals", id: "vitals" },
+    { href: "#pain-map", label: "Pain Map", id: "pain-map" },
+    { href: "#tools", label: "Health Tools", id: "tools" },
+    { href: "#faq", label: "FAQ", id: "faq" },
+  ];
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#07090f] text-slate-900 dark:text-slate-100 font-sans selection:bg-[#006AFA] selection:text-white relative overflow-x-clip transition-colors duration-200">
@@ -302,7 +396,7 @@ export default function LandingPage() {
       {/* Navbar with Floating Glass Elevation */}
       <header className="sticky top-0 z-50 bg-white/90 dark:bg-[#07090f]/90 backdrop-blur-2xl border-b border-slate-200/80 dark:border-white/[0.08] shadow-sm transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-[72px] flex items-center justify-between gap-3">
-          <Link href="/" className="flex items-center gap-3 group shrink-0" aria-label="HealthTrack home">
+          <Link href="#home" onClick={() => setActiveSection("home")} className="flex items-center gap-3 group shrink-0" aria-label="HealthTrack home">
             <div className="relative h-10 w-10 sm:h-11 sm:w-11 rounded-[8px] overflow-hidden bg-white shadow-md shadow-[#006AFA]/20 border border-slate-200/90 dark:border-white/10 group-hover:scale-105 group-hover:shadow-[0_0_20px_rgba(0,106,250,0.35)] transition-all duration-300 p-0.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo.jpeg" alt="HealthTrack logo" className="w-full h-full object-contain" />
@@ -315,11 +409,22 @@ export default function LandingPage() {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1 text-[13px] font-semibold text-slate-600 dark:text-slate-300 bg-slate-100/70 dark:bg-white/[0.03] p-1.5 rounded-[8px] border border-slate-200/60 dark:border-white/[0.06] backdrop-blur-md" aria-label="Primary">
-            <a href="#features" className="px-3.5 py-1.5 rounded-[8px] hover:bg-white dark:hover:bg-white/10 hover:text-[#006AFA] dark:hover:text-white transition-all duration-200 shadow-none hover:shadow-sm">Features</a>
-            <a href="#vitals" className="px-3.5 py-1.5 rounded-[8px] hover:bg-white dark:hover:bg-white/10 hover:text-[#006AFA] dark:hover:text-white transition-all duration-200 shadow-none hover:shadow-sm">Vitals</a>
-            <a href="#how-it-works" className="px-3.5 py-1.5 rounded-[8px] hover:bg-white dark:hover:bg-white/10 hover:text-[#006AFA] dark:hover:text-white transition-all duration-200 shadow-none hover:shadow-sm">How It Works</a>
-            <a href="#reports" className="px-3.5 py-1.5 rounded-[8px] hover:bg-white dark:hover:bg-white/10 hover:text-[#006AFA] dark:hover:text-white transition-all duration-200 shadow-none hover:shadow-sm">Doctor Reports</a>
-            <a href="#faq" className="px-3.5 py-1.5 rounded-[8px] hover:bg-white dark:hover:bg-white/10 hover:text-[#006AFA] dark:hover:text-white transition-all duration-200 shadow-none hover:shadow-sm">FAQ</a>
+            {NAV_ITEMS.map((item) => {
+              const isActive = activeSection === item.id;
+              return (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  onClick={() => setActiveSection(item.id)}
+                  className={`px-3.5 py-1.5 rounded-[8px] transition-all duration-200 ${isActive
+                    ? "bg-white dark:bg-white/15 text-[#006AFA] dark:text-sky-400 font-bold shadow-sm border border-slate-200/70 dark:border-white/15"
+                    : "hover:bg-white/60 dark:hover:bg-white/10 hover:text-[#006AFA] dark:hover:text-white text-slate-600 dark:text-slate-300 shadow-none border border-transparent"
+                    }`}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
           </nav>
 
           <div className="flex items-center gap-2.5 shrink-0">
@@ -346,30 +451,32 @@ export default function LandingPage() {
 
         {mobileMenuOpen && (
           <nav className="lg:hidden px-4 py-3 bg-white/95 dark:bg-[#0a0d17]/95 backdrop-blur-2xl border-t border-slate-200 dark:border-white/10 grid gap-1 text-sm shadow-2xl animate-fadeIn" aria-label="Mobile">
-            {[
-              ["#features", "Features & Modules"],
-              ["#vitals", "Vitals & Thresholds"],
-              ["#how-it-works", "How It Works"],
-              ["#reports", "Doctor Reports"],
-              ["#faq", "FAQ"],
-              ["#download", "Download"],
-            ].map(([href, label]) => (
-              <a
-                key={href}
-                href={href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2.5 rounded-[8px] hover:bg-slate-100 dark:hover:bg-white/5 text-slate-800 dark:text-slate-200 font-medium transition-colors"
-              >
-                {label}
-              </a>
-            ))}
+            {NAV_ITEMS.map((item) => {
+              const isActive = activeSection === item.id;
+              return (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  onClick={() => {
+                    setActiveSection(item.id);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`block px-3 py-2.5 rounded-[8px] font-medium transition-colors ${isActive
+                    ? "bg-[#006AFA]/10 text-[#006AFA] dark:bg-[#006AFA]/20 dark:text-sky-400 font-bold"
+                    : "hover:bg-slate-100 dark:hover:bg-white/5 text-slate-800 dark:text-slate-200"
+                    }`}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
           </nav>
         )}
       </header>
 
       {/* HERO */}
-      <section className="relative pt-8 sm:pt-14 pb-14 sm:pb-20 px-4 sm:px-6 lg:px-8 z-10 overflow-hidden">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+      <section id="home" className="relative pt-4 sm:pt-6 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-8 z-10 overflow-hidden">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-10 lg:gap-12 items-start lg:pt-4">
           {/* Left Column: Clear Hierarchy, Balanced Rhythm, Zero Blank Voids */}
           <div className="lg:col-span-6 space-y-6">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[54px] font-black tracking-tight text-slate-950 dark:text-white leading-[1.12]">
@@ -538,17 +645,6 @@ export default function LandingPage() {
                       {/* Glass Glare & Specular Reflection Sheen */}
                       <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.04] to-white/[0.12] pointer-events-none z-10" />
                       <div className="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] bg-gradient-to-br from-white/[0.06] via-transparent to-transparent rotate-12 pointer-events-none z-10" />
-
-                      {/* Expand Fullscreen Button */}
-                      <button
-                        type="button"
-                        onClick={() => setModalScreen(hero.image)}
-                        className="absolute bottom-2.5 right-2.5 p-2 rounded-[8px] bg-black/80 hover:bg-black text-white backdrop-blur-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity shadow-lg z-20"
-                        aria-label={`Expand ${hero.title}`}
-                        title="View full screen"
-                      >
-                        <Maximize2 className="w-3.5 h-3.5" />
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -590,7 +686,7 @@ export default function LandingPage() {
       {/* Clinical standards strip */}
       <section aria-label="Clinical standards" className="px-4 sm:px-6 lg:px-8 relative z-10 pb-4">
         <div className="max-w-7xl mx-auto py-3 px-4 rounded-[8px] bg-white/60 dark:bg-white/[0.02] border border-slate-200/80 dark:border-white/[0.06] backdrop-blur-md shadow-sm flex flex-wrap items-center justify-center gap-2 text-[11px] font-bold">
-          {["ADA Glucose", "AHA Blood Pressure", "WHO BMI", "GI Index 0–100", "VAS Pain 1–10", "Bengali + English"].map((b) => (
+          {["ADA Glucose", "AHA Blood Pressure", "WHO BMI", "GI Index 0–100", "VAS Pain 1–10", "Global Multi-Language"].map((b) => (
             <span key={b} className="px-3.5 py-1.5 rounded-[8px] bg-white dark:bg-white/[0.05] border border-slate-200/80 dark:border-white/10 text-slate-700 dark:text-slate-300 shadow-sm hover:border-[#006AFA]/40 hover:text-[#006AFA] dark:hover:text-sky-400 hover:scale-105 transition-all duration-200">
               {b}
             </span>
@@ -784,8 +880,360 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Interactive Anatomical Body Pain Map Showcase (Mapped from anatomical_body_map_sheet.dart) */}
+      <section id="pain-map" className="scroll-mt-24 py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-slate-50/50 dark:bg-white/[0.01]">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[8px] text-[11px] font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 border border-rose-500/30 bg-rose-500/10 backdrop-blur-md shadow-sm mb-3">
+              Anatomical Body Pain Map
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black mt-2 tracking-tight">Point to where it hurts. Zero guessing.</h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-3 leading-relaxed">
+              Tap specific anatomical regions on the 2D interactive model. Record VAS score (1–10), pain sensations, and aggravating factors for your doctor.
+            </p>
+          </div>
 
-      {/* Reports */}
+          <div className="grid lg:grid-cols-12 gap-8 items-center">
+            {/* Interactive Body Visualizer Card */}
+            <div className="lg:col-span-6 rounded-[8px] border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-6 sm:p-8 shadow-xl backdrop-blur-xl">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-rose-500" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Anatomical Selector
+                  </span>
+                </div>
+                <div className="flex rounded-[8px] bg-slate-100 dark:bg-slate-800 p-0.5 border border-slate-200 dark:border-slate-700">
+                  <button
+                    onClick={() => setPainBodyView("front")}
+                    className={`px-3 py-1 rounded-[6px] text-xs font-bold transition-all ${painBodyView === "front"
+                      ? "bg-rose-500 text-white shadow-sm"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
+                      }`}
+                  >
+                    Front View
+                  </button>
+                  <button
+                    onClick={() => setPainBodyView("back")}
+                    className={`px-3 py-1 rounded-[6px] text-xs font-bold transition-all ${painBodyView === "back"
+                      ? "bg-rose-500 text-white shadow-sm"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900"
+                      }`}
+                  >
+                    Back View
+                  </button>
+                </div>
+              </div>
+
+              {/* Body Map Hotspot Buttons */}
+              <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                {(painBodyView === "front"
+                  ? [
+                    "Head / Migraine",
+                    "Cervical / Neck",
+                    "Chest / Sternum",
+                    "Epigastric / Stomach",
+                    "Right Abdomen",
+                    "Left Knee / Joint",
+                    "Right Knee / Joint",
+                    "Ankles & Feet",
+                  ]
+                  : [
+                    "Occipital / Back of Head",
+                    "Upper Trapezius",
+                    "Thoracic Spine",
+                    "Lower Lumbar Back",
+                    "Gluteal / Sciatic",
+                    "Hamstrings",
+                    "Calf Muscles",
+                    "Heels / Achilles",
+                  ]
+                ).map((zone) => {
+                  const isSelected = selectedPainZone === zone;
+                  return (
+                    <button
+                      key={zone}
+                      onClick={() => setSelectedPainZone(zone)}
+                      className={`p-3 rounded-[8px] text-left text-xs font-bold transition-all border ${isSelected
+                        ? "bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500 shadow-sm"
+                        : "bg-slate-50/80 dark:bg-white/[0.03] text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-white/10 hover:border-rose-300"
+                        }`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span className={`w-2 h-2 rounded-full ${isSelected ? "bg-rose-500 animate-ping" : "bg-slate-400"}`} />
+                        <span className="truncate">{zone}</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="mt-6 p-4 rounded-[8px] bg-rose-500/5 dark:bg-rose-500/10 border border-rose-500/20 flex items-center justify-between text-xs">
+                <div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">Selected Region</p>
+                  <p className="font-bold text-rose-600 dark:text-rose-400 text-sm mt-0.5">{selectedPainZone}</p>
+                </div>
+                <Badge variant="outline" className="border-rose-400 text-rose-600 dark:text-rose-400 font-mono text-xs">
+                  {painBodyView.toUpperCase()} MODEL
+                </Badge>
+              </div>
+            </div>
+
+            {/* Pain Intensity & Characteristics Form */}
+            <div className="lg:col-span-6 rounded-[8px] border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-6 sm:p-8 shadow-xl backdrop-blur-xl space-y-6">
+              <div>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Visual Analog Scale (VAS 1–10)
+                  </label>
+                  <span className="px-2.5 py-0.5 rounded-[6px] bg-rose-500 text-white text-xs font-black">
+                    VAS {vasScore}/10
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={1}
+                  max={10}
+                  value={vasScore}
+                  onChange={(e) => setVasScore(Number(e.target.value))}
+                  className="w-full mt-3 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-rose-500"
+                />
+                <div className="flex justify-between text-[11px] text-slate-400 mt-2 font-semibold">
+                  <span>1: Mild Discomfort</span>
+                  <span>5: Moderate Pain</span>
+                  <span>10: Emergency Severe</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300 block mb-2.5">
+                  Pain Sensation Quality
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {["Throbbing", "Sharp / Stabbing", "Burning", "Dull Ache"].map((quality) => (
+                    <button
+                      key={quality}
+                      onClick={() => setPainQuality(quality)}
+                      className={`py-2 px-2.5 rounded-[8px] text-xs font-semibold text-center border transition-all ${painQuality === quality
+                        ? "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-500 font-bold"
+                        : "bg-slate-50 dark:bg-white/[0.02] border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:border-slate-300"
+                        }`}
+                    >
+                      {quality}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-[8px] bg-slate-100/80 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 p-4 space-y-2 text-xs">
+                <p className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  Clinical Symptom Telemetry
+                </p>
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-[12px]">
+                  Logged with timestamps in local storage and synced to Supabase <code className="font-mono text-rose-500">symptom_records</code>. App automatically generates medical history charts for neurological or orthopedic visits.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Interactive Feature Preview / Demo Tools (from Blueprint Section 3) */}
+      <section id="tools" className="scroll-mt-24 py-20 px-4 sm:px-6 lg:px-8 border-y border-slate-200/80 dark:border-white/5 bg-slate-50/70 dark:bg-white/[0.015]">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[8px] text-[11px] font-bold uppercase tracking-wider text-[#006AFA] dark:text-sky-400 border border-[#006AFA]/30 bg-[#006AFA]/5 dark:bg-[#006AFA]/10 backdrop-blur-md shadow-sm mb-3">
+              Interactive Clinical Calculators
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black mt-2 tracking-tight">Try our tools live before downloading</h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400 mt-3 leading-relaxed">
+              Same formulas, clinical thresholds, and automatic recommendations implemented in the mobile Flutter app.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Tool 1: BMI Calculator Widget */}
+            <div className="rounded-[8px] border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-7 sm:p-8 shadow-xl backdrop-blur-xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <HeartPulse className="h-5 w-5 text-[#006AFA]" />
+                    <h3 className="font-bold text-lg text-slate-900 dark:text-white">Smart BMI Calculator</h3>
+                  </div>
+                  <Badge variant="outline" className="text-[11px] rounded-[6px] border-[#006AFA]/40 text-[#006AFA]">
+                    WHO Standard
+                  </Badge>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 mt-6">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                      Height ({bmiHeightCm} cm)
+                    </label>
+                    <input
+                      type="range"
+                      min={120}
+                      max={220}
+                      value={bmiHeightCm}
+                      onChange={(e) => setBmiHeightCm(Number(e.target.value))}
+                      className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#006AFA]"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                      <span>120 cm</span>
+                      <span>220 cm</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                      Weight ({bmiWeightKg} kg)
+                    </label>
+                    <input
+                      type="range"
+                      min={35}
+                      max={160}
+                      value={bmiWeightKg}
+                      onChange={(e) => setBmiWeightKg(Number(e.target.value))}
+                      className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#006AFA]"
+                    />
+                    <div className="flex justify-between text-[10px] text-slate-400 mt-1">
+                      <span>35 kg</span>
+                      <span>160 kg</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Result Card */}
+                <div className={`mt-6 p-5 rounded-[8px] ${bmiCategory.bg} border ${bmiCategory.border} transition-all`}>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[11px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold">
+                        Calculated Body Mass Index
+                      </p>
+                      <p className="text-3xl font-black text-slate-900 dark:text-white mt-0.5">
+                        {bmiValue} <span className="text-sm font-semibold text-slate-500">kg/m²</span>
+                      </p>
+                    </div>
+                    <span className={`px-3 py-1 rounded-[6px] text-xs font-black ${bmiCategory.color} bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm`}>
+                      {bmiCategory.label}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-3 leading-relaxed">
+                    {bmiCategory.advice}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
+                <span>Healthy Range: 18.5 – 24.9</span>
+                <span>Automatic weight history in app</span>
+              </div>
+            </div>
+
+            {/* Tool 2: Blood Sugar Converter & ADA Staging */}
+            <div className="rounded-[8px] border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-7 sm:p-8 shadow-xl backdrop-blur-xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <Droplets className="h-5 w-5 text-sky-500" />
+                    <h3 className="font-bold text-lg text-slate-900 dark:text-white">Glucose Converter &amp; ADA Staging</h3>
+                  </div>
+                  <div className="flex rounded-[8px] bg-slate-100 dark:bg-slate-800 p-0.5 border border-slate-200 dark:border-slate-700">
+                    <button
+                      onClick={() => {
+                        if (sugarUnit !== "mmol/L") {
+                          setSugarUnit("mmol/L");
+                          setSugarInput(Number((sugarInput / 18.0182).toFixed(1)));
+                        }
+                      }}
+                      className={`px-2.5 py-1 rounded-[6px] text-xs font-bold transition-all ${sugarUnit === "mmol/L" ? "bg-[#006AFA] text-white" : "text-slate-600 dark:text-slate-400"
+                        }`}
+                    >
+                      mmol/L
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (sugarUnit !== "mg/dL") {
+                          setSugarUnit("mg/dL");
+                          setSugarInput(Math.round(sugarInput * 18.0182));
+                        }
+                      }}
+                      className={`px-2.5 py-1 rounded-[6px] text-xs font-bold transition-all ${sugarUnit === "mg/dL" ? "bg-[#006AFA] text-white" : "text-slate-600 dark:text-slate-400"
+                        }`}
+                    >
+                      mg/dL
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-6 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                        Blood Glucose Value ({sugarUnit})
+                      </label>
+                      <input
+                        type="number"
+                        step={sugarUnit === "mmol/L" ? "0.1" : "1"}
+                        value={sugarInput}
+                        onChange={(e) => setSugarInput(Number(e.target.value) || 0)}
+                        className="w-full h-11 px-3.5 rounded-[8px] border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white font-bold text-base focus:outline-none focus:ring-2 focus:ring-[#006AFA]"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+                        Converted Value
+                      </label>
+                      <div className="h-11 px-3.5 rounded-[8px] bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 flex items-center font-black text-lg text-[#006AFA] dark:text-sky-400">
+                        {convertedSugarDisplay}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1.5">
+                      Clinical Measurement Context
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { id: "fasting", label: "Fasting (8-12h)" },
+                        { id: "postMeal", label: "Post-Meal (2h)" },
+                        { id: "bedtime", label: "Bedtime (Night)" },
+                      ].map((ctx) => (
+                        <button
+                          key={ctx.id}
+                          onClick={() => setSugarContext(ctx.id as typeof sugarContext)}
+                          className={`py-2 px-2 rounded-[8px] text-[11px] font-bold border transition-all ${sugarContext === ctx.id
+                            ? "bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-500"
+                            : "bg-slate-50 dark:bg-white/[0.02] border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400"
+                            }`}
+                        >
+                          {ctx.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* ADA Evaluation */}
+                  <div className={`p-4 rounded-[8px] ${sugarEvaluation.bg} border border-slate-200 dark:border-white/10 transition-all`}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">ADA Diagnostic Stage</span>
+                      <span className={`font-black text-xs ${sugarEvaluation.color}`}>{sugarEvaluation.stage}</span>
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-2">{sugarEvaluation.advice}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
+                <span>ADA Clinical Criteria</span>
+                <span>Auto-converts mmol/L ↔ mg/dL</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       <section id="reports" className="scroll-mt-24 py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-950 via-[#060b14] to-black text-white relative overflow-hidden border-y border-white/10">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-500/10 rounded-full blur-[140px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" />
@@ -854,50 +1302,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Personalization: language + theme + offline */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-5 sm:gap-6">
-          <div className="relative rounded-[8px] border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-7 sm:p-8 card-glow-hover backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group">
-            <div className="absolute inset-x-6 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#006AFA]/30 dark:via-sky-400/20 to-transparent pointer-events-none" />
-            <div className="w-12 h-12 rounded-[8px] bg-[#006AFA]/10 border border-[#006AFA]/20 flex items-center justify-center text-[#006AFA] shadow-sm group-hover:scale-110 transition-transform">
-              <Languages className="w-6 h-6" />
-            </div>
-            <h3 className="font-bold text-lg mt-5 group-hover:text-[#006AFA] dark:group-hover:text-sky-400 transition-colors">12 languages, Bengali-first</h3>
-            <p className="text-[13px] text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">Elder-friendly. Switch in Profile → Language. Meal slots + food keywords fully localized.</p>
-            <div className="flex flex-wrap gap-1.5 mt-5">
-              {LANGUAGES.map((l) => (
-                <span key={l} className="px-2.5 py-1 rounded-[8px] bg-slate-100 dark:bg-white/[0.05] border border-slate-200/60 dark:border-white/[0.06] text-[11px] font-semibold text-slate-700 dark:text-slate-300 hover:border-[#006AFA]/40 hover:text-[#006AFA] transition-colors">{l}</span>
-              ))}
-            </div>
-          </div>
-          <div className="relative rounded-[8px] border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-7 sm:p-8 card-glow-hover backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group">
-            <div className="absolute inset-x-6 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-indigo-500/30 to-transparent pointer-events-none" />
-            <div className="w-12 h-12 rounded-[8px] bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 shadow-sm group-hover:scale-110 transition-transform">
-              <Moon className="w-6 h-6" />
-            </div>
-            <h3 className="font-bold text-lg mt-5 group-hover:text-indigo-500 transition-colors">Dark / Light / System</h3>
-            <p className="text-[13px] text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">Material 3, Plus Jakarta Sans + Uncut Sans, SolarIcons, soft shadows + primary glow. Toggle it top-right — this page respects it.</p>
-            <div className="mt-5 flex items-center gap-2 text-xs font-semibold">
-              <span className="px-3 py-1.5 rounded-[8px] bg-slate-950 text-white border border-slate-800 shadow-sm">Dark #0B1120</span>
-              <span className="px-3 py-1.5 rounded-[8px] bg-white text-slate-900 border border-slate-200 shadow-sm">Light #FFFFFF</span>
-              <span className="px-3 py-1.5 rounded-[8px] bg-gradient-to-r from-[#006AFA] to-[#69C3FF] text-white shadow-md shadow-[#006AFA]/30">Brand #006AFA</span>
-            </div>
-          </div>
-          <div className="relative rounded-[8px] border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-7 sm:p-8 card-glow-hover backdrop-blur-xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group">
-            <div className="absolute inset-x-6 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent pointer-events-none" />
-            <div className="w-12 h-12 rounded-[8px] bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 shadow-sm group-hover:scale-110 transition-transform">
-              <Wifi className="w-6 h-6" />
-            </div>
-            <h3 className="font-bold text-lg mt-5 group-hover:text-emerald-500 transition-colors">Offline-first + secure</h3>
-            <p className="text-[13px] text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">On-device cache, Supabase RLS, TLS 1.3 + AES-256, Google sign-in + email verification, delete-anytime. You own your data.</p>
-            <div className="mt-5 grid grid-cols-3 gap-2 text-center text-[11px] font-bold">
-              <span className="rounded-[8px] bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-400 py-2.5 shadow-sm">AES-256</span>
-              <span className="rounded-[8px] bg-sky-500/10 border border-sky-500/25 text-sky-700 dark:text-sky-400 py-2.5 shadow-sm">RLS</span>
-              <span className="rounded-[8px] bg-purple-500/10 border border-purple-500/25 text-purple-700 dark:text-purple-400 py-2.5 shadow-sm">Export</span>
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       {/* How it works */}
       <section id="how-it-works" className="scroll-mt-24 py-20 px-4 sm:px-6 lg:px-8 bg-slate-50/70 dark:bg-white/[0.015] border-y border-slate-200/80 dark:border-white/5 relative">
@@ -934,52 +1339,53 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials + pricing */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-5 gap-6">
-          <div className="lg:col-span-3 rounded-[8px] border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-7 sm:p-9 shadow-xl backdrop-blur-xl card-glow-hover transition-all duration-300">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-[8px] bg-[#006AFA]/10 flex items-center justify-center text-[#006AFA] shadow-sm">
-                <Quote className="w-5 h-5" />
-              </div>
-              <h2 className="font-black text-xl sm:text-2xl">Built for families managing chronic care</h2>
-            </div>
-            <div className="grid sm:grid-cols-3 gap-4 mt-6">
-              {[
-                ["Rahman, Dhaka", "My father's fasting finally stays 5–6. The Bengali labels + Drive backup sold me."],
-                ["Dr. S. Karim", "Patients bring the telemetry PDF. Clean averages, adherence %, sign-off — saves 10 minutes."],
-                ["Nasrin, Chittagong", "Water + meds reminders + pain map. My BP log finally makes sense to my doctor."],
-              ].map(([name, quote]) => (
-                <figure key={name} className="rounded-[8px] bg-slate-50/80 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10 p-5 flex flex-col justify-between gap-3.5 hover:border-[#006AFA]/40 hover:shadow-md transition-all duration-300">
-                  <div>
-                    <div className="flex gap-0.5 mb-2.5">{Array.from({ length: 5 }).map((_, i) => (<Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400 drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]" />))}</div>
-                    <blockquote className="text-xs leading-relaxed text-slate-600 dark:text-slate-300">“{quote}”</blockquote>
-                  </div>
-                  <figcaption className="text-[11px] font-bold flex items-center gap-1.5"><BadgeCheck className="w-3.5 h-3.5 text-emerald-500" />{name}</figcaption>
-                </figure>
-              ))}
-            </div>
-            <p className="text-[11px] text-slate-400 mt-4">Early-user stories reflecting real app workflows. Ratings shown for illustration until store launch.</p>
-          </div>
-          <div className="lg:col-span-2 rounded-[8px] bg-gradient-to-br from-slate-950 via-[#080d19] to-black text-white p-7 sm:p-9 flex flex-col justify-between border border-white/10 shadow-2xl relative overflow-hidden card-glow-hover transition-all duration-300">
-            <div className="absolute -top-20 -right-20 w-44 h-44 bg-[#006AFA]/25 rounded-full blur-[60px] pointer-events-none" />
-            <div className="relative z-10">
-              <Badge variant="success" className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[10px] uppercase font-bold tracking-wider shadow-sm">Free • Pro hides ads</Badge>
-              <h2 className="font-black text-2xl mt-3 tracking-tight">Start free. Upgrade only to remove ads.</h2>
-              <ul className="mt-5 space-y-3 text-[13px] text-slate-300">
+
+
+      {/* Security & Privacy Assurance (from Blueprint Section 4) */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 border-y border-slate-200/80 dark:border-white/5 bg-slate-50/70 dark:bg-white/[0.015]">
+        <div className="max-w-7xl mx-auto rounded-[8px] border border-slate-200/90 dark:border-white/10 bg-white/95 dark:bg-[#0B0F19]/90 p-8 sm:p-12 shadow-xl backdrop-blur-xl">
+          <div className="grid lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-8 space-y-4">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-[6px] bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                <ShieldCheck className="h-4 w-4" />
+                Your Data, Your Ownership
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                Complete Data Privacy with Google Drive Medical Vault
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
+                We believe your clinical records belong exclusively to you. HealthTrack stores vitals locally on your device and provides direct zero-knowledge backup to your personal <strong>Google Drive</strong> account under <code className="font-mono text-xs text-[#006AFA]">NutriHealth Medical Vault</code>. We never sell or share biometric telemetry.
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
                 {[
-                  "Unlimited vitals, meals, meds, water logs",
-                  "Vault + Drive backup + PDF / Excel export",
-                  "12 languages, dark mode, offline",
-                  "Pro: zero banner / interstitial / rewarded ads",
-                ].map((t) => (
-                  <li key={t} className="flex gap-2.5"><Check className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0 drop-shadow-[0_0_6px_rgba(52,211,153,0.5)]" />{t}</li>
+                  ["AES-256", "Military grade data encryption"],
+                  ["Google Drive API", "Direct user-owned cloud backups"],
+                  ["Offline-First", "Fully functional without internet"],
+                  ["GDPR Compliant", "Instant 1-click permanent wipe"],
+                ].map(([title, desc]) => (
+                  <div key={title} className="p-3 rounded-[8px] bg-slate-50 dark:bg-white/[0.03] border border-slate-200/80 dark:border-white/10">
+                    <p className="font-bold text-xs text-slate-900 dark:text-white">{title}</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{desc}</p>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
-            <a href="#download" className="mt-7 inline-flex items-center justify-center gap-2.5 h-12 px-6 rounded-[8px] bg-gradient-to-r from-[#006AFA] via-blue-600 to-[#50B2FF] font-bold text-sm text-white shadow-xl shadow-[#006AFA]/30 hover:shadow-[#006AFA]/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 relative z-10 w-full sm:w-auto">
-              <Smartphone className="w-4 h-4" /> Get HealthTrack free
-            </a>
+
+            <div className="lg:col-span-4 flex flex-col items-center justify-center p-6 rounded-[8px] bg-gradient-to-br from-[#006AFA]/10 to-emerald-500/10 border border-[#006AFA]/20 text-center">
+              <div className="w-14 h-14 rounded-full bg-white dark:bg-slate-900 shadow-md flex items-center justify-center text-[#006AFA] mb-4">
+                <Cloud className="w-7 h-7" />
+              </div>
+              <h4 className="font-bold text-base text-slate-900 dark:text-white">Encrypted Google Vault</h4>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 max-w-xs">
+                Back up prescriptions, lab reports and blood sugar logs directly to your personal Google cloud in 1 click.
+              </p>
+              <a
+                href="#download"
+                className="mt-5 inline-flex items-center justify-center h-11 px-5 rounded-[8px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 text-xs font-bold text-slate-900 dark:text-white hover:border-[#006AFA] transition-all shadow-sm"
+              >
+                Learn More in App
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -1061,68 +1467,134 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200/80 dark:border-white/[0.08] bg-slate-50/80 dark:bg-[#030509] py-14 px-4 sm:px-6 lg:px-8 text-xs text-slate-600 dark:text-slate-400 transition-colors">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2.5">
-              <div className="h-9 w-9 rounded-[8px] overflow-hidden bg-white border border-slate-200 dark:border-white/10 p-0.5 shadow-sm">
+      {/* Footer matching https://bloodbank.appstick.com.bd/ */}
+      <footer className="bg-transparent dark:bg-[#050811] pt-14 pb-10 px-4 sm:px-6 lg:px-8 text-xs text-slate-600 dark:text-slate-400 transition-colors">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12">
+          {/* Brand Column */}
+          <div className="md:col-span-6 space-y-4">
+            <Link href="/" className="inline-flex items-center gap-3 group">
+              <div className="h-9 w-9 rounded-[8px] overflow-hidden bg-white border border-slate-200 dark:border-white/10 p-0.5 shadow-sm flex items-center justify-center shrink-0">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo.jpeg" alt="HealthTrack" className="w-full h-full object-contain" />
+                <img src="/logo.jpeg" alt="HealthTrack Logo" className="w-full h-full object-contain" />
               </div>
-              <span className="font-extrabold text-base text-slate-900 dark:text-white uppercase tracking-tight">Health<span className="text-[#006AFA]">Track</span></span>
-            </div>
-            <p className="leading-relaxed text-[11px]">Glucose, BP, weight, pain, meals, meds, water, vault, Drive sync and doctor reports.</p>
-            <p className="text-[11px] flex items-center gap-1.5 font-medium"><Lock className="w-3.5 h-3.5 text-[#006AFA]" /> Private Drive vault • Export anytime</p>
+              <div>
+                <span className="font-extrabold text-base tracking-tight text-slate-900 dark:text-white uppercase">
+                  HEALTH <span className="text-[#006AFA]">TRACK</span>
+                </span>
+                <p className="text-[11px] text-slate-500 font-medium leading-none mt-0.5">
+                  Smart Care. Save Lives.
+                </p>
+              </div>
+            </Link>
+            <p className="text-xs sm:text-[13px] text-slate-600 dark:text-slate-400 leading-relaxed max-w-sm">
+              The smart digital clinical vitals &amp; chronic care companion. Connecting patients with clinical tracking, Google Drive medical vault, and instant doctor telemetry reports.
+            </p>
           </div>
-          <nav aria-label="Product">
-            <h3 className="font-bold text-slate-900 dark:text-white text-xs uppercase mb-3 tracking-wider">Product</h3>
-            <ul className="space-y-2 text-[12px]">
-              <li><a href="#features" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">Features &amp; Modules</a></li>
-              <li><a href="#vitals" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">Vitals &amp; thresholds</a></li>
-              <li><a href="#how-it-works" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">How it works</a></li>
-              <li><a href="#reports" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">Doctor reports</a></li>
-            </ul>
-          </nav>
-          <nav aria-label="Company and legal">
-            <h3 className="font-bold text-slate-900 dark:text-white text-xs uppercase mb-3 tracking-wider">Company &amp; Legal</h3>
-            <ul className="space-y-2 text-[12px]">
-              <li><Link href="/privacy-policy" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/terms-of-service" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">Terms of Service</Link></li>
-              <li><a href="#faq" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">Clinical guidelines</a></li>
-              <li><a href="https://appstick.com.bd" target="_blank" rel="noopener noreferrer" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">Appstick Ltd</a></li>
-              <li><Link href="/login" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">Admin Portal →</Link></li>
-            </ul>
-          </nav>
-          <div>
-            <h3 className="font-bold text-slate-900 dark:text-white text-xs uppercase mb-3 tracking-wider">Contact</h3>
-            <ul className="space-y-2.5 text-[12px]">
+
+          {/* Solutions Column */}
+          <div className="md:col-span-3">
+            <h4 className="font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-white mb-4">
+              Solutions
+            </h4>
+            <ul className="space-y-3 text-xs sm:text-[13px] text-slate-600 dark:text-slate-400">
               <li>
-                <a
-                  href="mailto:info@appstick.com.bd"
-                  className="inline-flex items-center gap-2 hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors"
-                >
-                  <Mail className="w-3.5 h-3.5 text-[#006AFA] dark:text-sky-400 shrink-0" />
-                  <span>info@appstick.com.bd</span>
+                <a href="#vitals" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">
+                  Smart Vitals Tracker
                 </a>
               </li>
               <li>
-                <a
-                  href="tel:+8801404049797"
-                  className="inline-flex items-center gap-2 hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors"
-                >
-                  <Phone className="w-3.5 h-3.5 text-[#006AFA] dark:text-sky-400 shrink-0" />
-                  <span>+88 014 0404 9797</span>
+                <a href="#pain-map" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">
+                  2D Anatomical Body Map
                 </a>
               </li>
-              <li className="text-[11px] text-slate-500 pt-1">Appstick Ltd Support &amp; Enquiries</li>
+              <li>
+                <a href="#tools" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">
+                  Clinical BMI &amp; Sugar Tools
+                </a>
+              </li>
+              <li>
+                <a href="#reports" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">
+                  Doctor Telemetry PDF
+                </a>
+              </li>
+              <li>
+                <a href="#how-it-works" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">
+                  Medication &amp; Routine Alarms
+                </a>
+              </li>
+              <li>
+                <a href="#features" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">
+                  Google Drive Cloud Vault
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Guides & Blog Column */}
+          <div className="md:col-span-3">
+            <h4 className="font-bold text-xs uppercase tracking-wider text-slate-900 dark:text-white mb-4">
+              Guides &amp; Blog
+            </h4>
+            <ul className="space-y-3 text-xs sm:text-[13px] text-slate-600 dark:text-slate-400">
+              <li>
+                <a href="#faq" className="font-bold text-slate-900 dark:text-white hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">
+                  All Guides &amp; Medical Blog
+                </a>
+              </li>
+              <li>
+                <a href="#tools" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">
+                  Blood Sugar Staging Criteria
+                </a>
+              </li>
+              <li>
+                <a href="#vitals" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">
+                  AHA Blood Pressure Ranges
+                </a>
+              </li>
+              <li>
+                <a href="#tools" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">
+                  BMI &amp; Nutrition Estimator
+                </a>
+              </li>
+              <li>
+                <a href="#reports" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">
+                  Hospital Emergency Protocol
+                </a>
+              </li>
+              <li>
+                <a href="#vitals" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">
+                  Clinical Telemetry &amp; Safety Standards
+                </a>
+              </li>
             </ul>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto pt-6 border-t border-slate-200 dark:border-white/5 flex flex-col gap-3 text-[11px]">
-          <p>© {new Date().getFullYear()} HealthTrack. Developed by Appstick Ltd. All rights reserved.</p>
-          <p className="max-w-3xl leading-relaxed text-slate-500">
-            Medical Disclaimer: HealthTrack is an aid for wellness and nutrition tracking. It does not provide medical diagnoses or replace professional medical advice. Always consult a certified healthcare professional.
-          </p>
+
+        {/* Bottom Bar */}
+        <div className="max-w-7xl mx-auto border-t border-slate-200/80 dark:border-white/10 mt-14 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+          <p>© {new Date().getFullYear()} HealthTrack. All rights reserved.</p>
+
+          <div className="flex items-center gap-2">
+            <Link href="/privacy-policy" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">
+              Privacy Policy
+            </Link>
+            <span>•</span>
+            <Link href="/terms-of-service" className="hover:text-[#006AFA] dark:hover:text-sky-400 transition-colors">
+              Terms of Service
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-1.5 flex-wrap justify-center">
+            <span>Powered by</span>
+            <a
+              href="https://appstick.com.bd"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-slate-900 dark:text-white hover:text-[#006AFA] transition-colors"
+            >
+              Appstick
+            </a>
+          </div>
         </div>
       </footer>
 

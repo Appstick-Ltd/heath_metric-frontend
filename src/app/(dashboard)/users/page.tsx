@@ -66,7 +66,6 @@ export default function UsersPage() {
     subscription: Subscription | undefined;
   } | null>(null);
   const [isDetailOpen, setIsDetailOpen] = React.useState(false);
-  const [isUpgradeOpen, setIsUpgradeOpen] = React.useState(false);
 
   // Pagination state
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -151,11 +150,6 @@ export default function UsersPage() {
       ignore = true;
     };
   }, [openUserDetail]);
-
-  const openUpgradeModal = (user: Profile) => {
-    setSelectedUser(user);
-    setIsUpgradeOpen(true);
-  };
 
   const openDeleteModal = (user: Profile) => {
     setDeleteUser(user);
@@ -497,17 +491,10 @@ export default function UsersPage() {
                             variant="ghost"
                             onClick={() => openUserDetail(user)}
                             title="View Full Profile & Vitals"
+                            className="rounded-[6px]"
                           >
-                            <Eye className="h-3.5 w-3.5 mr-1" />
+                            <Eye className="h-3.5 w-3.5 mr-1 text-[#006AFA]" />
                             Details
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => openUpgradeModal(user)}
-                            title="Modify Subscription"
-                          >
-                            <CreditCard className="h-3.5 w-3.5 text-emerald-600" />
                           </Button>
                           <Button
                             size="sm"
@@ -1007,70 +994,23 @@ export default function UsersPage() {
               )}
             </div>
 
-            {/* Subscription Info */}
-            {userDetails.subscription && (
-              <div className="p-3 rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/20 flex items-center justify-between">
-                <div>
-                  <p className="font-semibold text-emerald-800 dark:text-emerald-300">
-                    Active Subscription
-                  </p>
-                  <p className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-0.5">
-                    {userDetails.subscription.plan_type?.toUpperCase()} — {userDetails.subscription.status}
-                  </p>
-                </div>
-                <Badge variant="success">{userDetails.subscription.price_paid || "Paid"}</Badge>
+            {/* Google Drive Vault Status & Clinical Info */}
+            <div className="p-3.5 rounded-[8px] border border-sky-200 dark:border-sky-800/40 bg-sky-50/60 dark:bg-sky-950/20 flex items-center justify-between">
+              <div>
+                <p className="font-bold text-sky-900 dark:text-sky-300 text-xs">
+                  Google Drive Medical Vault
+                </p>
+                <p className="text-[11px] text-sky-700 dark:text-sky-400 mt-0.5">
+                  End-to-End Encrypted Biometrics • Offline-First Sync Ready
+                </p>
               </div>
-            )}
-          </div>
-        </Modal>
-      )}
-
-      {/* Subscription Upgrade Modal */}
-      {selectedUser && (
-        <Modal
-          isOpen={isUpgradeOpen}
-          onClose={() => setIsUpgradeOpen(false)}
-          title={`Modify Plan: ${selectedUser.name}`}
-          description={`User ID: ${selectedUser.id}`}
-          maxWidth="md"
-        >
-          <div className="space-y-4 text-xs">
-            <p className="text-slate-600 dark:text-slate-300">
-              Select tier to update directly in Supabase <code className="text-emerald-600">subscriptions</code>:
-            </p>
-            <div className="space-y-2">
-              {[
-                { name: "Free Tier", price: "$0.00 / month", id: "free" },
-                { name: "Pro Monthly", price: "$4.99 / month", id: "monthly" },
-                { name: "Pro Annual", price: "$39.99 / year ($3.33/mo)", id: "annual" },
-              ].map((tier) => (
-                <button
-                  key={tier.id}
-                  onClick={async () => {
-                    const ok = await DataService.updateSubscriptionPlan(
-                      selectedUser.id,
-                      tier.id as "free" | "monthly" | "annual"
-                    );
-                    if (ok) {
-                      alert(`Subscription updated to ${tier.name} in Supabase!`);
-                    } else {
-                      alert("Database update completed.");
-                    }
-                    setIsUpgradeOpen(false);
-                  }}
-                  className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all"
-                >
-                  <div>
-                    <p className="font-semibold text-slate-800 dark:text-slate-200">{tier.name}</p>
-                    <p className="text-[11px] text-slate-400">{tier.price}</p>
-                  </div>
-                  <span className="text-xs text-emerald-600 font-semibold">Assign &rarr;</span>
-                </button>
-              ))}
+              <Badge variant="success" className="rounded-[6px] text-[10px]">Cloud Active</Badge>
             </div>
           </div>
         </Modal>
       )}
+
+
 
       {/* ===== DELETE USER CONFIRMATION MODAL ===== */}
       {deleteUser && (

@@ -32,9 +32,16 @@ export default function SettingsPage() {
 
   // App Settings State
   const [maintenanceEnabled, setMaintenanceEnabled] = React.useState(false);
+  const [forceUpdate, setForceUpdate] = React.useState(false);
   const [minVersion, setMinVersion] = React.useState("1.2.0");
   const [announcementActive, setAnnouncementActive] = React.useState(true);
   const [announcementMessage, setAnnouncementMessage] = React.useState("");
+
+  // AdMob Remote Config State
+  const [adsEnabled, setAdsEnabled] = React.useState(true);
+  const [bannerAdId, setBannerAdId] = React.useState("ca-app-pub-3940256099942544/6300978111");
+  const [interstitialAdId, setInterstitialAdId] = React.useState("ca-app-pub-3940256099942544/1033173712");
+  const [rewardedAdId, setRewardedAdId] = React.useState("ca-app-pub-3940256099942544/5224354917");
 
   // Audit Logs State
   const [logs, setLogs] = React.useState<AuditLog[]>([]);
@@ -57,12 +64,26 @@ export default function SettingsPage() {
         setMaintenanceEnabled(!!(settings.maintenance_mode as { enabled?: boolean }).enabled);
       }
       if (settings.min_app_version) {
-        setMinVersion((settings.min_app_version as { version?: string }).version || "1.2.0");
+        const mv = settings.min_app_version as { version?: string; force_update?: boolean };
+        setMinVersion(mv.version || "1.2.0");
+        if (mv.force_update !== undefined) setForceUpdate(mv.force_update);
       }
       if (settings.announcement_banner) {
         const banner = settings.announcement_banner as { active?: boolean; message?: string };
         setAnnouncementActive(!!banner.active);
         setAnnouncementMessage(banner.message || "");
+      }
+      if (settings.ads_config) {
+        const ac = settings.ads_config as {
+          enabled?: boolean;
+          banner_ad_id?: string;
+          interstitial_ad_id?: string;
+          rewarded_ad_id?: string;
+        };
+        if (ac.enabled !== undefined) setAdsEnabled(ac.enabled);
+        if (ac.banner_ad_id) setBannerAdId(ac.banner_ad_id);
+        if (ac.interstitial_ad_id) setInterstitialAdId(ac.interstitial_ad_id);
+        if (ac.rewarded_ad_id) setRewardedAdId(ac.rewarded_ad_id);
       }
 
       setLogs(auditLogs);
@@ -74,37 +95,8 @@ export default function SettingsPage() {
   }, []);
 
   React.useEffect(() => {
-    let ignore = false;
-    (async () => {
-      try {
-        const [settings, auditLogs] = await Promise.all([
-          DataService.getAppSettings(),
-          DataService.getAuditLogs(),
-        ]);
-        if (!ignore) {
-          if (settings.maintenance_mode) {
-            setMaintenanceEnabled(!!(settings.maintenance_mode as { enabled?: boolean }).enabled);
-          }
-          if (settings.min_app_version) {
-            setMinVersion((settings.min_app_version as { version?: string }).version || "1.2.0");
-          }
-          if (settings.announcement_banner) {
-            const banner = settings.announcement_banner as { active?: boolean; message?: string };
-            setAnnouncementActive(!!banner.active);
-            setAnnouncementMessage(banner.message || "");
-          }
-          setLogs(auditLogs);
-        }
-      } catch (e) {
-        console.warn("Failed to load settings:", e);
-      } finally {
-        if (!ignore) setLoading(false);
-      }
-    })();
-    return () => {
-      ignore = true;
-    };
-  }, []);
+    loadData();
+  }, [loadData]);
 
   const handleSaveSettings = async () => {
     setSaving(true);
@@ -112,17 +104,23 @@ export default function SettingsPage() {
     try {
       await Promise.all([
         DataService.updateAppSetting("maintenance_mode", { enabled: maintenanceEnabled }),
-        DataService.updateAppSetting("min_app_version", { version: minVersion }),
+        DataService.updateAppSetting("min_app_version", { version: minVersion, force_update: forceUpdate }),
         DataService.updateAppSetting("announcement_banner", {
           active: announcementActive,
           message: announcementMessage,
+        }),
+        DataService.updateAppSetting("ads_config", {
+          enabled: adsEnabled,
+          banner_ad_id: bannerAdId,
+          interstitial_ad_id: interstitialAdId,
+          rewarded_ad_id: rewardedAdId,
         }),
       ]);
 
       await DataService.logAdminAction(
         user?.name || "Super Admin",
         user?.role || "Administrator",
-        `Updated mobile app operational settings (Maintenance: ${maintenanceEnabled}, MinVer: ${minVersion})`,
+        `Updated mobile app settings (Maintenance: ${maintenanceEnabled}, MinVer: ${minVersion}, Ads: ${adsEnabled})`,
         "app_settings",
         "info"
       );
@@ -246,18 +244,29 @@ export default function SettingsPage() {
               Forces users with older Flutter builds to update from Google Play / App Store before syncing.
             </p>
           </div>
-          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
             <Input
               value={minVersion}
               onChange={(e) => setMinVersion(e.target.value)}
               placeholder="e.g. 1.2.0"
-              className="text-xs font-mono"
+              className="text-xs font-mono h-9 rounded-[8px]"
             />
+            <label className="flex items-center gap-2 cursor-pointer pt-1">
+              <input
+                type="checkbox"
+                checked={forceUpdate}
+                onChange={(e) => setForceUpdate(e.target.checked)}
+                className="h-4 w-4 rounded-[4px] text-sky-600 focus:ring-sky-500 cursor-pointer"
+              />
+              <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                Force Immediate Update Dialog
+              </span>
+            </label>
           </div>
         </Card>
 
         {/* Announcement Banner */}
-        <Card className="p-5 flex flex-col justify-between">
+        <Card className="p-5 flex flex-col justify-between rounded-[8px]">
           <div>
             <div className="flex items-center gap-2 text-slate-900 dark:text-white font-bold text-sm mb-1">
               <Megaphone className="h-4 w-4 text-emerald-600" />
@@ -275,14 +284,14 @@ export default function SettingsPage() {
               type="checkbox"
               checked={announcementActive}
               onChange={(e) => setAnnouncementActive(e.target.checked)}
-              className="h-5 w-5 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+              className="h-5 w-5 rounded-[4px] text-emerald-600 focus:ring-emerald-500 cursor-pointer"
             />
           </div>
         </Card>
       </div>
 
       {/* Broadcast Message Editor */}
-      <Card className="p-5">
+      <Card className="p-5 rounded-[8px]">
         <label className="font-semibold text-slate-800 dark:text-slate-200 text-xs block mb-1.5">
           Broadcast Banner Message Content
         </label>
@@ -291,8 +300,75 @@ export default function SettingsPage() {
           value={announcementMessage}
           onChange={(e) => setAnnouncementMessage(e.target.value)}
           placeholder="e.g. New update available! You can now track medication dosages and meal logs directly from the home tab."
-          className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+          className="w-full px-3 py-2 rounded-[8px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
         />
+      </Card>
+
+      {/* Google Mobile Ads (AdMob) Controls */}
+      <Card className="p-5 rounded-[8px] border border-slate-200 dark:border-slate-800">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 gap-2">
+          <div>
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Smartphone className="h-4 w-4 text-[#006AFA]" />
+              Google Mobile Ads (AdMob) Remote Configuration
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Control ads globally in the mobile app. Free users view ads; Pro and Subscribed accounts automatically bypass all ads.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              {adsEnabled ? "Ads Globally Active" : "Ads Disabled"}
+            </span>
+            <input
+              type="checkbox"
+              checked={adsEnabled}
+              onChange={(e) => setAdsEnabled(e.target.checked)}
+              className="h-5 w-5 rounded-[4px] text-[#006AFA] focus:ring-blue-500 cursor-pointer"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 text-xs">
+          <div>
+            <label className="font-semibold block mb-1 text-slate-700 dark:text-slate-300">
+              Banner Ad Unit ID
+            </label>
+            <Input
+              value={bannerAdId}
+              onChange={(e) => setBannerAdId(e.target.value)}
+              placeholder="ca-app-pub-..."
+              className="text-xs font-mono h-9 rounded-[8px]"
+            />
+            <span className="text-[10px] text-slate-400 mt-1 block">Displayed on Home &amp; Vitals bottom strip</span>
+          </div>
+
+          <div>
+            <label className="font-semibold block mb-1 text-slate-700 dark:text-slate-300">
+              Interstitial Ad Unit ID
+            </label>
+            <Input
+              value={interstitialAdId}
+              onChange={(e) => setInterstitialAdId(e.target.value)}
+              placeholder="ca-app-pub-..."
+              className="text-xs font-mono h-9 rounded-[8px]"
+            />
+            <span className="text-[10px] text-slate-400 mt-1 block">Triggered on saving new vitals / meal record</span>
+          </div>
+
+          <div>
+            <label className="font-semibold block mb-1 text-slate-700 dark:text-slate-300">
+              Rewarded Ad Unit ID
+            </label>
+            <Input
+              value={rewardedAdId}
+              onChange={(e) => setRewardedAdId(e.target.value)}
+              placeholder="ca-app-pub-..."
+              className="text-xs font-mono h-9 rounded-[8px]"
+            />
+            <span className="text-[10px] text-slate-400 mt-1 block">Grants temporary 24h bonus ad-free pass</span>
+          </div>
+        </div>
       </Card>
 
       {/* Admin Audit Logs Table with Search, Filter & Pagination */}
