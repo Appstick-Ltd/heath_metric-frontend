@@ -40,6 +40,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
+const PLAY_STORE_URL =
+  "https://play.google.com/store/apps/details?id=bd.com.appstick.healthtrack&pcampaignid=web_share";
+
 /* ------------------------------------------------------------------ */
 /*  Data — mapped 1:1 from Flutter app (lib/)                          */
 /*  App: HealthTrack v1.0.0+3                                          */
@@ -495,7 +498,9 @@ export default function LandingPage() {
             <div className="space-y-3 pt-1">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <a
-                  href="#download"
+                  href={PLAY_STORE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-3 h-12 px-6 rounded-[8px] min-w-[180px] bg-slate-950 hover:bg-slate-900 text-white border border-slate-800/80 hover:border-sky-500/50 shadow-xl hover:shadow-[0_12px_28px_-6px_rgba(0,106,250,0.3)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
                 >
                   <svg className="w-6 h-6 shrink-0" viewBox="0 0 512 512" aria-hidden="true">
@@ -509,18 +514,23 @@ export default function LandingPage() {
                     <span className="text-sm font-bold block mt-1">Google Play</span>
                   </span>
                 </a>
-                <a
-                  href="#download"
-                  className="inline-flex items-center justify-center gap-3 h-12 px-6 rounded-[8px] min-w-[180px] bg-slate-950 hover:bg-slate-900 text-white border border-slate-800/80 hover:border-white/30 shadow-xl hover:shadow-[0_12px_28px_-6px_rgba(255,255,255,0.15)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
+                <div
+                  className="inline-flex items-center justify-center gap-3 h-12 px-6 rounded-[8px] min-w-[180px] bg-slate-950/80 text-white/80 border border-slate-800/80 shadow-xl cursor-default select-none relative"
+                  title="iOS version is upcoming on the App Store"
                 >
-                  <svg className="w-6 h-6 fill-white shrink-0" viewBox="0 0 384 512" aria-hidden="true">
+                  <svg className="w-6 h-6 fill-white/70 shrink-0" viewBox="0 0 384 512" aria-hidden="true">
                     <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
                   </svg>
                   <span className="text-left leading-none">
                     <span className="text-[10px] text-slate-400 font-medium">Download on the</span>
-                    <span className="text-sm font-bold block mt-1">App Store</span>
+                    <span className="text-sm font-bold block mt-1 flex items-center gap-1.5 text-slate-300">
+                      App Store
+                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-400/30 uppercase tracking-wide">
+                        Upcoming
+                      </span>
+                    </span>
                   </span>
-                </a>
+                </div>
               </div>
             </div>
 
@@ -1439,23 +1449,36 @@ export default function LandingPage() {
               Free download. Email or Google sign-in, verify once, and start your first 10-second log. Your records back up to your own Google Drive.
             </p>
             <div className="grid sm:grid-cols-2 gap-3.5 pt-2 text-left">
-              <a href="mailto:info@appstick.com.bd?subject=HealthTrack%20Android%20Download" className="inline-flex items-center gap-3.5 h-16 px-6 rounded-[8px] bg-black/90 hover:bg-neutral-900 border border-white/20 hover:border-sky-500/80 shadow-lg hover:shadow-sky-500/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200">
+              <a
+                href={PLAY_STORE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3.5 h-16 px-6 rounded-[8px] bg-black/90 hover:bg-neutral-900 border border-white/20 hover:border-sky-500/80 shadow-lg hover:shadow-sky-500/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
+              >
                 <Download className="w-5 h-5 text-sky-400 shrink-0" />
                 <span className="leading-none">
                   <span className="text-[10px] text-slate-400 uppercase font-semibold">Get for Android</span>
-                  <span className="text-sm font-bold block mt-1">Play Store / APK — Request link</span>
+                  <span className="text-sm font-bold block mt-1">Google Play Store</span>
                 </span>
               </a>
-              <a href="mailto:info@appstick.com.bd?subject=HealthTrack%20iOS%20Download" className="inline-flex items-center gap-3.5 h-16 px-6 rounded-[8px] bg-black/90 hover:bg-neutral-900 border border-white/20 hover:border-teal-500/80 shadow-lg hover:shadow-teal-500/20 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200">
-                <Smartphone className="w-5 h-5 text-teal-400 shrink-0" />
+              <div
+                className="inline-flex items-center gap-3.5 h-16 px-6 rounded-[8px] bg-black/60 border border-white/10 opacity-90 select-none shadow-lg cursor-default"
+                title="iOS version is upcoming on the App Store"
+              >
+                <Smartphone className="w-5 h-5 text-slate-400 shrink-0" />
                 <span className="leading-none">
                   <span className="text-[10px] text-slate-400 uppercase font-semibold">Get for iPhone</span>
-                  <span className="text-sm font-bold block mt-1">App Store / TestFlight — Request link</span>
+                  <span className="text-sm font-bold block mt-1 flex items-center gap-2">
+                    <span>App Store</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-500/30 uppercase tracking-wide">
+                      Upcoming
+                    </span>
+                  </span>
                 </span>
-              </a>
+              </div>
             </div>
             <p className="text-[11px] text-slate-400">
-              Store listings are rolling out — tapping above opens an email to <span className="text-slate-200 font-semibold">info@appstick.com.bd</span> so we can send you the live link + APK. No spam, ever.
+              HealthTrack is officially available on Google Play. The iOS App Store release is upcoming — feel free to email <span className="text-slate-200 font-semibold">info@appstick.com.bd</span> for early access or inquiries. No spam, ever.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] font-semibold text-slate-300 pt-1">
               <span className="flex items-center gap-1.5"><Globe className="w-3.5 h-3.5 text-sky-400" /> Available worldwide</span>
