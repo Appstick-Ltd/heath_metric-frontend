@@ -7,7 +7,7 @@ export const viewport: Viewport = {
   maximumScale: 5,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#07090f" },
+    { media: "(prefers-color-scheme: dark)", color: "#02081d" },
   ],
 };
 
@@ -100,7 +100,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="antialiased min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+      <body className="antialiased min-h-screen bg-white dark:bg-[#02081d] text-slate-900 dark:text-slate-100 transition-colors duration-200">
         {children}
       </body>
     </html>

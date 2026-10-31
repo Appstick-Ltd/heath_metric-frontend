@@ -71,7 +71,7 @@ section[id] {
 }
 
 html.dark body {
-  background-color: #090d16;
+  background-color: #02081d;
   color: #f1f5f9;
 }
 
@@ -92,6 +92,17 @@ html.dark body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(100, 116, 139, 0.5);
+}
+
+.hero-showcase-mask {
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+
+html.dark .hero-showcase-mask,
+.dark .hero-showcase-mask {
+  mask-image: radial-gradient(ellipse 92% 86% at 50% 50%, #000 50%, rgba(0, 0, 0, 0.85) 70%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 92% 86% at 50% 50%, #000 50%, rgba(0, 0, 0, 0.85) 70%, transparent 100%);
 }
 
 @keyframes fadeIn {
@@ -235,3 +246,88 @@ div[data-next-badge],
   pointer-events: none !important;
 }
 
+
+
+/* Breathing Aurora Orbs */
+@keyframes breathingAurora {
+  0%, 100% {
+    transform: scale(1) translate(0, 0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.15) translate(12px, -8px);
+    opacity: 0.85;
+  }
+}
+
+.animate-aurora {
+  animation: breathingAurora 7s ease-in-out infinite;
+}
+
+@keyframes breathingAuroraReverse {
+  0%, 100% {
+    transform: scale(1.08) translate(0, 0);
+    opacity: 0.45;
+  }
+  50% {
+    transform: scale(0.92) translate(-12px, 8px);
+    opacity: 0.75;
+  }
+}
+
+.animate-aurora-reverse {
+  animation: breathingAuroraReverse 8s ease-in-out infinite;
+}
+
+/* 3D Showcase Levitation */
+@keyframes floatLevitate {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-levitate {
+  animation: floatLevitate 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes shadowLevitate {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(0.92);
+    opacity: 0.45;
+  }
+}
+
+.animate-shadow-levitate {
+  animation: shadowLevitate 6s ease-in-out infinite;
+}
+
+/* Telemetry ECG Waveform Animation */
+@keyframes ecgPulse {
+  0% {
+    stroke-dashoffset: 1400;
+    opacity: 0.25;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.25;
+  }
+}
+
+.animate-ecg {
+  stroke-dasharray: 1400;
+  animation: ecgPulse 5.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}

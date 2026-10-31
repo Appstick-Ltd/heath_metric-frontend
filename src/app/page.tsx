@@ -12,8 +12,6 @@ import {
   Pill,
   FileText,
   ChevronDown,
-  ChevronLeft,
-  ChevronRight,
   Check,
   Cloud,
   FileSpreadsheet,
@@ -49,120 +47,7 @@ const PLAY_STORE_URL =
 /*  Tagline: "Your Intelligent Nutrition & Chronic Care Companion"      */
 /* ------------------------------------------------------------------ */
 
-const APP_SCREENS = [
-  {
-    id: "home",
-    label: "Home Overview",
-    shortLabel: "Home",
-    tagline: "Greeting, streak, Health Score & quick actions",
-    category: "Dashboard",
-    icon: HeartPulse,
-    image: "/screenshot/home-screen.png",
-    alt: "HealthTrack Home — greeting, 7-day streak, Health Score, vitals rings, meds and meals",
-    title: "Home Vitality Dashboard",
-    highlight: "Health Score 0–100",
-    description:
-      "Good Morning / Afternoon / Evening greeting, 7-day streak strip, Health Overview rings (sugar, BP, weight, meals, water), 4 quick actions, water card, Today's Medications and Today's Routine.",
-  },
-  {
-    id: "vitals",
-    label: "Clinical Vitals",
-    shortLabel: "Vitals",
-    tagline: "Sugar • Pressure • Weight • Body Map",
-    category: "Biometrics",
-    icon: Activity,
-    image: "/screenshot/vitals-screen.png",
-    alt: "HealthTrack Vitals — glucose 5.3 mmol/L, fasting targets and 7-day trend",
-    title: "Clinical Glucose & Vitals",
-    highlight: "Fasting 3.9–5.5 mmol/L",
-    description:
-      "mmol/L & mg/dL auto-detect, 10 contexts (Fasting, Post-Meal, Bedtime…), ADA staging, AHA BP staging, Weight + auto BMI, smooth trend charts with target bands.",
-  },
-  {
-    id: "meals",
-    label: "Meal Planner",
-    shortLabel: "Meals",
-    tagline: "Breakfast • Lunch • Snack • Dinner + Macros",
-    category: "Nutrition",
-    icon: Apple,
-    image: "/screenshot/meal-planner-screen.png",
-    alt: "HealthTrack Meal Planner — Breakfast, Snack, Lunch, Dinner with Take Now",
-    title: "Precision Meal Planner",
-    highlight: "Auto kcal + carbs / protein / fat",
-    description:
-      "Breakfast, Lunch, Snack, and Dinner slots, planned-menu nutrition estimator, calorie targets, reminders, completion & history.",
-  },
-  {
-    id: "meds",
-    label: "Medication Alarms",
-    shortLabel: "Meds",
-    tagline: "Morning • Afternoon • Night + adherence",
-    category: "Pharmacy",
-    icon: Pill,
-    image: "/screenshot/medicine-screen.png",
-    alt: "HealthTrack Medications — Napa 08:00 After Meal, adherence and stock",
-    title: "Smart Medication Manager",
-    highlight: "Adherence % + low-stock alert",
-    description:
-      "Name, strength, form (Pill / Syrup / Injection…), frequency, Before / After / With food, 3-day → Ongoing courses, Take / Taken / Missed, days-left and refill warnings.",
-  },
-  {
-    id: "vault",
-    label: "Prescription Vault",
-    shortLabel: "Vault",
-    tagline: "Prescription slips vs Lab reports",
-    category: "Medical Records",
-    icon: FileText,
-    image: "/screenshot/document-store-screen.png",
-    alt: "HealthTrack Vault — prescriptions and lab reports with doctor and next visit",
-    title: "Prescription & Lab Vault",
-    highlight: "Next-visit reminders",
-    description:
-      "Title, doctor, specialty, hospital, consultation + next-visit date, diagnosis, notes, meds list, camera / gallery / PDF attachments, share, download, month grouping.",
-  },
-  {
-    id: "drive",
-    label: "Google Drive Sync",
-    shortLabel: "Cloud",
-    tagline: "Private vault folder • auto backup",
-    category: "Cloud Sync",
-    icon: Cloud,
-    image: "/screenshot/google-drive-screen.png",
-    alt: "HealthTrack Google Drive — private OAuth sync and auto backup",
-    title: "Google Drive Cloud Backup",
-    highlight: "Zero vendor lock-in",
-    description:
-      "One-tap OAuth, private Drive vault folder, auto backup / restore / sync-now, storage status, secure & private by design. Your files stay yours.",
-  },
-  {
-    id: "reports",
-    label: "Doctor Reports",
-    shortLabel: "Reports",
-    tagline: "7 / 15 / 30 / 90 days • 1 year • Custom",
-    category: "Clinical Export",
-    icon: FileSpreadsheet,
-    image: "/screenshot/health-report-screen.png",
-    alt: "HealthTrack Health Reports — averages, adherence and PDF Excel export",
-    title: "Doctor Health Reports",
-    highlight: "Branded PDF + multi-sheet Excel",
-    description:
-      "Avg fasting / post-meal, avg BP, weight + BMI badge, adherence bar. Teal Medical Telemetry PDF with Report ID + sign-off, multi-sheet .xlsx + CSV, share / print.",
-  },
-  {
-    id: "profile",
-    label: "Profile & Medical ID",
-    shortLabel: "Profile",
-    tagline: "Account • Language • Privacy • Theme",
-    category: "Settings",
-    icon: Users,
-    image: "/screenshot/profile-screen.png",
-    alt: "HealthTrack Profile — account, weight, language, integrations and security",
-    title: "Profile & Medical ID",
-    highlight: "12 languages • Dark / Light",
-    description:
-      "Photo, name, age, sex, blood group, height cm / ft-in, weight + BMI, conditions & goals, glucose / weight units, Drive, language, password, privacy, terms, about.",
-  },
-];
+
 
 
 
@@ -278,8 +163,6 @@ const FAQS = [
 export default function LandingPage() {
   const [activeFaq, setActiveFaq] = React.useState<number | null>(0);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-  const [activeHeroIndex, setActiveHeroIndex] = React.useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = React.useState(true);
   const [modalScreen, setModalScreen] = React.useState<string | null>(null);
   const [activeVital, setActiveVital] = React.useState("sugar");
   const [activeSection, setActiveSection] = React.useState<string>("home");
@@ -298,12 +181,6 @@ export default function LandingPage() {
   const [selectedPainZone, setSelectedPainZone] = React.useState("Head / Migraine");
   const [vasScore, setVasScore] = React.useState(4);
   const [painQuality, setPainQuality] = React.useState("Throbbing");
-
-  React.useEffect(() => {
-    if (!isAutoPlaying) return;
-    const t = setInterval(() => setActiveHeroIndex((p) => (p + 1) % APP_SCREENS.length), 4500);
-    return () => clearInterval(t);
-  }, [isAutoPlaying]);
 
   React.useEffect(() => {
     const sectionIds = ["home", "features", "vitals", "pain-map", "tools", "reports", "faq"];
@@ -340,7 +217,6 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const hero = APP_SCREENS[activeHeroIndex];
   const vital = VITALS_TABS.find((v) => v.id === activeVital)!;
 
   // Derived BMI
@@ -387,17 +263,17 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#07090f] text-slate-900 dark:text-slate-100 font-sans selection:bg-[#006AFA] selection:text-white relative overflow-x-clip transition-colors duration-200">
+    <div className="min-h-screen bg-white dark:bg-[#02081d] text-slate-900 dark:text-slate-100 font-sans selection:bg-[#006AFA] selection:text-white relative overflow-x-clip transition-colors duration-200">
       {/* Ambient with Subtle High-Tech Grid */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
         <div className="absolute inset-0 bg-grid-subtle opacity-40 dark:opacity-30 [mask-image:radial-gradient(ellipse_80%_60%_at_50%_15%,#000_60%,transparent_100%)]" />
-        <span className="block absolute -top-40 left-1/2 -translate-x-1/2 w-[1100px] h-[650px] bg-gradient-to-b from-[#006AFA]/15 via-blue-600/8 to-transparent dark:from-[#006AFA]/25 dark:via-blue-700/10 rounded-full blur-[140px] opacity-85" />
-        <span className="block absolute top-[35%] -left-48 w-[550px] h-[550px] bg-sky-500/8 dark:bg-sky-600/15 rounded-full blur-[160px]" />
+        <span className="block absolute -top-40 left-1/2 -translate-x-1/2 w-[1100px] h-[650px] bg-gradient-to-b from-[#006AFA]/15 via-blue-600/8 to-transparent dark:from-[#006AFA]/30 dark:via-blue-600/15 rounded-full blur-[140px] opacity-90 animate-aurora" />
+        <span className="block absolute top-[35%] -left-48 w-[550px] h-[550px] bg-sky-500/8 dark:bg-sky-600/20 rounded-full blur-[160px] animate-aurora-reverse" />
         <span className="block absolute top-[65%] -right-48 w-[550px] h-[550px] bg-blue-500/8 dark:bg-indigo-600/15 rounded-full blur-[160px]" />
       </div>
 
       {/* Navbar with Floating Glass Elevation */}
-      <header className="sticky top-0 z-50 bg-white/90 dark:bg-[#07090f]/90 backdrop-blur-2xl border-b border-slate-200/80 dark:border-white/[0.08] shadow-sm transition-all duration-300">
+      <header className="sticky top-0 z-50 bg-white/90 dark:bg-[#02081d]/90 backdrop-blur-2xl border-b border-slate-200/80 dark:border-white/[0.08] shadow-sm transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-[72px] flex items-center justify-between gap-3">
           <Link href="#home" onClick={() => setActiveSection("home")} className="flex items-center gap-3 group shrink-0" aria-label="HealthTrack home">
             <div className="relative h-10 w-10 sm:h-11 sm:w-11 rounded-[8px] overflow-hidden bg-white shadow-md shadow-[#006AFA]/20 border border-slate-200/90 dark:border-white/10 group-hover:scale-105 group-hover:shadow-[0_0_20px_rgba(0,106,250,0.35)] transition-all duration-300 p-0.5">
@@ -453,7 +329,7 @@ export default function LandingPage() {
         </div>
 
         {mobileMenuOpen && (
-          <nav className="lg:hidden px-4 py-3 bg-white/95 dark:bg-[#0a0d17]/95 backdrop-blur-2xl border-t border-slate-200 dark:border-white/10 grid gap-1 text-sm shadow-2xl animate-fadeIn" aria-label="Mobile">
+          <nav className="lg:hidden px-4 py-3 bg-white/95 dark:bg-[#02081d]/95 backdrop-blur-2xl border-t border-slate-200 dark:border-white/10 grid gap-1 text-sm shadow-2xl animate-fadeIn" aria-label="Mobile">
             {NAV_ITEMS.map((item) => {
               const isActive = activeSection === item.id;
               return (
@@ -478,8 +354,8 @@ export default function LandingPage() {
       </header>
 
       {/* HERO */}
-      <section id="home" className="relative pt-4 sm:pt-6 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-8 z-10 overflow-hidden">
-        <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-10 lg:gap-12 items-start lg:pt-4">
+      <section id="home" className="relative pt-4 sm:pt-6 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-8 z-10 overflow-hidden bg-gradient-to-b from-sky-50/70 via-blue-50/35 to-white dark:bg-[radial-gradient(ellipse_120%_90%_at_75%_25%,#0b236d_0%,#030f40_35%,#02081d_75%,#02081d_100%)] transition-colors duration-300">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-12 gap-8 lg:gap-12 items-center lg:pt-2">
           {/* Left Column: Clear Hierarchy, Balanced Rhythm, Zero Blank Voids */}
           <div className="lg:col-span-6 space-y-6">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-[54px] font-black tracking-tight text-slate-950 dark:text-white leading-[1.12]">
@@ -556,142 +432,83 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* Phone Mockup Column: Balanced Size, Harmonious Proportions */}
-          <div
-            className="lg:col-span-6 flex flex-col items-center justify-center relative py-2 sm:py-4"
-            onMouseEnter={() => setIsAutoPlaying(false)}
-            onMouseLeave={() => setIsAutoPlaying(true)}
-          >
-            {/* Multi-tier Ambient Cosmic Glow behind phone */}
-            <div className="absolute w-[300px] sm:w-[380px] h-[520px] bg-gradient-to-tr from-[#006AFA]/25 via-sky-400/15 to-purple-500/20 rounded-full blur-[90px] pointer-events-none -z-10" />
+          {/* App Showcase Column */}
+          <div className="lg:col-span-6 flex flex-col items-center justify-center relative py-2 sm:py-4 w-full">
+            {/* Multi-tier Ambient Cosmic Glow matching image tones */}
+            {/* Deep Royal Midnight Blue Core Glow */}
+            <div className="absolute inset-0 w-[420px] sm:w-[520px] h-[380px] bg-[#0b2470]/40 rounded-full blur-[100px] m-auto pointer-events-none -z-10" />
+            {/* Left Cyan/Blue Ambient Glow */}
+            <div className="absolute -left-10 top-1/4 w-[280px] sm:w-[360px] h-[360px] bg-gradient-to-tr from-[#006AFA]/35 to-sky-400/25 rounded-full blur-[90px] pointer-events-none -z-10 animate-aurora-reverse" />
+            {/* Right Pink/Purple Ambient Glow */}
+            <div className="absolute -right-10 top-1/3 w-[280px] sm:w-[360px] h-[360px] bg-gradient-to-tl from-purple-500/30 to-pink-500/25 rounded-full blur-[90px] pointer-events-none -z-10 animate-aurora" />
+            {/* Bottom Neon Floor Reflection */}
+            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-[90%] h-24 bg-gradient-to-r from-sky-400/25 via-[#4848d2]/40 to-purple-500/30 blur-2xl pointer-events-none -z-10 animate-pulse-glow" />
 
             {/* Subtle Bottom Dot Mesh Wave */}
-            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-[400px] h-32 opacity-25 dark:opacity-35 pointer-events-none -z-10 bg-[radial-gradient(#38bdf8_1.2px,transparent_1.2px)] [background-size:14px_14px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_80%,#000_70%,transparent_100%)]" />
+            <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[480px] h-32 opacity-25 dark:opacity-35 pointer-events-none -z-10 bg-[radial-gradient(#38bdf8_1.2px,transparent_1.2px)] [background-size:14px_14px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_80%,#000_70%,transparent_100%)]" />
 
-            {/* 3D Glowing Cosmic Orbital Rings (Proportionally scaled) */}
-            <div className="absolute inset-0 pointer-events-none -z-5 flex items-center justify-center overflow-hidden" aria-hidden="true">
-              <div className="relative w-[320px] sm:w-[390px] h-[220px] sm:h-[270px] rotate-[-20deg] rounded-[100%] border border-sky-400/35 dark:border-sky-400/40 shadow-[0_0_18px_rgba(56,189,248,0.25)]">
-                <div className="absolute inset-2 rounded-[100%] border border-pink-400/25 border-dashed" />
-                <span className="absolute -top-1 right-16 text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.9)] animate-pulse text-base font-black select-none">✦</span>
-                <span className="absolute top-1/2 left-2 text-sky-300 drop-shadow-[0_0_10px_rgba(56,189,248,0.9)] animate-pulse text-sm font-black select-none">✦</span>
-                <span className="absolute bottom-4 right-8 text-pink-300 drop-shadow-[0_0_8px_rgba(244,114,182,0.9)] animate-pulse text-xs font-black select-none">✦</span>
-                <span className="absolute top-8 left-14 w-2 h-2 rounded-full bg-white shadow-[0_0_6px_#ffffff]" />
-                <span className="absolute bottom-10 left-8 w-1.5 h-1.5 rounded-full bg-sky-300 shadow-[0_0_5px_#38bdf8]" />
-              </div>
-            </div>
-
-            {/* Device Wrapper — Perfectly balanced flagship width (335px on desktop) */}
-            <div className="relative group max-w-[275px] sm:max-w-[305px] lg:max-w-[330px] w-full z-10">
-              {/* Antenna Bands */}
-              <span className="absolute -left-[3.5px] top-16 w-[3.5px] h-[2px] bg-slate-500/80 dark:bg-slate-500/80 rounded-l-xs z-10 pointer-events-none" />
-              <span className="absolute -right-[3.5px] top-16 w-[3.5px] h-[2px] bg-slate-500/80 dark:bg-slate-500/80 rounded-r-xs z-10 pointer-events-none" />
-              <span className="absolute -left-[3.5px] bottom-16 w-[3.5px] h-[2px] bg-slate-500/80 dark:bg-slate-500/80 rounded-l-xs z-10 pointer-events-none" />
-              <span className="absolute -right-[3.5px] bottom-16 w-[3.5px] h-[2px] bg-slate-500/80 dark:bg-slate-500/80 rounded-r-xs z-10 pointer-events-none" />
-
-              {/* Left Side Buttons: Action Button + Volume Rockers */}
-              <div className="absolute -left-[3px] top-[70px] w-[3px] h-5 bg-gradient-to-r from-slate-400 to-slate-600 dark:from-slate-500 dark:to-slate-700 rounded-l-sm shadow-sm" />
-              <div className="absolute -left-[3px] top-[105px] w-[3px] h-10 bg-gradient-to-r from-slate-400 to-slate-600 dark:from-slate-500 dark:to-slate-700 rounded-l-sm shadow-sm" />
-              <div className="absolute -left-[3px] top-[155px] w-[3px] h-10 bg-gradient-to-r from-slate-400 to-slate-600 dark:from-slate-500 dark:to-slate-700 rounded-l-sm shadow-sm" />
-
-              {/* Right Side Button: Power / Lock Button */}
-              <div className="absolute -right-[3px] top-[118px] w-[3px] h-14 bg-gradient-to-l from-slate-400 to-slate-600 dark:from-slate-500 dark:to-slate-700 rounded-r-sm shadow-sm" />
-
-              {/* Floating Carousel Navigation Controls */}
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setActiveHeroIndex((prev) => (prev - 1 + APP_SCREENS.length) % APP_SCREENS.length);
-                  setIsAutoPlaying(false);
-                  (e.currentTarget as HTMLButtonElement).blur();
-                }}
-                tabIndex={-1}
-                aria-label="Previous screen"
-                className="absolute -left-3 sm:-left-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-[8px] bg-white/95 dark:bg-slate-900/95 shadow-xl border border-slate-200/90 dark:border-white/15 text-slate-700 dark:text-slate-200 hover:text-[#006AFA] dark:hover:text-sky-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95 z-30 backdrop-blur-md"
+            {/* Showcase Presentation Container with seamless edge blending */}
+            <div className="relative group w-full max-w-[540px] sm:max-w-[580px] lg:max-w-none z-10 flex flex-col items-center animate-levitate">
+              <div
+                onClick={() => setModalScreen("/screenshot/hero-showcase.png")}
+                className="relative w-full overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.012] rounded-2xl sm:rounded-3xl bg-[#02081d] dark:bg-transparent shadow-2xl shadow-blue-950/25 dark:shadow-none border border-slate-800/40 dark:border-0 p-0"
+                title="Click to view full preview"
               >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setActiveHeroIndex((prev) => (prev + 1) % APP_SCREENS.length);
-                  setIsAutoPlaying(false);
-                  (e.currentTarget as HTMLButtonElement).blur();
-                }}
-                tabIndex={-1}
-                aria-label="Next screen"
-                className="absolute -right-3 sm:-right-4 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 rounded-[8px] bg-white/95 dark:bg-slate-900/95 shadow-xl border border-slate-200/90 dark:border-white/15 text-slate-700 dark:text-slate-200 hover:text-[#006AFA] dark:hover:text-sky-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95 z-30 backdrop-blur-md"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-
-              {/* Obsidian Titanium Flagship Chassis — Modern Ultra 8px Edition */}
-              <div className="relative p-[3px] sm:p-[3.5px] rounded-[8px] bg-gradient-to-b from-[#323846] via-[#161a24] to-[#0c0e14] shadow-[0_20px_50px_-15px_rgba(0,106,250,0.35),0_25px_60px_-20px_rgba(0,0,0,0.65),0_0_0_1px_rgba(255,255,255,0.18)] ring-1 ring-slate-900/90 dark:ring-white/20 transition-all duration-300 hover:scale-[1.01]">
-                {/* Mirror Chamfer */}
-                <div className="relative rounded-[8px] p-[2px] bg-gradient-to-b from-white/35 via-white/5 to-transparent dark:from-white/20 dark:to-transparent">
-                  {/* Midnight Bezel */}
-                  <div className="relative rounded-[8px] overflow-hidden bg-black p-[2px] shadow-inner">
-                    {/* Microscopic Acoustic Speaker Slit */}
-                    <div className="absolute top-1 left-1/2 -translate-x-1/2 w-10 h-[2px] bg-[#22252c] rounded-full z-20 pointer-events-none" />
-
-                    {/* Display Screen: Natural Aspect Ratio, Zero Cropping */}
-                    <div className="relative rounded-[8px] overflow-hidden bg-slate-100 dark:bg-slate-950">
-                      {/* Stacked images — only active one is visible via opacity */}
-                      <div className="relative w-full">
-                        {APP_SCREENS.map((screen, idx) => (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            key={screen.id}
-                            src={screen.image}
-                            alt={screen.alt}
-                            className={`w-full h-auto select-none transition-opacity duration-500 ease-in-out ${idx === 0 ? "block" : "absolute inset-0"
-                              } ${activeHeroIndex === idx ? "opacity-100 z-[1]" : "opacity-0 z-0"}`}
-                            loading={idx < 3 ? "eager" : "lazy"}
-                          />
-                        ))}
-                      </div>
-
-                      {/* Glass Glare & Specular Reflection Sheen */}
-                      <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.04] to-white/[0.12] pointer-events-none z-10" />
-                      <div className="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] bg-gradient-to-br from-white/[0.06] via-transparent to-transparent rotate-12 pointer-events-none z-10" />
-                    </div>
-                  </div>
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/screenshot/hero-showcase.png"
+                  alt="HealthTrack App 3D Showcase with Smart Vitals, Medication, and Google Drive Cloud Sync"
+                  className="hero-showcase-mask w-full h-auto select-none object-contain block transition-transform duration-500 group-hover:scale-[1.01]"
+                  loading="eager"
+                />
               </div>
 
-              {/* 3D Realistic Contact Floor Shadow */}
-              <div className="w-[75%] h-4 bg-gradient-to-r from-transparent via-slate-900/40 dark:via-black/80 to-transparent blur-md mx-auto mt-2.5 rounded-full pointer-events-none" />
-
-              {/* Interactive Dots Pagination */}
-              <div className="flex items-center justify-center gap-1.5 mt-2.5" aria-label="App screen indicators">
-                {APP_SCREENS.map((s, idx) => {
-                  const active = activeHeroIndex === idx;
-                  return (
-                    <button
-                      key={s.id}
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setActiveHeroIndex(idx);
-                        setIsAutoPlaying(false);
-                        (e.currentTarget as HTMLButtonElement).blur();
-                      }}
-                      tabIndex={-1}
-                      title={s.title}
-                      aria-label={`Switch to ${s.title}`}
-                      className={`h-1.5 transition-all duration-300 rounded-full ${active
-                        ? "w-7 bg-[#006AFA] shadow-md shadow-[#006AFA]/50"
-                        : "w-1.5 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-500"
-                        }`}
-                    />
-                  );
-                })}
-              </div>
+              {/* 3D Realistic Contact Floor Shadow with Cyan-Purple Gradient */}
+              <div className="w-[85%] h-6 bg-gradient-to-r from-sky-500/30 via-[#4848d2]/50 to-purple-500/40 blur-xl mx-auto -mt-3 rounded-full pointer-events-none animate-shadow-levitate" />
             </div>
           </div>
         </div>
       </section>
+
+
+      {/* Animated Telemetry ECG Heartbeat Waveform Strip */}
+      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1 overflow-hidden pointer-events-none select-none -mt-6 sm:-mt-8 mb-2 z-10" aria-hidden="true">
+        <div className="flex items-center justify-between gap-4 mb-1 px-2 text-[10px] font-mono tracking-wider uppercase text-sky-500/70 dark:text-sky-400/80">
+          <span className="flex items-center gap-1.5 font-bold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping inline-block" />
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block -ml-3.5" />
+            LIVE TELEMETRY • LEAD II
+          </span>
+          <span className="hidden sm:inline font-bold text-slate-400 dark:text-slate-500">25 mm/s • 10 mm/mV • HR 72 BPM</span>
+        </div>
+        <svg viewBox="0 0 1200 60" fill="none" className="w-full h-8 sm:h-11 opacity-70 dark:opacity-85">
+          <defs>
+            <linearGradient id="ecgGlowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.2" />
+              <stop offset="25%" stopColor="#38bdf8" stopOpacity="0.85" />
+              <stop offset="50%" stopColor="#006AFA" stopOpacity="1" />
+              <stop offset="75%" stopColor="#a855f7" stopOpacity="0.85" />
+              <stop offset="100%" stopColor="#ec4899" stopOpacity="0.2" />
+            </linearGradient>
+            <filter id="ecgGlowFilter" x="-10%" y="-40%" width="120%" height="180%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <path
+            d="M0,30 L180,30 Q195,30 200,24 Q205,30 220,30 L260,30 L270,35 L285,6 L300,54 L312,22 L322,34 L335,30 L370,30 Q385,30 395,20 Q405,30 420,30 L600,30 L780,30 Q795,30 800,24 Q805,30 820,30 L860,30 L870,35 L885,6 L900,54 L912,22 L922,34 L935,30 L970,30 Q985,30 995,20 Q1005,30 1020,30 L1200,30"
+            stroke="url(#ecgGlowGrad)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            filter="url(#ecgGlowFilter)"
+            className="animate-ecg"
+          />
+        </svg>
+      </div>
 
       {/* Clinical standards strip */}
       <section aria-label="Clinical standards" className="px-4 sm:px-6 lg:px-8 relative z-10 pb-4">
@@ -706,7 +523,7 @@ export default function LandingPage() {
 
       {/* Metrics */}
       <section className="py-8 px-4 sm:px-6 lg:px-8 relative z-20">
-        <div className="max-w-7xl mx-auto rounded-[8px] p-7 sm:p-10 bg-gradient-to-b from-white/95 to-slate-50/90 dark:from-[#0B0F19]/90 dark:to-[#07090f]/90 border border-slate-200/90 dark:border-white/10 backdrop-blur-2xl shadow-[0_20px_50px_-15px_rgba(0,106,250,0.12)] relative overflow-hidden">
+        <div className="max-w-7xl mx-auto rounded-[8px] p-7 sm:p-10 bg-gradient-to-b from-white/95 to-slate-50/90 dark:from-[#0B0F19]/90 dark:to-[#02081d]/90 border border-slate-200/90 dark:border-white/10 backdrop-blur-2xl shadow-[0_20px_50px_-15px_rgba(0,106,250,0.12)] relative overflow-hidden">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center md:divide-x divide-slate-200/70 dark:divide-white/[0.08]">
             {[
               ["10+", "Vitals contexts & meal slots", "text-slate-950 dark:text-white"],
@@ -1624,12 +1441,12 @@ export default function LandingPage() {
       {/* Lightbox */}
       {modalScreen && (
         <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn" onClick={() => setModalScreen(null)} role="dialog" aria-modal="true" aria-label="Fullscreen screenshot">
-          <div className="relative max-w-sm w-full bg-white dark:bg-slate-900 rounded-[8px] overflow-hidden shadow-2xl border border-white/20 p-2" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setModalScreen(null)} aria-label="Close preview" className="absolute top-4 right-4 z-20 p-2 rounded-[8px] bg-black/70 hover:bg-black text-white transition-colors">
-              <X className="w-4 h-4" />
+          <div className="relative max-w-4xl w-full bg-slate-950/90 rounded-2xl overflow-hidden shadow-2xl border border-white/20 p-2 sm:p-3" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setModalScreen(null)} aria-label="Close preview" className="absolute top-4 right-4 z-20 p-2 rounded-full bg-black/70 hover:bg-black text-white transition-colors">
+              <X className="w-5 h-5" />
             </button>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={modalScreen} alt="Fullscreen app preview" className="w-full h-auto aspect-[720/1565] object-cover rounded-[8px]" />
+            <img src={modalScreen} alt="Fullscreen app preview" className="w-full h-auto max-h-[85vh] object-contain rounded-xl" />
           </div>
         </div>
       )}
